@@ -11,11 +11,11 @@ Leia `README.md`, `DESIGN_SYSTEM.md`, `CONTENT.md` e `BACKEND_REQUIREMENTS.md` a
 - Rotas existentes e paridade entre português e inglês.
 - Responsividade, foco visível, redução de movimento e contraste.
 
-Não redesenhe páginas, substitua artes ou altere conteúdo oficial sem aprovação. Use `app/config/site.ts` como fonte de verdade para lançamento, vagas, recompensas, rotas e pacotes. Use `app/styles/tokens.css` para novos valores visuais; não espalhe novas cores mágicas.
+Não redesenhe páginas, substitua artes ou altere conteúdo oficial sem aprovação. Use `app/config/site.ts` como fonte de verdade para lançamento, taxas, rotas e pacotes. Use `app/styles/tokens.css` para novos valores visuais; não espalhe novas cores mágicas.
 
 ## Estado real
 
-O frontend é visualmente avançado, mas as ações de conta, pré-cadastro, fórum, admin, doação, upload e LGPD são protótipos. Não trate estado do cliente como persistência e não apresente mensagens de sucesso antes da confirmação do servidor.
+O frontend é visualmente avançado. O fórum já é real (D1, criação de tópico/resposta via Sign in with ChatGPT — ver `db/forum.ts`); conta, admin, doação, upload e LGPD continuam protótipos. Não trate estado do cliente como persistência e não apresente mensagens de sucesso antes da confirmação do servidor.
 
 ## Fluxo de trabalho
 
@@ -25,4 +25,4 @@ O frontend é visualmente avançado, mas as ações de conta, pré-cadastro, fó
 4. Ao implementar backend, siga `BACKEND_REQUIREMENTS.md` e crie testes para autorização e concorrência.
 5. Nunca exponha segredos nem aceite preços, cargos, vagas ou benefícios enviados pelo cliente.
 
-Próxima tarefa recomendada: implementar banco + autenticação + pré-cadastro atômico, sem redesenhar o frontend.
+Próxima tarefa recomendada: implementar banco + autenticação de conta real, sem redesenhar o frontend.

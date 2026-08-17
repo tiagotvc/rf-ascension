@@ -1,6 +1,6 @@
 # RF Ascension Portal
 
-Portal responsivo do servidor RF Ascension: home, campanha de abertura, pré-cadastro, download, doações, fórum, conta, admin visual e páginas LGPD.
+Portal responsivo do servidor RF Ascension: home, campanha de abertura, download, doações, fórum, conta, admin visual e páginas LGPD.
 
 ## Documentação do produto
 
@@ -9,9 +9,9 @@ Portal responsivo do servidor RF Ascension: home, campanha de abertura, pré-cad
 - `BACKEND_REQUIREMENTS.md` — persistência, segurança e integrações pendentes
 - `CLAUDE.md` — instruções para continuidade no Claude Code
 
-Configurações de data, vagas, rotas, recompensas e pacotes ficam em `app/config/site.ts`.
+Configurações de data, taxas, rotas e pacotes ficam em `app/config/site.ts`.
 
-> O frontend está visualmente completo, mas cadastro, login, fórum, pré-cadastro, pagamentos, admin, uploads e solicitações LGPD ainda são protótipos sem persistência.
+> O frontend está visualmente completo. O fórum já tem persistência real (D1); cadastro, login, pagamentos, admin, uploads e solicitações LGPD ainda são protótipos.
 
 ---
 

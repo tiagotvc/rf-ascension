@@ -1,9 +1,8 @@
 export const siteConfig={
  name:"RF Ascension",operator:"CCR",locale:"pt-BR",timezone:"America/Sao_Paulo",
  launchAt:"2026-08-21T20:00:00-03:00",launchLabel:"21/08/2026 às 20:00",
- betaNoWipe:true,founderSlots:100,cashPerReal:1000,
- routes:{home:"/",download:"/#download",forum:"/forum",donation:"/doacao",account:"/conta",preRegister:"/pre-cadastro",admin:"/admin"},
- founderRewards:["Set de Potions oficiais do servidor","Gerador exclusivo por 7 dias","Box de materiais de craft","Skin exclusiva de abertura"],
+ cashPerReal:1000,
+ routes:{home:"/",download:"/#download",forum:"/forum",donation:"/doacao",account:"/conta",admin:"/admin"},
  legal:{privacy:"/legal/privacidade",cookies:"/legal/cookies",terms:"/legal/termos"}
 } as const;
 export const serverRates=[

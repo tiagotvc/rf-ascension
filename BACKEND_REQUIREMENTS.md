@@ -1,21 +1,15 @@
 # Requisitos de backend
 
-O frontend atual é um protótipo navegável. Mensagens de sucesso não representam persistência real. Login, cadastro, pré-cadastro, fórum, doações, admin, uploads e solicitações LGPD precisam de implementação server-side.
+O frontend atual é um protótipo navegável. Mensagens de sucesso não representam persistência real. Login, cadastro, fórum, doações, admin, uploads e solicitações LGPD precisam de implementação server-side.
 
 ## Entidades mínimas
 
 - `users`: conta, e-mail normalizado, senha com hash, idioma, status e timestamps.
-- `pre_registrations`: e-mail normalizado único, posição, consentimentos e timestamps.
-- `founder_rewards`: vínculo da reserva com a conta recriada e estado de entrega.
 - `forum_categories`, `forum_topics`, `forum_posts`: conteúdo, autoria, moderação e publicação.
 - `donation_packages`, `orders`, `payments`, `entitlements`: catálogo, pagamento, cash, Premium e itens.
 - `consent_records`: versão do aviso, finalidade, escolha e data.
 - `privacy_requests`: acesso, correção, portabilidade e exclusão.
 - `admin_audit_logs`: autor, ação, alvo, antes/depois e data.
-
-## Pré-cadastro fundador
-
-Normalizar o e-mail no servidor e aplicar índice único. A atribuição das 100 vagas deve ocorrer em transação atômica; nunca usar um contador do navegador como fonte de verdade. No lançamento, vincular a recompensa apenas quando a conta do launcher usar exatamente o mesmo e-mail normalizado. Registrar tentativas, vínculo e entrega para auditoria.
 
 ## Autenticação e administração
 
@@ -43,9 +37,8 @@ O preço e os benefícios vêm do servidor. Criar pedidos pendentes e confirmar 
 
 1. Banco, migrations e variáveis de ambiente.
 2. Autenticação, e-mail e RBAC.
-3. Pré-cadastro transacional e vínculo de recompensas.
-4. Fórum e painel editorial com auditoria.
-5. Pedidos, webhook de pagamento e entitlements.
-6. Operações LGPD, observabilidade, backups e testes de segurança.
+3. Fórum e painel editorial com auditoria.
+4. Pedidos, webhook de pagamento e entitlements.
+5. Operações LGPD, observabilidade, backups e testes de segurança.
 
-Antes de produção, realizar testes de concorrência nas 100 vagas, autorização por função, webhook duplicado, XSS no fórum, upload hostil, recuperação de conta e exclusão de dados.
+Antes de produção, realizar testes de autorização por função, webhook duplicado, XSS no fórum, upload hostil, recuperação de conta e exclusão de dados.

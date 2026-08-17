@@ -6,15 +6,6 @@ Fonte em código: `app/config/site.ts`.
 
 - 21/08/2026 às 20:00, America/Sao_Paulo
 - Beta sem wipe
-- 100 primeiras reservas válidas
-- Recriar a conta no launcher com exatamente o mesmo e-mail
-
-## Kit Fundador
-
-1. Set de Potions oficiais
-2. Gerador exclusivo por 7 dias
-3. Box de materiais de craft
-4. Skin exclusiva de abertura
 
 ## Pacotes
 
