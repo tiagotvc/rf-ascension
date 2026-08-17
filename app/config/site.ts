@@ -6,6 +6,25 @@ export const siteConfig={
  founderRewards:["Set de Potions oficiais do servidor","Gerador exclusivo por 7 dias","Box de materiais de craft","Skin exclusiva de abertura"],
  legal:{privacy:"/legal/privacidade",cookies:"/legal/cookies",terms:"/legal/termos"}
 } as const;
+export const serverRates=[
+ {value:"10x",label:"Experiência (XP)"},
+ {value:"x4",label:"Venda (valor original)"},
+ {value:"x3",label:"PT / Skill"},
+ {value:"x5",label:"Drop"},
+ {value:"16",label:"Membros por grupo"},
+ {value:"16",label:"Buffs ativos"},
+ {value:"100",label:"Membros de guilda"},
+ {value:"255",label:"Stack de item"}
+] as const;
+export const serverSystems=[
+ {name:"Consil Armor",active:false},
+ {name:"CCR Box",active:false},
+ {name:"Novo Sistema de Itens",active:true,detail:"Upgrade de Talica (com talicas novas), Sistema de Runas e Rank Up System."},
+ {name:"Efeitos Especiais Estendidos",active:true,detail:"Até 10 efeitos especiais por item."},
+ {name:"Auto Rollup de Efeitos Especiais",active:true,detail:"Em drop, abertura de caixa e outras fontes de item."},
+ {name:"Guild Passives System",active:true},
+ {name:"Guild Research System",active:true}
+] as const;
 export const donationPackages=[
  {id:"starter",name:"Iniciante",priceBRL:49.9,baseCash:49900,bonusPercent:0,totalCash:49900,premiumDays:30},
  {id:"ascendant",name:"Ascendente",priceBRL:109.9,baseCash:109900,bonusPercent:10,totalCash:120890,premiumDays:30},
