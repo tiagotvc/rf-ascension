@@ -22,23 +22,37 @@ const MASTER_TITLE = "Informações do servidor — RF Ascension";
 // chegarem; ver PostBody.tsx para a sintaxe (`![legenda](pending)`).
 const ITEMS_TOPIC_BODY = `O sistema de itens foi atualizado com foco em variedade de build e progressão de equipamento:
 
-**Efeitos Especiais Expandidos — até 10 por item**
+{cyan:Efeitos Especiais Expandidos — até 10 por item}
 ![Efeitos Especiais Expandidos](pending)
 Cada item agora pode receber até 10 efeitos especiais ao mesmo tempo, bem mais que o padrão original. Isso abre espaço pra montar equipamentos com combinações mais completas de dano, defesa, utilidade e efeitos de status, em vez de precisar escolher só 2 ou 3 bônus.
 
-**Sistema de Rollup no Drop**
+{green:Sistema de Rollup no Drop}
 ![Sistema de Rollup no Drop](pending)
 Quando um item com efeito especial sai de um monstro, de uma caixa ou de qualquer outra fonte, os efeitos já vêm sorteados automaticamente na hora — sem precisar de uma etapa manual separada pra "rolar" o item depois de pegá-lo. O item já cai pronto pra avaliar.
 
-**Sistema de Rank Up**
+{orange:Sistema de Rank Up}
 ![Sistema de Rank Up](pending)
 Itens ganham um rank que pode ser evoluído, aumentando os atributos base do equipamento conforme você investe nele — uma forma extra de progressão pro seu equipamento, além dos efeitos especiais.
 
-**Novas Talicas, com novos adicionais**
+{gold:Bônus de Ataque e Defesa por Raridade}
+Toda arma e armadura carrega uma raridade, que já vem com um bônus de ataque (arma) ou defesa (armadura) embutido — fixo naquele item específico, não é sorteado de novo depois:
+
+- {white:Normal} — +2% a +9%
+- {green:Intense} — +10% a +16%
+- {orange:Superior} — bônus do Intense +2% a +8% em cima
+- {cyan:Relíquia} — bônus do Superior +2% a +8% em cima
+- {pink:Quantum} — bônus da Relíquia +2% a +8% em cima
+- {gold:Special} — bônus do Quantum +2% a +8% em cima, a raridade mais alta
+
+Ascended existe no sistema mas não vai estar disponível por enquanto.
+
+Essas faixas são uma configuração própria do RF Ascension, não são do RF Online original — podem ser ajustadas antes do lançamento.
+
+{violet:Novas Talicas, com novos adicionais}
 ![Novas Talicas](pending)
 O sistema de Talica ganhou talicas novas, cada uma com efeitos adicionais que não existiam antes — mais opções de bônus pra encaixar no seu build.
 
-**Rune System**
+{pink:Rune System}
 ![Rune System](pending)
 Sistema de runas novo, que adiciona bônus extras aos seus itens.
 
