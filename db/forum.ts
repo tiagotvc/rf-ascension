@@ -17,6 +17,33 @@ export function isStaffEmail(email: string): boolean {
 // função abaixo apaga só os tópicos da equipe nesse mural antes de recriar).
 const MASTER_TITLE = "Informações do servidor — RF Ascension";
 
+// Ascensão de Arma e Vínculo de Alma foram descontinuados — removidos daqui.
+// Cada seção tem um placeholder de foto (`pending`) até as imagens reais
+// chegarem; ver PostBody.tsx para a sintaxe (`![legenda](pending)`).
+const ITEMS_TOPIC_BODY = `O sistema de itens foi atualizado com foco em variedade de build e progressão de equipamento:
+
+**Efeitos Especiais Expandidos — até 10 por item**
+![Efeitos Especiais Expandidos](pending)
+Cada item agora pode receber até 10 efeitos especiais ao mesmo tempo, bem mais que o padrão original. Isso abre espaço pra montar equipamentos com combinações mais completas de dano, defesa, utilidade e efeitos de status, em vez de precisar escolher só 2 ou 3 bônus.
+
+**Sistema de Rollup no Drop**
+![Sistema de Rollup no Drop](pending)
+Quando um item com efeito especial sai de um monstro, de uma caixa ou de qualquer outra fonte, os efeitos já vêm sorteados automaticamente na hora — sem precisar de uma etapa manual separada pra "rolar" o item depois de pegá-lo. O item já cai pronto pra avaliar.
+
+**Sistema de Rank Up**
+![Sistema de Rank Up](pending)
+Itens ganham um rank que pode ser evoluído, aumentando os atributos base do equipamento conforme você investe nele — uma forma extra de progressão pro seu equipamento, além dos efeitos especiais.
+
+**Novas Talicas, com novos adicionais**
+![Novas Talicas](pending)
+O sistema de Talica ganhou talicas novas, cada uma com efeitos adicionais que não existiam antes — mais opções de bônus pra encaixar no seu build.
+
+**Rune System**
+![Rune System](pending)
+Sistema de runas novo, que adiciona bônus extras aos seus itens.
+
+As fotos de cada sistema entram aqui assim que estiverem prontas.`;
+
 let bootstrapped = false;
 
 async function ensureForumSchema(db: Db) {
@@ -51,8 +78,36 @@ async function ensureForumSchema(db: Db) {
     sql`DELETE FROM forum_posts WHERE author_email IN ('jogador@exemplo.com') OR topic_id IN (SELECT id FROM forum_topics WHERE author_email LIKE 'teste%@exemplo.com')`
   );
   await db.run(sql`DELETE FROM forum_topics WHERE author_email LIKE 'teste%@exemplo.com'`);
+  await rewriteItemsTopicBody(db);
   await seedServerInfo(db);
   bootstrapped = true;
+}
+
+// Ascensão de Arma e Vínculo de Alma foram descontinuados e o texto ficou bem
+// mais detalhado — atualiza o post original do tópico já existente (mesmo
+// id, mesma URL, respostas preservadas) em vez de apagar e recriar.
+async function rewriteItemsTopicBody(db: Db) {
+  const [topic] = await db
+    .select({ id: forumTopics.id })
+    .from(forumTopics)
+    .where(
+      and(
+        eq(forumTopics.forumSlug, SERVER_INFO_SLUG),
+        eq(forumTopics.title, "Sistema de Itens Atualizado"),
+        eq(forumTopics.authorEmail, STAFF_EMAIL)
+      )
+    );
+  if (!topic) return;
+
+  const [original] = await db
+    .select({ id: forumPosts.id, body: forumPosts.body })
+    .from(forumPosts)
+    .where(eq(forumPosts.topicId, topic.id))
+    .orderBy(forumPosts.createdAt)
+    .limit(1);
+  if (!original || original.body === ITEMS_TOPIC_BODY) return;
+
+  await db.update(forumPosts).set({ body: ITEMS_TOPIC_BODY }).where(eq(forumPosts.id, original.id));
 }
 
 async function seedServerInfo(db: Db) {
@@ -79,10 +134,7 @@ async function seedServerInfo(db: Db) {
     return topic.id;
   }
 
-  const itemsId = await createStaffTopic(
-    "Sistema de Itens Atualizado",
-    "O sistema de itens recebeu uma atualização completa:\n\n- Sistema de Efeitos Especiais expandido\n- Sistema de Rank de Item\n- Sistema de Vínculo de Alma\n- Sistema de Ascensão de Arma\n\nCada um desses sistemas tem requisitos e custos próprios. Detalhes específicos de cada um serão publicados aqui conforme forem fechados antes do lançamento."
-  );
+  const itemsId = await createStaffTopic("Sistema de Itens Atualizado", ITEMS_TOPIC_BODY);
   const premiumId = await createStaffTopic(
     "Conveniências Premium: Auto Loot, Auto Sell e Tela de Teleporte",
     "Três conveniências para quem tem Premium ativo:\n\n- Auto Loot System (Premium)\n- Auto Sell System (Premium)\n- Tela de Teleporte (Teleportation Screen)\n\nAuto Loot recolhe os itens do chão automaticamente durante o farm. Auto Sell vende para o NPC sem precisar abrir a janela de loja o tempo todo. A Tela de Teleporte reúne os pontos de teleporte do mundo em uma única interface, sem precisar andar até o NPC."
