@@ -32,7 +32,8 @@ export const serverSystems=[
  {name:"Munição de Carga",active:true,detail:"Sistema de balas com carga (Charge Ammo)."},
  {name:"Dungeon Solo",active:true},
  {name:"Dungeon PvP",active:true},
- {name:"Sistema de Módulos",active:true,detail:"Sistema próprio do RF Ascension, em evolução constante."}
+ {name:"Sistema de Módulos",active:true,detail:"Sistema próprio do RF Ascension, em evolução constante."},
+ {name:"Destruir chave do M.A.U. ao explodir",active:false}
 ] as const;
 export const donationPackages=[
  {id:"starter",name:"Iniciante",priceBRL:49.9,baseCash:49900,bonusPercent:0,totalCash:49900,premiumDays:30},

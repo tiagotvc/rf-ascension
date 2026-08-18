@@ -177,7 +177,8 @@ Outros sistemas:
 - Torres de Caçador (também matam monstro e dão XP)
 - Munição de Carga (Charge Ammo)
 - Dungeon Solo e Dungeon PvP
-- Sistema de Módulos próprio do RF Ascension, em evolução constante`;
+- Sistema de Módulos próprio do RF Ascension, em evolução constante
+- Chave do M.A.U. não é destruída ao explodir`;
 }
 
 // Sub-tópicos já existem (mesmos ids) e o texto do mestre mudou de novo —
