@@ -63,8 +63,8 @@ As fotos de cada sistema entram aqui assim que estiverem prontas.`;
 const EDITOR_TOPIC_BODY = `O RF Ascension é desenvolvido com uma ferramenta própria, feita do zero pela nossa equipe: o {cyan:RF Editor}. A gente não depende de edição manual em arquivo binário nem de gambiarra — cada sistema do servidor tem uma tela dedicada, com validação, pra editar com segurança.
 
 {violet:Editor de conteúdo (quests, itens, skills, classes...)}
-![Editor de Quests Diárias do RF Editor](pending)
-O editor de quests, por exemplo, deixa configurar tudo visualmente: alvo, quantidade, até 6 recompensas de item por quest, experiência, gold, e se é uma quest diária com intervalo de repetição próprio — e salva com hot-reload, sem precisar derrubar o servidor pra a mudança valer.
+![Editor de Quests do RF Editor](/assets/editor/quest_editor.png)
+O editor de quests, por exemplo, deixa configurar tudo visualmente: raça, tipo de ação, alvo, quantidade, até 6 recompensas de item por quest, experiência, gold, e se é uma quest diária com intervalo de repetição próprio — e salva com hot-reload, sem precisar derrubar o servidor pra a mudança valer.
 
 {orange:Editor de mundo (mapas, monstros, drops, NPCs e lojas)}
 ![Editor de mapas, NPCs e lojas do RF Editor](/assets/editor/npc_editor.png)
@@ -77,6 +77,21 @@ Pra construção de mapa, o RF Editor tem ferramentas de terreno completas: Pain
 {pink:Editor de entidades — decoração do mapa}
 ![Editor de entidades do RF Editor posicionando props no mapa](/assets/editor/entity_editor.png)
 Pra decorar o cenário, o RF Editor lista todo mesh disponível pra colocar no mapa (mais de 1100 no catálogo atual, entre arquivos soltos e empacotados), com pré-visualização antes de posicionar. Dá pra escolher, ver o modelo e colocar direto na cena 3D, sem sair do editor.
+
+{cyan:Sprite Viewer — ícones e sprites da interface}
+![Sprite Viewer do RF Editor navegando pelos sprites da interface](/assets/editor/sprite_editor.png)
+Todo ícone e sprite de interface do cliente também é navegável, ação por ação, quadro por quadro, com importação e exportação de PNG (inclusive em lote). E tem um alerta de segurança embutido: arquivos de sprite compartilhados por várias telas da interface nativa são marcados como "crítico" antes de qualquer sobrescrita, pra ninguém quebrar a UI do cliente inteiro por acidente.
+
+{orange:Editor de poções — do campo ao ícone}
+![Editor de poções do RF Editor com os campos do item](/assets/editor/potion_item_editor.png)
+![Editor de poções do RF Editor escolhendo o ícone](/assets/editor/potion_item_editor_sprite.png)
+Cada poção tem uma tela própria com todos os campos que importam pra ela funcionar direito: nome interno e de exibição, descrição, limite de nível, tipo de moeda e preço, se é vendível/negociável/dropável/armazenável, e o efeito ligado a ela. O ícone é escolhido visualmente numa grade de sprites, que já avisa quais ícones outros itens já estão usando — evita duplicar ícone sem querer.
+
+{violet:Editor de skills e forças — com prévia ao vivo}
+![Editor de Skill/Força do RF Editor com prévia de combate ao vivo](/assets/editor/skill_editor.png)
+O editor de skill/força mostra todos os requisitos (HP/FP/SP, cast delay) e os valores de efeito e duração por nível, do 1 ao 7, numa tela só. E o diferencial: dá pra tocar a skill numa cena de combate de teste, ao vivo, e ver o efeito visual e o dano batendo no alvo antes de publicar qualquer mudança.
+
+Essa parte específica (criar skill nova do zero, com partícula própria) ainda está em progresso, cerca de 50% pronta — falta sincronizar a animação corretamente, renderizar o esqueleto certo pra fixar a partícula no ponto certo do personagem, fechar alguns gaps de partícula, e ainda fazer alterações no cliente e no servidor do jogo pra aceitar skills novas de verdade. Editar skill que já existe já funciona normal.
 
 Além dessas telas, o RF Editor também tem editores dedicados pra armas, equipamentos, animus, força/skill, poções, recursos, itens de baú, loja de cash, receitas de craft, anéis/amuletos e classes inteiras. É essa ferramenta que nos permite corrigir, balancear e adicionar conteúdo rápido no RF Ascension, sem depender de terceiros.`;
 
