@@ -93,6 +93,11 @@ O editor de skill/força mostra todos os requisitos (HP/FP/SP, cast delay) e os 
 
 Essa parte específica (criar skill nova do zero, com partícula própria) ainda está em progresso, cerca de 50% pronta — falta sincronizar a animação corretamente, renderizar o esqueleto certo pra fixar a partícula no ponto certo do personagem, fechar alguns gaps de partícula, e ainda fazer alterações no cliente e no servidor do jogo pra aceitar skills novas de verdade. Editar skill que já existe já funciona normal.
 
+{cyan:Editor de UI nativa — monta janela sem escrever Lua na mão}
+![Nativeui Layout Editor do RF Editor montando a janela do Battle Pass](/assets/editor/ui_editor.png)
+![Nativeui Layout Editor do RF Editor montando a janela de Habilidades da Guilda](/assets/editor/ui_editor_2.png)
+O RF Editor também monta janela de interface nativa do zero, visualmente: fundo, texto, botão, imagem, lista, barra de progresso, paginação — organiza tudo numa hierarquia com drag-and-drop pra reordenar, e cada elemento tem posição, tamanho, cor e sprite editáveis num painel próprio. No final, gera o Lua da janela automaticamente ou aplica como override em cima de uma janela nativa já existente. Ainda em progresso, mas já funcional — as janelas do Battle Pass e das Habilidades da Guilda aí em cima foram montadas nele.
+
 Além dessas telas, o RF Editor também tem editores dedicados pra armas, equipamentos, animus, força/skill, poções, recursos, itens de baú, loja de cash, receitas de craft, anéis/amuletos e classes inteiras. É essa ferramenta que nos permite corrigir, balancear e adicionar conteúdo rápido no RF Ascension, sem depender de terceiros.`;
 
 let bootstrapped = false;
