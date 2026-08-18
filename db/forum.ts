@@ -176,7 +176,8 @@ Outros sistemas:
 - Armadilhas de Caçador (também matam monstro e dão XP)
 - Torres de Caçador (também matam monstro e dão XP)
 - Munição de Carga (Charge Ammo)
-- Dungeon Solo e Dungeon PvP`;
+- Dungeon Solo e Dungeon PvP
+- Sistema de Módulos próprio do RF Ascension, em evolução constante`;
 }
 
 // Sub-tópicos já existem (mesmos ids) e o texto do mestre mudou de novo —
