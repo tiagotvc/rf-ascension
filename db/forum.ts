@@ -2,7 +2,7 @@ import { and, count, desc, eq, inArray } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 import { getDb } from "./index";
 import { forumPosts, forumTopics } from "./schema";
-import { SERVER_INFO_SLUG, findForumBoard } from "../app/config/forum";
+import { SERVER_INFO_SLUG, DROPS_SLUG, findForumBoard } from "../app/config/forum";
 
 type Db = Awaited<ReturnType<typeof getDb>>;
 
@@ -92,9 +92,26 @@ async function ensureForumSchema(db: Db) {
     sql`DELETE FROM forum_posts WHERE author_email IN ('jogador@exemplo.com') OR topic_id IN (SELECT id FROM forum_topics WHERE author_email LIKE 'teste%@exemplo.com')`
   );
   await db.run(sql`DELETE FROM forum_topics WHERE author_email LIKE 'teste%@exemplo.com'`);
+  // Dev-only race: um hot-reload do módulo no meio de um seed em andamento
+  // pode fazer dois processos passarem pelo "if (master) return" ao mesmo
+  // tempo e inserir o mesmo tópico duas vezes (aconteceu de verdade numa
+  // sessão local). Sem constraint única em (forum_slug, title), o guard
+  // mais simples é limpar duplicata por duplicata, mantendo o id mais
+  // antigo — nunca toca em tópicos de jogador (só author_email = staff).
+  await db.run(sql`DELETE FROM forum_posts WHERE topic_id IN (
+    SELECT t.id FROM forum_topics t
+    WHERE t.author_email = ${STAFF_EMAIL}
+    AND t.id NOT IN (
+      SELECT MIN(id) FROM forum_topics WHERE author_email = ${STAFF_EMAIL} GROUP BY forum_slug, title
+    )
+  )`);
+  await db.run(sql`DELETE FROM forum_topics WHERE author_email = ${STAFF_EMAIL} AND id NOT IN (
+    SELECT MIN(id) FROM forum_topics WHERE author_email = ${STAFF_EMAIL} GROUP BY forum_slug, title
+  )`);
   await rewriteItemsTopicBody(db);
   await rewriteMasterTopicBody(db);
   await seedServerInfo(db);
+  await seedMonsterDrops(db);
   bootstrapped = true;
 }
 
@@ -279,6 +296,68 @@ async function seedServerInfo(db: Db) {
   await createStaffTopic(
     MASTER_TITLE,
     buildMasterBody({ itemsId, premiumId, mountId, dungeonId, professionId, towersId, guildId }),
+    true
+  );
+}
+
+const DROPS_MASTER_TITLE = "Como funcionam os drops — RF Ascension";
+
+// Baseado nos dados reais de ItemLooting.txt / MonsterCharacter.txt / MonsterSet.ini
+// (tabela-fonte do servidor). O .dat em produção pode ter ajustes finos por
+// cima dessa fonte — os números aqui são os da tabela-fonte, não uma medição
+// ao vivo.
+async function seedMonsterDrops(db: Db) {
+  const [master] = await db
+    .select({ id: forumTopics.id })
+    .from(forumTopics)
+    .where(and(eq(forumTopics.forumSlug, DROPS_SLUG), eq(forumTopics.title, DROPS_MASTER_TITLE)));
+  if (master) return;
+
+  await db.run(
+    sql`DELETE FROM forum_posts WHERE topic_id IN (SELECT id FROM forum_topics WHERE forum_slug = ${DROPS_SLUG} AND author_email = ${STAFF_EMAIL})`
+  );
+  await db.run(sql`DELETE FROM forum_topics WHERE forum_slug = ${DROPS_SLUG} AND author_email = ${STAFF_EMAIL}`);
+
+  async function createStaffTopic(title: string, body: string, pinned = false): Promise<number> {
+    const [topic] = await db
+      .insert(forumTopics)
+      .values({ forumSlug: DROPS_SLUG, title, authorName: STAFF_NAME, authorEmail: STAFF_EMAIL, pinned })
+      .returning();
+    await db.insert(forumPosts).values({ topicId: topic.id, body, authorName: STAFF_NAME, authorEmail: STAFF_EMAIL });
+    return topic.id;
+  }
+
+  await createStaffTopic(
+    "Dark Sign & Izen Crasher — set Saint [Rare B]",
+    "Dois monstros de elite (nível 79 e 81) que derrubam o mesmo conjunto de armas:\n\n- Saint Beam Saver [Rare B]\n- Saint Beam Sword [Rare B]\n- Saint Burova [Rare B]\n- Saint Beam Pressure [Rare B]\n- Saint Staff [Rare B]\n\nChance de dropar uma dessas armas: cerca de 15% por kill (e só rola arma se o drop sortear raridade Rara ou melhor — veja o tópico fixado sobre como funcionam os drops)."
+  );
+
+  await createStaffTopic(
+    "Chief Researcher John F Carter & BigFoot Clan — set Élfico",
+    "Dois monstros de nível 72 com o mesmo conjunto de drops:\n\n- Elven Blade\n- Elven Bow\n- Elven Staff\n- Metal Elven Blade\n- Metal Elven Dual Blade\n- Destruction Rune, Convert Rune, Swift Rune, Escape Rune, Defense Rune\n\nChance de dropar uma das armas: cerca de 50% por kill."
+  );
+
+  await createStaffTopic(
+    "Sealed Calliana Queen, Sealed Hora Baal Hamon Guard & Sealed Soul Cinder — set Divino & Crimson Hora",
+    "Três monstros selados (nível 71 e 72) com o mesmo padrão de drop:\n\n- Divine Beam Saver / Sword / Burova / Pressure / Staff [Rare B]\n- Crimson Hora Knife / Sword / Hammer / Bow / Fire Arm / Launcher / Staff / Axe / Spear [Rare D]\n- Jewelry Box\n- Gateway Generating Key\n\nA chance de dropar uma arma do set varia por monstro: Sealed Calliana Queen ~50%, Sealed Hora Baal Hamon Guard ~35%, Sealed Soul Cinder ~25%. Jewelry Box e Gateway Generating Key têm entrada própria na tabela, não competem pelo mesmo slot das armas."
+  );
+
+  await createStaffTopic(
+    DROPS_MASTER_TITLE,
+    `Todo monstro tem sua própria tabela de drop. Dois fatores decidem o que sai:
+
+**Diferença de nível entre você e o monstro**
+Quanto mais alto o seu nível em relação ao do monstro, menor a chance de drop — matar algo muito abaixo do seu nível praticamente não derruba nada.
+
+**Raridade do monstro**
+Só rola item de arma/armadura se o drop sortear raridade Rara ou melhor, e isso muda bastante entre monstro comum e boss:
+
+- {gold:Monstro Boss} — 0% Comum, 10% Normal, 60% Rara, 30% Épica
+- {white:Monstro Fraco} — 79% Comum, 20% Normal, 1% Rara, 0% Épica
+
+Ou seja: bosses valem muito mais a pena caçar se você quer item raro — um monstro comum praticamente nunca dropa arma ou armadura.
+
+Veja os outros tópicos desta área pra saber o que bosses específicos derrubam. E fique à vontade pra postar o que você mesmo encontrou — essa área é aberta pra comunidade.`,
     true
   );
 }

@@ -34,6 +34,7 @@ export const forumAreas: ForumArea[] = [
       { slug: "02-1", icon: "⌁", title: "Guias para iniciantes", description: "Instalação, primeiros níveis, equipamentos e evolução.", canCreateTopics: true, canReply: true },
       { slug: "02-2", icon: "⚔", title: "Classes & Builds", description: "Discussões sobre classes, atributos, armas e combinações.", canCreateTopics: true, canReply: true },
       { slug: "02-3", icon: "◈", title: "Mineração & Economia", description: "Minérios, processamento, mercado e formas de conseguir gold.", canCreateTopics: true, canReply: true },
+      { slug: "02-4", icon: "☠", title: "Drops de Monstros", description: "O que cada monstro derruba, chances de raridade e onde farmar.", canCreateTopics: true, canReply: true },
     ],
   },
   {
@@ -72,6 +73,7 @@ export const forumAreas: ForumArea[] = [
 // "Notas de atualização" fica reservada para o histórico de manutenções reais,
 // a começar pela primeira depois do lançamento — não usar para isso agora.
 export const SERVER_INFO_SLUG = "01-2";
+export const DROPS_SLUG = "02-4";
 
 export function findForumBoard(slug: string): { area: ForumArea; board: ForumBoard } | null {
   for (const area of forumAreas) {
