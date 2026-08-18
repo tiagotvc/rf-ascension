@@ -12,7 +12,6 @@ export const serverRates=[
  {value:"x5",label:"Drop"},
  {value:"16",label:"Membros por grupo"},
  {value:"16",label:"Buffs ativos"},
- {value:"100",label:"Membros de guilda"},
  {value:"255",label:"Stack de item"}
 ] as const;
 export const serverSystems=[
