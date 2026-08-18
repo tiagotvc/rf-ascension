@@ -1,6 +1,6 @@
-# RF Ascension Portal
+# RF Echelon Portal
 
-Portal responsivo do servidor RF Ascension: home, campanha de abertura, download, doações, fórum, conta, admin visual e páginas LGPD.
+Portal responsivo do servidor RF Echelon: home, campanha de abertura, download, doações, fórum, conta, admin visual e páginas LGPD.
 
 ## Documentação do produto
 

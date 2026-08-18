@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RF Ascension — Portal",
-  description: "Portal do servidor RF Ascension: download, doações e fórum da comunidade.",
+  title: "RF Echelon — Portal",
+  description: "Portal do servidor RF Echelon: download, doações e fórum da comunidade.",
   other: {
     "codex-preview": "development",
   },

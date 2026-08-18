@@ -6,7 +6,7 @@ import { SERVER_INFO_SLUG, DROPS_SLUG, findForumBoard } from "../app/config/foru
 
 type Db = Awaited<ReturnType<typeof getDb>>;
 
-export const STAFF_NAME = "Equipe Ascension";
+export const STAFF_NAME = "Equipe Echelon";
 export const STAFF_EMAIL = "equipe@rfascension.online";
 export function isStaffEmail(email: string): boolean {
   return email === STAFF_EMAIL;
@@ -15,7 +15,7 @@ export function isStaffEmail(email: string): boolean {
 // Título exato do tópico mestre: usado como marcador de versão do seed.
 // Mudou a estrutura do conteúdo? Troque o título para forçar reseed (a
 // função abaixo apaga só os tópicos da equipe nesse mural antes de recriar).
-const MASTER_TITLE = "Informações do servidor — RF Ascension";
+const MASTER_TITLE = "Informações do servidor — RF Echelon";
 
 // Ascensão de Arma e Vínculo de Alma foram descontinuados — removidos daqui.
 // Cada seção tem um placeholder de foto (`pending`) até as imagens reais
@@ -46,7 +46,7 @@ Toda arma e armadura carrega uma raridade, que já vem com um bônus de ataque (
 
 Ascended existe no sistema mas não vai estar disponível por enquanto.
 
-Essas faixas são uma configuração própria do RF Ascension, não são do RF Online original — podem ser ajustadas antes do lançamento.
+Essas faixas são uma configuração própria do RF Echelon, não são do RF Online original — podem ser ajustadas antes do lançamento.
 
 {violet:Novas Talicas, com novos adicionais}
 ![Novas Talicas](pending)
@@ -60,7 +60,7 @@ As fotos de cada sistema entram aqui assim que estiverem prontas.`;
 
 // Placeholders de imagem (pending) até as duas capturas de tela reais do RF
 // Editor serem publicadas.
-const EDITOR_TOPIC_BODY = `O RF Ascension é desenvolvido com uma ferramenta própria, feita do zero pela nossa equipe: o {cyan:RF Editor}. A gente não depende de edição manual em arquivo binário nem de gambiarra — cada sistema do servidor tem uma tela dedicada, com validação, pra editar com segurança.
+const EDITOR_TOPIC_BODY = `O RF Echelon é desenvolvido com uma ferramenta própria, feita do zero pela nossa equipe: o {cyan:RF Editor}. A gente não depende de edição manual em arquivo binário nem de gambiarra — cada sistema do servidor tem uma tela dedicada, com validação, pra editar com segurança.
 
 {violet:Editor de conteúdo (quests, itens, skills, classes...)}
 ![Editor de Quests do RF Editor](/assets/editor/quest_editor.png)
@@ -98,7 +98,7 @@ Essa parte específica (criar skill nova do zero, com partícula própria) ainda
 ![Nativeui Layout Editor do RF Editor montando a janela de Habilidades da Guilda](/assets/editor/ui_editor_2.png)
 O RF Editor também monta janela de interface nativa do zero, visualmente: fundo, texto, botão, imagem, lista, barra de progresso, paginação — organiza tudo numa hierarquia com drag-and-drop pra reordenar, e cada elemento tem posição, tamanho, cor e sprite editáveis num painel próprio. No final, gera o Lua da janela automaticamente ou aplica como override em cima de uma janela nativa já existente. Ainda em progresso, mas já funcional — as janelas do Battle Pass e das Habilidades da Guilda aí em cima foram montadas nele.
 
-Além dessas telas, o RF Editor também tem editores dedicados pra armas, equipamentos, animus, força/skill, poções, recursos, itens de baú, loja de cash, receitas de craft, anéis/amuletos e classes inteiras. É essa ferramenta que nos permite corrigir, balancear e adicionar conteúdo rápido no RF Ascension, sem depender de terceiros.`;
+Além dessas telas, o RF Editor também tem editores dedicados pra armas, equipamentos, animus, força/skill, poções, recursos, itens de baú, loja de cash, receitas de craft, anéis/amuletos e classes inteiras. É essa ferramenta que nos permite corrigir, balancear e adicionar conteúdo rápido no RF Echelon, sem depender de terceiros.`;
 
 let bootstrapped = false;
 
@@ -129,6 +129,18 @@ async function ensureForumSchema(db: Db) {
   await db.run(
     sql`UPDATE forum_topics SET forum_slug = ${SERVER_INFO_SLUG} WHERE forum_slug = '01-3' AND author_email = ${STAFF_EMAIL}`
   );
+  // Rebrand RF Ascension -> RF Echelon: título, autor e corpo já semeados
+  // ainda tinham o nome antigo (a troca dos textos-fonte só afeta o próximo
+  // insert; conteúdo já gravado no D1 precisa de migração explícita).
+  await db.run(sql`UPDATE forum_topics SET title = REPLACE(title, 'RF Ascension', 'RF Echelon') WHERE author_email = ${STAFF_EMAIL} AND title LIKE '%RF Ascension%'`);
+  await db.run(sql`UPDATE forum_topics SET author_name = REPLACE(author_name, 'Equipe Ascension', 'Equipe Echelon') WHERE author_email = ${STAFF_EMAIL} AND author_name LIKE '%Ascension%'`);
+  await db.run(sql`UPDATE forum_posts SET author_name = REPLACE(author_name, 'Equipe Ascension', 'Equipe Echelon') WHERE author_email = ${STAFF_EMAIL} AND author_name LIKE '%Ascension%'`);
+  await db.run(sql`UPDATE forum_posts SET body = REPLACE(body, 'RF Ascension', 'RF Echelon') WHERE author_email = ${STAFF_EMAIL} AND body LIKE '%RF Ascension%'`);
+  // Ofícios, Coleta e Crafting foi removido do catálogo — apaga o que já
+  // tinha sido semeado (nunca toca em posts de jogador nesse tópico, mas
+  // como é mural de equipe isso nunca existiu de qualquer forma).
+  await db.run(sql`DELETE FROM forum_posts WHERE topic_id IN (SELECT id FROM forum_topics WHERE forum_slug = ${SERVER_INFO_SLUG} AND author_email = ${STAFF_EMAIL} AND title = 'Ofícios, Coleta e Crafting')`);
+  await db.run(sql`DELETE FROM forum_topics WHERE forum_slug = ${SERVER_INFO_SLUG} AND author_email = ${STAFF_EMAIL} AND title = 'Ofícios, Coleta e Crafting'`);
   // Limpa tópicos de teste criados durante o desenvolvimento local.
   await db.run(
     sql`DELETE FROM forum_posts WHERE author_email IN ('jogador@exemplo.com') OR topic_id IN (SELECT id FROM forum_topics WHERE author_email LIKE 'teste%@exemplo.com')`
@@ -186,7 +198,6 @@ type MasterLinkIds = {
   premiumId: number;
   mountId: number;
   dungeonId: number;
-  professionId: number;
   towersId: number;
   guildId: number;
   editorId: number;
@@ -196,7 +207,7 @@ type MasterLinkIds = {
 // na migração que atualiza o tópico já existente (rewriteMasterTopicBody),
 // pra nunca ficarem dessincronizados.
 function buildMasterBody(ids: MasterLinkIds): string {
-  return `RF Ascension roda sobre a base Cliente e Servidor 2.2.3.2, com GameGuard próprio.
+  return `RF Echelon roda sobre a base Cliente e Servidor 2.2.3.2, com GameGuard próprio.
 
 Taxas do servidor:
 - XP base: x5
@@ -211,7 +222,6 @@ Recursos do servidor:
 - [Conveniências Premium: Auto Loot, Auto Sell e Tela de Teleporte](/forum/${SERVER_INFO_SLUG}/topic/${ids.premiumId})
 - [Sistema de Montaria](/forum/${SERVER_INFO_SLUG}/topic/${ids.mountId})
 - [Nova Dungeon Exclusiva](/forum/${SERVER_INFO_SLUG}/topic/${ids.dungeonId})
-- [Ofícios, Coleta e Crafting](/forum/${SERVER_INFO_SLUG}/topic/${ids.professionId})
 - [Torres, M.A.U. e Minas Aprimoradas](/forum/${SERVER_INFO_SLUG}/topic/${ids.towersId})
 - [Novo Sistema de Guildas](/forum/${SERVER_INFO_SLUG}/topic/${ids.guildId})
 - [Nosso Editor Próprio](/forum/${SERVER_INFO_SLUG}/topic/${ids.editorId})
@@ -235,7 +245,7 @@ Outros sistemas:
 - Torres de Caçador (também matam monstro e dão XP)
 - Munição de Carga (Charge Ammo)
 - Dungeon Solo e Dungeon PvP
-- Sistema de Módulos próprio do RF Ascension, em evolução constante
+- Sistema de Módulos próprio do RF Echelon, em evolução constante
 - Chave do M.A.U. não é destruída ao explodir`;
 }
 
@@ -287,13 +297,12 @@ async function rewriteMasterTopicBody(db: Db) {
   const premiumId = await findId("Conveniências Premium: Auto Loot, Auto Sell e Tela de Teleporte");
   const mountId = await findId("Sistema de Montaria");
   const dungeonId = await findId("Nova Dungeon Exclusiva");
-  const professionId = await findId("Ofícios, Coleta e Crafting");
   const towersId = await findId("Torres, M.A.U. e Minas Aprimoradas");
   const guildId = await findId("Novo Sistema de Guildas");
   const editorId = await findId("Nosso Editor Próprio");
-  if (!itemsId || !premiumId || !mountId || !dungeonId || !professionId || !towersId || !guildId || !editorId) return;
+  if (!itemsId || !premiumId || !mountId || !dungeonId || !towersId || !guildId || !editorId) return;
 
-  const newBody = buildMasterBody({ itemsId, premiumId, mountId, dungeonId, professionId, towersId, guildId, editorId });
+  const newBody = buildMasterBody({ itemsId, premiumId, mountId, dungeonId, towersId, guildId, editorId });
 
   const [original] = await db
     .select({ id: forumPosts.id, body: forumPosts.body })
@@ -337,15 +346,11 @@ async function seedServerInfo(db: Db) {
   );
   const mountId = await createStaffTopic(
     "Sistema de Montaria",
-    "RF Ascension conta com sistema de montaria próprio. Formas de obtenção, evolução e velocidades serão detalhadas aqui antes do lançamento."
+    "RF Echelon conta com sistema de montaria próprio. Formas de obtenção, evolução e velocidades serão detalhadas aqui antes do lançamento."
   );
   const dungeonId = await createStaffTopic(
     "Nova Dungeon Exclusiva",
     "A dungeon ganhou um sistema exclusivo, com fluxo completo: navegador de salas (lista pública, sala própria e sala da dungeon), timer de tempo restante e uma janela de resultado no final que mostra a recompensa de cada jogador do grupo para todo mundo, não só para quem recebeu o item."
-  );
-  const professionId = await createStaffTopic(
-    "Ofícios, Coleta e Crafting",
-    "Novo sistema de ofícios, coleta e crafting:\n\n- Ofícios: qualquer classe pode se especializar em uma linha de produção, sem depender de uma classe fixa de artesão.\n- Coleta: o Extrator substitui a antiga coleta de plantas — dá para analisar o ponto antes de coletar e saber o que esperar.\n\nA meta é dar mais opções de economia própria para quem não quer depender só de farm de monstro."
   );
   const towersId = await createStaffTopic(
     "Torres, M.A.U. e Minas Aprimoradas",
@@ -359,12 +364,12 @@ async function seedServerInfo(db: Db) {
 
   await createStaffTopic(
     MASTER_TITLE,
-    buildMasterBody({ itemsId, premiumId, mountId, dungeonId, professionId, towersId, guildId, editorId }),
+    buildMasterBody({ itemsId, premiumId, mountId, dungeonId, towersId, guildId, editorId }),
     true
   );
 }
 
-const DROPS_MASTER_TITLE = "Como funcionam os drops — RF Ascension";
+const DROPS_MASTER_TITLE = "Como funcionam os drops — RF Echelon";
 
 // Baseado nos dados reais de ItemLooting.txt / MonsterCharacter.txt / MonsterSet.ini
 // (tabela-fonte do servidor). O .dat em produção pode ter ajustes finos por
@@ -544,6 +549,9 @@ export async function createForumTopic(input: {
   if (!board || !board.board.canCreateTopics) {
     throw new Error("Este mural não aceita novos tópicos.");
   }
+  if (!isStaffEmail(input.authorEmail)) {
+    throw new Error("Por enquanto só a equipe pode publicar novos tópicos.");
+  }
   const title = input.title.trim();
   const body = input.body.trim();
   if (title.length < 3 || title.length > 140) {
@@ -584,6 +592,9 @@ export async function createForumReply(input: {
   const board = findForumBoard(input.forumSlug);
   if (!board || !board.board.canReply) {
     throw new Error("Este mural não aceita respostas.");
+  }
+  if (!isStaffEmail(input.authorEmail)) {
+    throw new Error("Por enquanto só a equipe pode responder.");
   }
   const body = input.body.trim();
   if (body.length < 1 || body.length > 8000) {

@@ -21,7 +21,7 @@ export default async function ForumBoard({ params }: { params: Promise<{ forumSl
   return (
     <main className="forum-page board-page">
       <header className="site-header forum-nav">
-        <a className="brand" href="/"><span className="brand-mark">RF</span><span className="brand-copy"><strong>ASCENSION</strong><small>PRIVATE SERVER</small></span></a>
+        <a className="brand" href="/"><span className="brand-mark">RF</span><span className="brand-copy"><strong>ECHELON</strong><small>PRIVATE SERVER</small></span></a>
         <nav><a href="/">Início</a><a href="/#download">Download</a><a href="/doacao">Doação</a><a className="active" href="/forum">Fórum</a><a href="/conta">Minha conta</a></nav>
         <div className="header-tools"><span className="lang-switch"><b>PT</b><a href="/en/forum">EN</a></span><a className="header-cta" href="/conta">Criar conta</a></div>
       </header>
@@ -36,12 +36,16 @@ export default async function ForumBoard({ params }: { params: Promise<{ forumSl
             <span>{topics.length} {topics.length === 1 ? "tópico" : "tópicos"}</span>
             {board.canCreateTopics ? (
               user ? (
-                <NewTopicForm forumSlug={forumSlug} />
+                isStaffEmail(user.email) ? (
+                  <NewTopicForm forumSlug={forumSlug} />
+                ) : (
+                  <span className="board-staff-note">Por enquanto, só a equipe pode publicar tópicos aqui.</span>
+                )
               ) : (
-                <a className="btn btn-ghost" href={chatGPTSignInPath(`/forum/${forumSlug}`)}>Entrar para publicar</a>
+                <span className="login-gate"><small>Você não está logado.</small><a className="btn btn-ghost" href={chatGPTSignInPath(`/forum/${forumSlug}`)}>Entrar</a></span>
               )
             ) : (
-              <span className="board-staff-note">Mural mantido pela equipe Ascension.</span>
+              <span className="board-staff-note">Mural mantido pela equipe Echelon.</span>
             )}
           </div>
           {topics.length === 0 ? (

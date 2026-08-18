@@ -33,7 +33,7 @@ export default async function ForumTopic({
   return (
     <main className="forum-page thread-page">
       <header className="site-header forum-nav">
-        <a className="brand" href="/"><span className="brand-mark">RF</span><span className="brand-copy"><strong>ASCENSION</strong><small>PRIVATE SERVER</small></span></a>
+        <a className="brand" href="/"><span className="brand-mark">RF</span><span className="brand-copy"><strong>ECHELON</strong><small>PRIVATE SERVER</small></span></a>
         <nav><a href="/">Início</a><a href="/#download">Download</a><a href="/doacao">Doação</a><a className="active" href="/forum">Fórum</a><a href="/conta">Minha conta</a></nav>
         <div className="header-tools"><span className="lang-switch"><b>PT</b><a href="/en/forum">EN</a></span><a className="header-cta" href="/conta">Criar conta</a></div>
       </header>
@@ -55,7 +55,7 @@ export default async function ForumTopic({
                     <i className="avatar-badge">{staff ? "★" : "◆"}</i>
                   </div>
                   <strong>{post.authorName}</strong>
-                  <span className={`role-badge ${staff ? "staff" : ""}`}>{staff ? "Equipe Ascension" : "Membro"}</span>
+                  <span className={`role-badge ${staff ? "staff" : ""}`}>{staff ? "Equipe Echelon" : "Membro"}</span>
                   <dl className="thread-post-stats">
                     <div><dt>Mensagens</dt><dd>{stats?.postCount ?? 1}</dd></div>
                     <div><dt>Desde</dt><dd>{formatShortDate(stats?.memberSince ?? post.createdAt)}</dd></div>
@@ -71,9 +71,13 @@ export default async function ForumTopic({
         </div>
         {board.canReply ? (
           user ? (
-            <ReplyForm forumSlug={forumSlug} topicId={topic.id} />
+            isStaffEmail(user.email) ? (
+              <ReplyForm forumSlug={forumSlug} topicId={topic.id} />
+            ) : (
+              <span className="board-staff-note">Por enquanto, só a equipe pode responder aqui.</span>
+            )
           ) : (
-            <a className="btn btn-ghost" href={chatGPTSignInPath(`/forum/${forumSlug}/topic/${topic.id}`)}>Entrar para responder</a>
+            <span className="login-gate"><small>Você não está logado.</small><a className="btn btn-ghost" href={chatGPTSignInPath(`/forum/${forumSlug}/topic/${topic.id}`)}>Entrar</a></span>
           )
         ) : null}
       </section>

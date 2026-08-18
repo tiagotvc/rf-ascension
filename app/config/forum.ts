@@ -18,7 +18,7 @@ export type ForumArea = {
 export const forumAreas: ForumArea[] = [
   {
     code: "01",
-    title: "Informações do RF Ascension",
+    title: "Informações do RF Echelon",
     tone: "cyan",
     boards: [
       { slug: "01-1", icon: "✦", title: "Anúncios oficiais", description: "Notícias, manutenções, eventos e comunicados da equipe.", canCreateTopics: false, canReply: true },

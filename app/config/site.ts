@@ -1,5 +1,5 @@
 export const siteConfig={
- name:"RF Ascension",operator:"CCR",locale:"pt-BR",timezone:"America/Sao_Paulo",
+ name:"RF Echelon",operator:"CCR",locale:"pt-BR",timezone:"America/Sao_Paulo",
  launchAt:"2026-08-21T20:00:00-03:00",launchLabel:"21/08/2026 às 20:00",
  cashPerReal:1000,
  routes:{home:"/",download:"/#download",forum:"/forum",donation:"/doacao",account:"/conta",admin:"/admin"},
@@ -31,7 +31,7 @@ export const serverSystems=[
  {name:"Munição de Carga",active:true,detail:"Sistema de balas com carga (Charge Ammo)."},
  {name:"Dungeon Solo",active:true},
  {name:"Dungeon PvP",active:true},
- {name:"Sistema de Módulos",active:true,detail:"Sistema próprio do RF Ascension, em evolução constante."},
+ {name:"Sistema de Módulos",active:true,detail:"Sistema próprio do RF Echelon, em evolução constante."},
  {name:"Destruir chave do M.A.U. ao explodir",active:false}
 ] as const;
 export const donationPackages=[

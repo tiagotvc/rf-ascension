@@ -4,7 +4,7 @@ Leia `README.md`, `DESIGN_SYSTEM.md`, `CONTENT.md` e `BACKEND_REQUIREMENTS.md` a
 
 ## O que preservar
 
-- Identidade RF Ascension, logo atual e direção MMORPG sci-fi clássico.
+- Identidade RF Echelon, logo atual e direção MMORPG sci-fi clássico.
 - Artes refinadas indicadas em `DESIGN_SYSTEM.md`.
 - Paleta ciano/âmbar/violeta e superfícies industriais escuras.
 - Botões retos com cantos em L; não reintroduzir pílulas ou chanfros arredondados.
