@@ -58,6 +58,20 @@ Sistema de runas novo, que adiciona bônus extras aos seus itens.
 
 As fotos de cada sistema entram aqui assim que estiverem prontas.`;
 
+// Placeholders de imagem (pending) até as duas capturas de tela reais do RF
+// Editor serem publicadas.
+const EDITOR_TOPIC_BODY = `O RF Ascension é desenvolvido com uma ferramenta própria, feita do zero pela nossa equipe: o {cyan:RF Editor}. A gente não depende de edição manual em arquivo binário nem de gambiarra — cada sistema do servidor tem uma tela dedicada, com validação, pra editar com segurança.
+
+{violet:Editor de conteúdo (quests, itens, skills, classes...)}
+![Editor de Quests Diárias do RF Editor](pending)
+O editor de quests, por exemplo, deixa configurar tudo visualmente: alvo, quantidade, até 6 recompensas de item por quest, experiência, gold, e se é uma quest diária com intervalo de repetição próprio — e salva com hot-reload, sem precisar derrubar o servidor pra a mudança valer.
+
+{orange:Editor de mundo (mapas, monstros, drops, NPCs e lojas)}
+![Editor de mapas, NPCs e lojas do RF Editor](pending)
+O mesmo vale pro mundo: monstros, drops, portais, NPCs e as lojas de cada mapa são editados visualmente em cima do mapa 3D real — incluindo o que cada loja vende e por qual preço.
+
+Além dessas duas telas, o RF Editor também tem editores dedicados pra armas, equipamentos, animus, força/skill, poções, recursos, itens de baú, loja de cash, receitas de craft, anéis/amuletos e classes inteiras. É essa ferramenta que nos permite corrigir, balancear e adicionar conteúdo rápido no RF Ascension, sem depender de terceiros.`;
+
 let bootstrapped = false;
 
 async function ensureForumSchema(db: Db) {
@@ -109,6 +123,7 @@ async function ensureForumSchema(db: Db) {
     SELECT MIN(id) FROM forum_topics WHERE author_email = ${STAFF_EMAIL} GROUP BY forum_slug, title
   )`);
   await rewriteItemsTopicBody(db);
+  await ensureSubTopic(db, "Nosso Editor Próprio", EDITOR_TOPIC_BODY);
   await rewriteMasterTopicBody(db);
   await seedServerInfo(db);
   await seedMonsterDrops(db);
@@ -150,6 +165,7 @@ type MasterLinkIds = {
   professionId: number;
   towersId: number;
   guildId: number;
+  editorId: number;
 };
 
 // Única fonte do texto do tópico mestre — usada tanto no seed inicial quanto
@@ -174,6 +190,7 @@ Recursos do servidor:
 - [Ofícios, Coleta e Crafting](/forum/${SERVER_INFO_SLUG}/topic/${ids.professionId})
 - [Torres, M.A.U. e Minas Aprimoradas](/forum/${SERVER_INFO_SLUG}/topic/${ids.towersId})
 - [Novo Sistema de Guildas](/forum/${SERVER_INFO_SLUG}/topic/${ids.guildId})
+- [Nosso Editor Próprio](/forum/${SERVER_INFO_SLUG}/topic/${ids.editorId})
 
 Eventos:
 - Invasão de monstros às terças e quintas, 10h e 16h (drops especiais e XP extra)
@@ -196,6 +213,27 @@ Outros sistemas:
 - Dungeon Solo e Dungeon PvP
 - Sistema de Módulos próprio do RF Ascension, em evolução constante
 - Chave do M.A.U. não é destruída ao explodir`;
+}
+
+// Cria um sub-tópico novo em SERVER_INFO_SLUG se ainda não existir — usado
+// quando um recurso novo é adicionado DEPOIS que o tópico mestre já existe
+// (seedServerInfo só roda inteiro na primeira vez, então não recria os
+// sub-tópicos que já estavam lá; isso preenche especificamente o que falta).
+async function ensureSubTopic(db: Db, title: string, body: string): Promise<number> {
+  const [existing] = await db
+    .select({ id: forumTopics.id })
+    .from(forumTopics)
+    .where(
+      and(eq(forumTopics.forumSlug, SERVER_INFO_SLUG), eq(forumTopics.title, title), eq(forumTopics.authorEmail, STAFF_EMAIL))
+    );
+  if (existing) return existing.id;
+
+  const [topic] = await db
+    .insert(forumTopics)
+    .values({ forumSlug: SERVER_INFO_SLUG, title, authorName: STAFF_NAME, authorEmail: STAFF_EMAIL })
+    .returning();
+  await db.insert(forumPosts).values({ topicId: topic.id, body, authorName: STAFF_NAME, authorEmail: STAFF_EMAIL });
+  return topic.id;
 }
 
 // Sub-tópicos já existem (mesmos ids) e o texto do mestre mudou de novo —
@@ -228,9 +266,10 @@ async function rewriteMasterTopicBody(db: Db) {
   const professionId = await findId("Ofícios, Coleta e Crafting");
   const towersId = await findId("Torres, M.A.U. e Minas Aprimoradas");
   const guildId = await findId("Novo Sistema de Guildas");
-  if (!itemsId || !premiumId || !mountId || !dungeonId || !professionId || !towersId || !guildId) return;
+  const editorId = await findId("Nosso Editor Próprio");
+  if (!itemsId || !premiumId || !mountId || !dungeonId || !professionId || !towersId || !guildId || !editorId) return;
 
-  const newBody = buildMasterBody({ itemsId, premiumId, mountId, dungeonId, professionId, towersId, guildId });
+  const newBody = buildMasterBody({ itemsId, premiumId, mountId, dungeonId, professionId, towersId, guildId, editorId });
 
   const [original] = await db
     .select({ id: forumPosts.id, body: forumPosts.body })
@@ -292,10 +331,11 @@ async function seedServerInfo(db: Db) {
     "Novo Sistema de Guildas",
     "As guildas agora acumulam pontos de habilidade para investir em passivos próprios, com uma janela de reset mensal para reorganizar a build da guilda sem perder progresso permanentemente."
   );
+  const editorId = await createStaffTopic("Nosso Editor Próprio", EDITOR_TOPIC_BODY);
 
   await createStaffTopic(
     MASTER_TITLE,
-    buildMasterBody({ itemsId, premiumId, mountId, dungeonId, professionId, towersId, guildId }),
+    buildMasterBody({ itemsId, premiumId, mountId, dungeonId, professionId, towersId, guildId, editorId }),
     true
   );
 }
