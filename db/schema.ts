@@ -1,20 +1,20 @@
-import { sql } from "drizzle-orm";
-import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { boolean, index, integer, pgTable, serial, text } from "drizzle-orm/pg-core";
 
 const timestamp = () =>
   text("created_at")
     .notNull()
-    .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ','now'))`);
+    .$defaultFn(() => new Date().toISOString());
 
-export const forumTopics = sqliteTable(
+export const forumTopics = pgTable(
   "forum_topics",
   {
-    id: integer("id").primaryKey({ autoIncrement: true }),
+    id: serial("id").primaryKey(),
     forumSlug: text("forum_slug").notNull(),
     title: text("title").notNull(),
     authorName: text("author_name").notNull(),
     authorEmail: text("author_email").notNull(),
-    pinned: integer("pinned", { mode: "boolean" }).notNull().default(false),
+    pinned: boolean("pinned").notNull().default(false),
+    commentsAllowed: boolean("comments_allowed").notNull().default(true),
     createdAt: timestamp(),
   },
   (table) => ({
@@ -22,10 +22,10 @@ export const forumTopics = sqliteTable(
   })
 );
 
-export const forumPosts = sqliteTable(
+export const forumPosts = pgTable(
   "forum_posts",
   {
-    id: integer("id").primaryKey({ autoIncrement: true }),
+    id: serial("id").primaryKey(),
     topicId: integer("topic_id")
       .notNull()
       .references(() => forumTopics.id, { onDelete: "cascade" }),

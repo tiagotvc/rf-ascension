@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { findForumBoard, formatForumDate, forumInitials } from "../../config/forum";
 import { listForumTopics, getRecentTopics, isStaffEmail } from "../../../db/forum";
-import { getChatGPTUser, chatGPTSignInPath } from "../../chatgpt-auth";
+import { getSessionUser, adminSignInPath } from "../../lib/auth";
 import NewTopicForm from "../NewTopicForm";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +14,7 @@ export default async function ForumBoard({ params }: { params: Promise<{ forumSl
 
   const [topics, user, recentTopics] = await Promise.all([
     listForumTopics(forumSlug),
-    getChatGPTUser(),
+    getSessionUser(),
     getRecentTopics(6),
   ]);
 
@@ -42,7 +42,7 @@ export default async function ForumBoard({ params }: { params: Promise<{ forumSl
                   <span className="board-staff-note">Por enquanto, só a equipe pode publicar tópicos aqui.</span>
                 )
               ) : (
-                <span className="login-gate"><small>Você não está logado.</small><a className="btn btn-ghost" href={chatGPTSignInPath(`/forum/${forumSlug}`)}>Entrar</a></span>
+                <span className="login-gate"><small>Você não está logado.</small><a className="btn btn-ghost" href={adminSignInPath(`/forum/${forumSlug}`)}>Entrar</a></span>
               )
             ) : (
               <span className="board-staff-note">Mural mantido pela equipe Echelon.</span>

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { findForumBoard, formatForumDate, forumInitials } from "../../../../config/forum";
 import { getForumTopicWithPosts, getAuthorStats, isStaffEmail } from "../../../../../db/forum";
-import { getChatGPTUser, chatGPTSignInPath } from "../../../../chatgpt-auth";
+import { getSessionUser, adminSignInPath } from "../../../../lib/auth";
 import ReplyForm from "../../../ReplyForm";
 import PostBody from "../../../PostBody";
 
@@ -24,7 +24,7 @@ export default async function ForumTopic({
   const topicId = Number(topicIdParam);
   if (!Number.isInteger(topicId)) notFound();
 
-  const [data, user] = await Promise.all([getForumTopicWithPosts(forumSlug, topicId), getChatGPTUser()]);
+  const [data, user] = await Promise.all([getForumTopicWithPosts(forumSlug, topicId), getSessionUser()]);
   if (!data) notFound();
   const { area, board } = found;
   const { topic, posts } = data;
@@ -69,7 +69,7 @@ export default async function ForumTopic({
             );
           })}
         </div>
-        {board.canReply ? (
+        {board.canReply && topic.commentsAllowed ? (
           user ? (
             isStaffEmail(user.email) ? (
               <ReplyForm forumSlug={forumSlug} topicId={topic.id} />
@@ -77,8 +77,10 @@ export default async function ForumTopic({
               <span className="board-staff-note">Por enquanto, só a equipe pode responder aqui.</span>
             )
           ) : (
-            <span className="login-gate"><small>Você não está logado.</small><a className="btn btn-ghost" href={chatGPTSignInPath(`/forum/${forumSlug}/topic/${topic.id}`)}>Entrar</a></span>
+            <span className="login-gate"><small>Você não está logado.</small><a className="btn btn-ghost" href={adminSignInPath(`/forum/${forumSlug}/topic/${topic.id}`)}>Entrar</a></span>
           )
+        ) : !topic.commentsAllowed ? (
+          <span className="board-staff-note">Comentários desativados neste tópico.</span>
         ) : null}
       </section>
     </main>

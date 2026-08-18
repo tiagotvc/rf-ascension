@@ -104,62 +104,64 @@ let bootstrapped = false;
 
 async function ensureForumSchema(db: Db) {
   if (bootstrapped) return;
-  await db.run(sql`CREATE TABLE IF NOT EXISTS forum_topics (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+  await db.execute(sql`CREATE TABLE IF NOT EXISTS forum_topics (
+    id SERIAL PRIMARY KEY,
     forum_slug TEXT NOT NULL,
     title TEXT NOT NULL,
     author_name TEXT NOT NULL,
     author_email TEXT NOT NULL,
-    pinned INTEGER NOT NULL DEFAULT 0,
-    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+    pinned BOOLEAN NOT NULL DEFAULT false,
+    comments_allowed BOOLEAN NOT NULL DEFAULT true,
+    created_at TEXT NOT NULL
   )`);
-  await db.run(sql`CREATE INDEX IF NOT EXISTS forum_topics_forum_slug_idx ON forum_topics (forum_slug)`);
-  await db.run(sql`CREATE TABLE IF NOT EXISTS forum_posts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+  await db.execute(sql`ALTER TABLE forum_topics ADD COLUMN IF NOT EXISTS comments_allowed BOOLEAN NOT NULL DEFAULT true`);
+  await db.execute(sql`CREATE INDEX IF NOT EXISTS forum_topics_forum_slug_idx ON forum_topics (forum_slug)`);
+  await db.execute(sql`CREATE TABLE IF NOT EXISTS forum_posts (
+    id SERIAL PRIMARY KEY,
     topic_id INTEGER NOT NULL REFERENCES forum_topics(id) ON DELETE CASCADE,
     body TEXT NOT NULL,
     author_name TEXT NOT NULL,
     author_email TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+    created_at TEXT NOT NULL
   )`);
-  await db.run(sql`CREATE INDEX IF NOT EXISTS forum_posts_topic_id_idx ON forum_posts (topic_id)`);
+  await db.execute(sql`CREATE INDEX IF NOT EXISTS forum_posts_topic_id_idx ON forum_posts (topic_id)`);
   // Correção de rota: essas notas foram semeadas em "Notas de atualização"
   // (01-3) antes de decidirmos que esse mural fica reservado para a primeira
   // manutenção real. Move o que já existir para "Informações do servidor".
-  await db.run(
+  await db.execute(
     sql`UPDATE forum_topics SET forum_slug = ${SERVER_INFO_SLUG} WHERE forum_slug = '01-3' AND author_email = ${STAFF_EMAIL}`
   );
   // Rebrand RF Ascension -> RF Echelon: título, autor e corpo já semeados
   // ainda tinham o nome antigo (a troca dos textos-fonte só afeta o próximo
   // insert; conteúdo já gravado no D1 precisa de migração explícita).
-  await db.run(sql`UPDATE forum_topics SET title = REPLACE(title, 'RF Ascension', 'RF Echelon') WHERE author_email = ${STAFF_EMAIL} AND title LIKE '%RF Ascension%'`);
-  await db.run(sql`UPDATE forum_topics SET author_name = REPLACE(author_name, 'Equipe Ascension', 'Equipe Echelon') WHERE author_email = ${STAFF_EMAIL} AND author_name LIKE '%Ascension%'`);
-  await db.run(sql`UPDATE forum_posts SET author_name = REPLACE(author_name, 'Equipe Ascension', 'Equipe Echelon') WHERE author_email = ${STAFF_EMAIL} AND author_name LIKE '%Ascension%'`);
-  await db.run(sql`UPDATE forum_posts SET body = REPLACE(body, 'RF Ascension', 'RF Echelon') WHERE author_email = ${STAFF_EMAIL} AND body LIKE '%RF Ascension%'`);
+  await db.execute(sql`UPDATE forum_topics SET title = REPLACE(title, 'RF Ascension', 'RF Echelon') WHERE author_email = ${STAFF_EMAIL} AND title LIKE '%RF Ascension%'`);
+  await db.execute(sql`UPDATE forum_topics SET author_name = REPLACE(author_name, 'Equipe Ascension', 'Equipe Echelon') WHERE author_email = ${STAFF_EMAIL} AND author_name LIKE '%Ascension%'`);
+  await db.execute(sql`UPDATE forum_posts SET author_name = REPLACE(author_name, 'Equipe Ascension', 'Equipe Echelon') WHERE author_email = ${STAFF_EMAIL} AND author_name LIKE '%Ascension%'`);
+  await db.execute(sql`UPDATE forum_posts SET body = REPLACE(body, 'RF Ascension', 'RF Echelon') WHERE author_email = ${STAFF_EMAIL} AND body LIKE '%RF Ascension%'`);
   // Ofícios, Coleta e Crafting foi removido do catálogo — apaga o que já
   // tinha sido semeado (nunca toca em posts de jogador nesse tópico, mas
   // como é mural de equipe isso nunca existiu de qualquer forma).
-  await db.run(sql`DELETE FROM forum_posts WHERE topic_id IN (SELECT id FROM forum_topics WHERE forum_slug = ${SERVER_INFO_SLUG} AND author_email = ${STAFF_EMAIL} AND title = 'Ofícios, Coleta e Crafting')`);
-  await db.run(sql`DELETE FROM forum_topics WHERE forum_slug = ${SERVER_INFO_SLUG} AND author_email = ${STAFF_EMAIL} AND title = 'Ofícios, Coleta e Crafting'`);
+  await db.execute(sql`DELETE FROM forum_posts WHERE topic_id IN (SELECT id FROM forum_topics WHERE forum_slug = ${SERVER_INFO_SLUG} AND author_email = ${STAFF_EMAIL} AND title = 'Ofícios, Coleta e Crafting')`);
+  await db.execute(sql`DELETE FROM forum_topics WHERE forum_slug = ${SERVER_INFO_SLUG} AND author_email = ${STAFF_EMAIL} AND title = 'Ofícios, Coleta e Crafting'`);
   // Limpa tópicos de teste criados durante o desenvolvimento local.
-  await db.run(
+  await db.execute(
     sql`DELETE FROM forum_posts WHERE author_email IN ('jogador@exemplo.com') OR topic_id IN (SELECT id FROM forum_topics WHERE author_email LIKE 'teste%@exemplo.com')`
   );
-  await db.run(sql`DELETE FROM forum_topics WHERE author_email LIKE 'teste%@exemplo.com'`);
+  await db.execute(sql`DELETE FROM forum_topics WHERE author_email LIKE 'teste%@exemplo.com'`);
   // Dev-only race: um hot-reload do módulo no meio de um seed em andamento
   // pode fazer dois processos passarem pelo "if (master) return" ao mesmo
   // tempo e inserir o mesmo tópico duas vezes (aconteceu de verdade numa
   // sessão local). Sem constraint única em (forum_slug, title), o guard
   // mais simples é limpar duplicata por duplicata, mantendo o id mais
   // antigo — nunca toca em tópicos de jogador (só author_email = staff).
-  await db.run(sql`DELETE FROM forum_posts WHERE topic_id IN (
+  await db.execute(sql`DELETE FROM forum_posts WHERE topic_id IN (
     SELECT t.id FROM forum_topics t
     WHERE t.author_email = ${STAFF_EMAIL}
     AND t.id NOT IN (
       SELECT MIN(id) FROM forum_topics WHERE author_email = ${STAFF_EMAIL} GROUP BY forum_slug, title
     )
   )`);
-  await db.run(sql`DELETE FROM forum_topics WHERE author_email = ${STAFF_EMAIL} AND id NOT IN (
+  await db.execute(sql`DELETE FROM forum_topics WHERE author_email = ${STAFF_EMAIL} AND id NOT IN (
     SELECT MIN(id) FROM forum_topics WHERE author_email = ${STAFF_EMAIL} GROUP BY forum_slug, title
   )`);
   await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Sistema de Itens Atualizado", ITEMS_TOPIC_BODY);
@@ -325,10 +327,10 @@ async function seedServerInfo(db: Db) {
   // Estrutura de conteúdo mudou desde o último seed: limpa só o que a
   // própria equipe publicou nesse mural (nunca toca em posts de jogadores)
   // e recria do zero.
-  await db.run(
+  await db.execute(
     sql`DELETE FROM forum_posts WHERE topic_id IN (SELECT id FROM forum_topics WHERE forum_slug = ${SERVER_INFO_SLUG} AND author_email = ${STAFF_EMAIL})`
   );
-  await db.run(sql`DELETE FROM forum_topics WHERE forum_slug = ${SERVER_INFO_SLUG} AND author_email = ${STAFF_EMAIL}`);
+  await db.execute(sql`DELETE FROM forum_topics WHERE forum_slug = ${SERVER_INFO_SLUG} AND author_email = ${STAFF_EMAIL}`);
 
   async function createStaffTopic(title: string, body: string, pinned = false): Promise<number> {
     const [topic] = await db
@@ -382,10 +384,10 @@ async function seedMonsterDrops(db: Db) {
     .where(and(eq(forumTopics.forumSlug, DROPS_SLUG), eq(forumTopics.title, DROPS_MASTER_TITLE)));
   if (master) return;
 
-  await db.run(
+  await db.execute(
     sql`DELETE FROM forum_posts WHERE topic_id IN (SELECT id FROM forum_topics WHERE forum_slug = ${DROPS_SLUG} AND author_email = ${STAFF_EMAIL})`
   );
-  await db.run(sql`DELETE FROM forum_topics WHERE forum_slug = ${DROPS_SLUG} AND author_email = ${STAFF_EMAIL}`);
+  await db.execute(sql`DELETE FROM forum_topics WHERE forum_slug = ${DROPS_SLUG} AND author_email = ${STAFF_EMAIL}`);
 
   async function createStaffTopic(title: string, body: string, pinned = false): Promise<number> {
     const [topic] = await db
@@ -544,12 +546,18 @@ export async function createForumTopic(input: {
   body: string;
   authorName: string;
   authorEmail: string;
+  pinned?: boolean;
+  commentsAllowed?: boolean;
 }) {
   const board = findForumBoard(input.forumSlug);
-  if (!board || !board.board.canCreateTopics) {
-    throw new Error("Este mural não aceita novos tópicos.");
+  if (!board) {
+    throw new Error("Mural não encontrado.");
   }
-  if (!isStaffEmail(input.authorEmail)) {
+  const staff = isStaffEmail(input.authorEmail);
+  if (!staff) {
+    // Por enquanto só a equipe pode publicar — quando contas de jogador
+    // (login com a conta do jogo) estiverem ligadas, volta a valer a regra
+    // por mural (board.canCreateTopics).
     throw new Error("Por enquanto só a equipe pode publicar novos tópicos.");
   }
   const title = input.title.trim();
@@ -571,6 +579,8 @@ export async function createForumTopic(input: {
       title,
       authorName: input.authorName,
       authorEmail: input.authorEmail,
+      pinned: input.pinned ?? false,
+      commentsAllowed: input.commentsAllowed ?? true,
     })
     .returning();
   await db.insert(forumPosts).values({
@@ -605,11 +615,14 @@ export async function createForumReply(input: {
   await ensureForumSchema(db);
 
   const [topic] = await db
-    .select({ id: forumTopics.id })
+    .select({ id: forumTopics.id, commentsAllowed: forumTopics.commentsAllowed })
     .from(forumTopics)
     .where(and(eq(forumTopics.id, input.topicId), eq(forumTopics.forumSlug, input.forumSlug)));
   if (!topic) {
     throw new Error("Tópico não encontrado.");
+  }
+  if (!topic.commentsAllowed) {
+    throw new Error("Comentários desativados neste tópico.");
   }
 
   const [post] = await db

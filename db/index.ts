@@ -1,18 +1,22 @@
-import { drizzle } from "drizzle-orm/d1";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import * as schema from "./schema";
 
-// Imported lazily (not at module top-level) so that plain-Node tooling —
-// like scripts/validate-artifact.sh, which loads the built worker outside
-// the Workers runtime — can still load this module without resolving the
-// `cloudflare:workers` scheme. It resolves fine once actually running in
-// Miniflare or on Cloudflare.
+// Um único client por processo (reaproveita a conexão entre requests na
+// mesma função serverless/instância — evita reabrir conexão TCP a cada
+// chamada). `DATABASE_URL` deve apontar pro Postgres real (VPS, Neon,
+// Vercel Postgres etc.) — de preferência uma connection string com pooler,
+// já que funções serverless podem escalar em paralelo.
+let client: ReturnType<typeof postgres> | null = null;
+
 export async function getDb() {
-  const { env } = await import("cloudflare:workers");
-  if (!env.DB) {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
     throw new Error(
-      "Cloudflare D1 binding `DB` is unavailable. Set the `d1` field in .openai/hosting.json to `DB` or let your control plane inject the real binding values before using the database."
+      "DATABASE_URL não configurada. Defina a variável de ambiente apontando pro Postgres antes de usar o banco."
     );
   }
 
-  return drizzle(env.DB, { schema });
+  client ??= postgres(connectionString, { max: 1 });
+  return drizzle(client, { schema });
 }

@@ -1,4 +1,4 @@
-import { getChatGPTUser } from "../../../../../chatgpt-auth";
+import { getSessionUser } from "../../../../../lib/auth";
 import { createForumReply } from "../../../../../../db/forum";
 
 function toErrorMessage(error: unknown) {
@@ -10,7 +10,7 @@ function toErrorMessage(error: unknown) {
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ topicId: string }> }) {
-  const user = await getChatGPTUser();
+  const user = await getSessionUser();
   if (!user) {
     return Response.json({ error: "Entre com sua conta para responder." }, { status: 401 });
   }

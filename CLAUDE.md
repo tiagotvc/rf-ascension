@@ -15,7 +15,7 @@ Não redesenhe páginas, substitua artes ou altere conteúdo oficial sem aprova�
 
 ## Estado real
 
-O frontend é visualmente avançado. O fórum já é real (D1, criação de tópico/resposta via Sign in with ChatGPT — ver `db/forum.ts`); conta, admin, doação, upload e LGPD continuam protótipos. Não trate estado do cliente como persistência e não apresente mensagens de sucesso antes da confirmação do servidor.
+O frontend é visualmente avançado. Stack: Next.js puro na Vercel + Postgres (Drizzle) — ver `README.md`. O fórum já é real (Postgres, criação de tópico/resposta autenticada — ver `db/forum.ts`). Login hoje só existe pra equipe (senha própria em `/admin/entrar`, `app/lib/auth.ts`); por enquanto só a equipe publica no fórum. Login com a conta do jogador (mesma conta do jogo, banco na VPS) ainda não está conectado. Conta de jogador, doação, upload e LGPD continuam protótipos. Não trate estado do cliente como persistência e não apresente mensagens de sucesso antes da confirmação do servidor.
 
 ## Fluxo de trabalho
 

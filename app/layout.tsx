@@ -18,9 +18,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "RF Echelon — Portal",
   description: "Portal do servidor RF Echelon: download, doações e fórum da comunidade.",
-  other: {
-    "codex-preview": "development",
-  },
 };
 
 export default function RootLayout({
