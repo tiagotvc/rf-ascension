@@ -1,10 +1,13 @@
+"use client";
+import { useEffect, useState } from "react";
+
 // Suporte mínimo a quatro sintaxes dentro de uma mensagem:
 // - negrito: `**texto**`
 // - cor: `{nome:texto}` — nome vem de uma lista fixa (COLOR_MAP), nunca CSS livre
 // - link: `[texto](/caminho)`
 // - imagem: `![legenda](/caminho)` — ou `![legenda](pending)` pra reservar o
 //   espaço de uma foto que ainda não existe (renderiza um placeholder, não
-//   uma tag <img> quebrada).
+//   uma tag <img> quebrada). Imagem real é clicável e abre em zoom.
 // Nunca usa dangerouslySetInnerHTML — o texto vira nós de texto do React
 // (sempre escapado) e só o elemento reconhecido vira um nó real.
 function isSafeHref(href: string): boolean {
@@ -25,6 +28,17 @@ const COLOR_MAP: Record<string, string> = {
 };
 
 export default function PostBody({ text }: { text: string }) {
+  const [zoomed, setZoomed] = useState<{ src: string; alt: string } | null>(null);
+
+  useEffect(() => {
+    if (!zoomed) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setZoomed(null);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [zoomed]);
+
   const nodes: React.ReactNode[] = [];
   let lastIndex = 0;
   let key = 0;
@@ -42,7 +56,17 @@ export default function PostBody({ text }: { text: string }) {
           </span>
         );
       } else if (isSafeHref(imgHref)) {
-        nodes.push(<img className="post-image" src={imgHref} alt={imgLabel} key={key++} />);
+        nodes.push(
+          <button
+            type="button"
+            className="post-image-trigger"
+            key={key++}
+            onClick={() => setZoomed({ src: imgHref, alt: imgLabel })}
+            aria-label={`Ampliar imagem: ${imgLabel}`}
+          >
+            <img className="post-image" src={imgHref} alt={imgLabel} />
+          </button>
+        );
       } else {
         nodes.push(full);
       }
@@ -63,5 +87,23 @@ export default function PostBody({ text }: { text: string }) {
     lastIndex = match.index + full.length;
   }
   if (lastIndex < text.length) nodes.push(text.slice(lastIndex));
-  return <>{nodes}</>;
+
+  return (
+    <>
+      {nodes}
+      {zoomed && (
+        <div className="post-image-lightbox" role="dialog" aria-modal="true" onClick={() => setZoomed(null)}>
+          <button
+            type="button"
+            className="post-image-lightbox-close"
+            onClick={() => setZoomed(null)}
+            aria-label="Fechar"
+          >
+            ✕
+          </button>
+          <img src={zoomed.src} alt={zoomed.alt} onClick={(e) => e.stopPropagation()} />
+        </div>
+      )}
+    </>
+  );
 }
