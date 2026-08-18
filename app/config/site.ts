@@ -22,7 +22,16 @@ export const serverSystems=[
  {name:"Efeitos Especiais Estendidos",active:true,detail:"Até 10 efeitos especiais por item."},
  {name:"Auto Rollup de Efeitos Especiais",active:true,detail:"Em drop, abertura de caixa e outras fontes de item."},
  {name:"Guild Passives System",active:true},
- {name:"Guild Research System",active:true}
+ {name:"Guild Research System",active:true},
+ {name:"Quests Reformuladas",active:true,detail:"Todas as quests do servidor foram revisadas e refeitas."},
+ {name:"Quests Diárias",active:true},
+ {name:"Anúncio Global de Boss",active:true,detail:"Aviso pra todo o servidor quando um boss nasce e quando ele morre."},
+ {name:"XP no Maul",active:true,detail:"Ganha experiência normalmente enquanto pilota o Maul."},
+ {name:"Armadilhas de Caçador",active:true,detail:"Também podem ser usadas pra matar monstro e ganhar XP."},
+ {name:"Torres de Caçador",active:true,detail:"Também podem ser usadas pra matar monstro e ganhar XP."},
+ {name:"Munição de Carga",active:true,detail:"Sistema de balas com carga (Charge Ammo)."},
+ {name:"Dungeon Solo",active:true},
+ {name:"Dungeon PvP",active:true}
 ] as const;
 export const donationPackages=[
  {id:"starter",name:"Iniciante",priceBRL:49.9,baseCash:49900,bonusPercent:0,totalCash:49900,premiumDays:30},

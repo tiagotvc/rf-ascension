@@ -93,6 +93,7 @@ async function ensureForumSchema(db: Db) {
   );
   await db.run(sql`DELETE FROM forum_topics WHERE author_email LIKE 'teste%@exemplo.com'`);
   await rewriteItemsTopicBody(db);
+  await rewriteMasterTopicBody(db);
   await seedServerInfo(db);
   bootstrapped = true;
 }
@@ -122,6 +123,105 @@ async function rewriteItemsTopicBody(db: Db) {
   if (!original || original.body === ITEMS_TOPIC_BODY) return;
 
   await db.update(forumPosts).set({ body: ITEMS_TOPIC_BODY }).where(eq(forumPosts.id, original.id));
+}
+
+type MasterLinkIds = {
+  itemsId: number;
+  premiumId: number;
+  mountId: number;
+  dungeonId: number;
+  professionId: number;
+  towersId: number;
+  guildId: number;
+};
+
+// Única fonte do texto do tópico mestre — usada tanto no seed inicial quanto
+// na migração que atualiza o tópico já existente (rewriteMasterTopicBody),
+// pra nunca ficarem dessincronizados.
+function buildMasterBody(ids: MasterLinkIds): string {
+  return `RF Ascension roda sobre a base Cliente e Servidor 2.2.3.2, com GameGuard próprio.
+
+Taxas do servidor:
+- XP base: x5
+- XP Animus: x7
+- Drop de monstro: x5
+- Taxa de venda: x2
+- Mastery / Skill: x5
+- Janelas abertas ao mesmo tempo: 1 (free) / 2 (premium)
+
+Recursos do servidor:
+- [Sistema de Itens Atualizado](/forum/${SERVER_INFO_SLUG}/topic/${ids.itemsId})
+- [Conveniências Premium: Auto Loot, Auto Sell e Tela de Teleporte](/forum/${SERVER_INFO_SLUG}/topic/${ids.premiumId})
+- [Sistema de Montaria](/forum/${SERVER_INFO_SLUG}/topic/${ids.mountId})
+- [Nova Dungeon Exclusiva](/forum/${SERVER_INFO_SLUG}/topic/${ids.dungeonId})
+- [Ofícios, Coleta e Crafting](/forum/${SERVER_INFO_SLUG}/topic/${ids.professionId})
+- [Torres, M.A.U. e Minas Aprimoradas](/forum/${SERVER_INFO_SLUG}/topic/${ids.towersId})
+- [Novo Sistema de Guildas](/forum/${SERVER_INFO_SLUG}/topic/${ids.guildId})
+
+Eventos:
+- Invasão de monstros às terças e quintas, 10h e 16h (drops especiais e XP extra)
+
+Outros sistemas:
+- Quests reformuladas (todas as quests do servidor foram revisadas e refeitas)
+- Quests diárias
+- Novas poções e novas runas
+- Pedra de Proteção (protege o item de quebrar no upgrade)
+- Novo Sistema de Talismã (Talica)
+- Sistema de Rank Up
+- Sistema de votação do Archon reformulado
+- Recompensas por quebrar chip, entregar chip e matar o portador do chip
+- Buffs de líder de guilda e líder de raça reformulados
+- Anúncio global de boss (aviso pro servidor inteiro quando nasce e quando morre)
+- XP no Maul (ganha experiência normalmente enquanto pilota)
+- Armadilhas de Caçador (também matam monstro e dão XP)
+- Torres de Caçador (também matam monstro e dão XP)
+- Munição de Carga (Charge Ammo)
+- Dungeon Solo e Dungeon PvP`;
+}
+
+// Sub-tópicos já existem (mesmos ids) e o texto do mestre mudou de novo —
+// atualiza o post original em vez de apagar e recriar (mesma URL preservada).
+async function rewriteMasterTopicBody(db: Db) {
+  const [master] = await db
+    .select({ id: forumTopics.id })
+    .from(forumTopics)
+    .where(and(eq(forumTopics.forumSlug, SERVER_INFO_SLUG), eq(forumTopics.title, MASTER_TITLE)));
+  if (!master) return;
+
+  async function findId(title: string): Promise<number | null> {
+    const [row] = await db
+      .select({ id: forumTopics.id })
+      .from(forumTopics)
+      .where(
+        and(
+          eq(forumTopics.forumSlug, SERVER_INFO_SLUG),
+          eq(forumTopics.title, title),
+          eq(forumTopics.authorEmail, STAFF_EMAIL)
+        )
+      );
+    return row?.id ?? null;
+  }
+
+  const itemsId = await findId("Sistema de Itens Atualizado");
+  const premiumId = await findId("Conveniências Premium: Auto Loot, Auto Sell e Tela de Teleporte");
+  const mountId = await findId("Sistema de Montaria");
+  const dungeonId = await findId("Nova Dungeon Exclusiva");
+  const professionId = await findId("Ofícios, Coleta e Crafting");
+  const towersId = await findId("Torres, M.A.U. e Minas Aprimoradas");
+  const guildId = await findId("Novo Sistema de Guildas");
+  if (!itemsId || !premiumId || !mountId || !dungeonId || !professionId || !towersId || !guildId) return;
+
+  const newBody = buildMasterBody({ itemsId, premiumId, mountId, dungeonId, professionId, towersId, guildId });
+
+  const [original] = await db
+    .select({ id: forumPosts.id, body: forumPosts.body })
+    .from(forumPosts)
+    .where(eq(forumPosts.topicId, master.id))
+    .orderBy(forumPosts.createdAt)
+    .limit(1);
+  if (!original || original.body === newBody) return;
+
+  await db.update(forumPosts).set({ body: newBody }).where(eq(forumPosts.id, original.id));
 }
 
 async function seedServerInfo(db: Db) {
@@ -176,37 +276,7 @@ async function seedServerInfo(db: Db) {
 
   await createStaffTopic(
     MASTER_TITLE,
-    `RF Ascension roda sobre a base Cliente e Servidor 2.2.3.2, com GameGuard próprio.
-
-Taxas do servidor:
-- XP base: x5
-- XP Animus: x7
-- Drop de monstro: x5
-- Taxa de venda: x2
-- Mastery / Skill: x5
-- Janelas abertas ao mesmo tempo: 1 (free) / 2 (premium)
-
-Recursos do servidor:
-- [Sistema de Itens Atualizado](/forum/${SERVER_INFO_SLUG}/topic/${itemsId})
-- [Conveniências Premium: Auto Loot, Auto Sell e Tela de Teleporte](/forum/${SERVER_INFO_SLUG}/topic/${premiumId})
-- [Sistema de Montaria](/forum/${SERVER_INFO_SLUG}/topic/${mountId})
-- [Nova Dungeon Exclusiva](/forum/${SERVER_INFO_SLUG}/topic/${dungeonId})
-- [Ofícios, Coleta e Crafting](/forum/${SERVER_INFO_SLUG}/topic/${professionId})
-- [Torres, M.A.U. e Minas Aprimoradas](/forum/${SERVER_INFO_SLUG}/topic/${towersId})
-- [Novo Sistema de Guildas](/forum/${SERVER_INFO_SLUG}/topic/${guildId})
-
-Eventos:
-- Invasão de monstros às terças e quintas, 10h e 16h (drops especiais e XP extra)
-
-Outros sistemas:
-- Quests diárias
-- Novas poções e novas runas
-- Pedra de Proteção (protege o item de quebrar no upgrade)
-- Novo Sistema de Talismã (Talica)
-- Sistema de Rank Up
-- Sistema de votação do Archon reformulado
-- Recompensas por quebrar chip, entregar chip e matar o portador do chip
-- Buffs de líder de guilda e líder de raça reformulados`,
+    buildMasterBody({ itemsId, premiumId, mountId, dungeonId, professionId, towersId, guildId }),
     true
   );
 }
