@@ -67,10 +67,18 @@ const EDITOR_TOPIC_BODY = `O RF Ascension é desenvolvido com uma ferramenta pr�
 O editor de quests, por exemplo, deixa configurar tudo visualmente: alvo, quantidade, até 6 recompensas de item por quest, experiência, gold, e se é uma quest diária com intervalo de repetição próprio — e salva com hot-reload, sem precisar derrubar o servidor pra a mudança valer.
 
 {orange:Editor de mundo (mapas, monstros, drops, NPCs e lojas)}
-![Editor de mapas, NPCs e lojas do RF Editor](pending)
+![Editor de mapas, NPCs e lojas do RF Editor](/assets/editor/npc_editor.png)
 O mesmo vale pro mundo: monstros, drops, portais, NPCs e as lojas de cada mapa são editados visualmente em cima do mapa 3D real — incluindo o que cada loja vende e por qual preço.
 
-Além dessas duas telas, o RF Editor também tem editores dedicados pra armas, equipamentos, animus, força/skill, poções, recursos, itens de baú, loja de cash, receitas de craft, anéis/amuletos e classes inteiras. É essa ferramenta que nos permite corrigir, balancear e adicionar conteúdo rápido no RF Ascension, sem depender de terceiros.`;
+{green:Terrain Tools — escultura de terreno ao vivo}
+![Terrain Tools do RF Editor esculpindo o terreno em tempo real](/assets/editor/terrain_tools.png)
+Pra construção de mapa, o RF Editor tem ferramentas de terreno completas: Paint, Sculpt, Ramp, Pit/Crater, Scatter, Trail, Layer Paint, Recess, Platform, Subdivide, Expand e mais. No modo Sculpt dá pra levantar, abaixar, nivelar ou suavizar o terreno arrastando direto em cima do mapa 3D, com raio de pincel e altura mínima/máxima ajustáveis — o resultado aparece na hora, sem precisar exportar nada.
+
+{pink:Editor de entidades — decoração do mapa}
+![Editor de entidades do RF Editor posicionando props no mapa](/assets/editor/entity_editor.png)
+Pra decorar o cenário, o RF Editor lista todo mesh disponível pra colocar no mapa (mais de 1100 no catálogo atual, entre arquivos soltos e empacotados), com pré-visualização antes de posicionar. Dá pra escolher, ver o modelo e colocar direto na cena 3D, sem sair do editor.
+
+Além dessas telas, o RF Editor também tem editores dedicados pra armas, equipamentos, animus, força/skill, poções, recursos, itens de baú, loja de cash, receitas de craft, anéis/amuletos e classes inteiras. É essa ferramenta que nos permite corrigir, balancear e adicionar conteúdo rápido no RF Ascension, sem depender de terceiros.`;
 
 let bootstrapped = false;
 
@@ -122,28 +130,24 @@ async function ensureForumSchema(db: Db) {
   await db.run(sql`DELETE FROM forum_topics WHERE author_email = ${STAFF_EMAIL} AND id NOT IN (
     SELECT MIN(id) FROM forum_topics WHERE author_email = ${STAFF_EMAIL} GROUP BY forum_slug, title
   )`);
-  await rewriteItemsTopicBody(db);
+  await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Sistema de Itens Atualizado", ITEMS_TOPIC_BODY);
   await ensureSubTopic(db, "Nosso Editor Próprio", EDITOR_TOPIC_BODY);
+  await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Nosso Editor Próprio", EDITOR_TOPIC_BODY);
   await rewriteMasterTopicBody(db);
   await seedServerInfo(db);
   await seedMonsterDrops(db);
   bootstrapped = true;
 }
 
-// Ascensão de Arma e Vínculo de Alma foram descontinuados e o texto ficou bem
-// mais detalhado — atualiza o post original do tópico já existente (mesmo
-// id, mesma URL, respostas preservadas) em vez de apagar e recriar.
-async function rewriteItemsTopicBody(db: Db) {
+// Atualiza o post original de um tópico de staff já existente quando o texto
+// fonte muda (mesmo id, mesma URL, respostas preservadas) — usado toda vez
+// que eu reescrevo um dos tópicos de "Informações do servidor" depois que
+// ele já foi semeado uma vez.
+async function rewriteTopicBodyIfChanged(db: Db, forumSlug: string, title: string, newBody: string) {
   const [topic] = await db
     .select({ id: forumTopics.id })
     .from(forumTopics)
-    .where(
-      and(
-        eq(forumTopics.forumSlug, SERVER_INFO_SLUG),
-        eq(forumTopics.title, "Sistema de Itens Atualizado"),
-        eq(forumTopics.authorEmail, STAFF_EMAIL)
-      )
-    );
+    .where(and(eq(forumTopics.forumSlug, forumSlug), eq(forumTopics.title, title), eq(forumTopics.authorEmail, STAFF_EMAIL)));
   if (!topic) return;
 
   const [original] = await db
@@ -152,9 +156,9 @@ async function rewriteItemsTopicBody(db: Db) {
     .where(eq(forumPosts.topicId, topic.id))
     .orderBy(forumPosts.createdAt)
     .limit(1);
-  if (!original || original.body === ITEMS_TOPIC_BODY) return;
+  if (!original || original.body === newBody) return;
 
-  await db.update(forumPosts).set({ body: ITEMS_TOPIC_BODY }).where(eq(forumPosts.id, original.id));
+  await db.update(forumPosts).set({ body: newBody }).where(eq(forumPosts.id, original.id));
 }
 
 type MasterLinkIds = {
