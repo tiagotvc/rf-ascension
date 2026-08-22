@@ -482,8 +482,13 @@
   --f-mono:var(--font-jetbrains-mono),ui-monospace,Consolas,monospace;
 }
 .forum-page .forum-content,.forum-page .board-content{
-  background:var(--f-bg)!important;
+  /* Funde com a arte do hero em vez de cortar seco: transparente no topo
+     (deixa a foto/degradê de .forum-page aparecer por baixo) até opaco
+     ~340px depois — a mesma distância que .forum-index já sobe por cima
+     do hero (margin-top:-54px) mais uma folga extra pra ficar suave. */
+  background-color:transparent!important;
   background-image:
+    linear-gradient(180deg,transparent 0,var(--f-bg) 340px,var(--f-bg) 100%),
     radial-gradient(ellipse 900px 500px at 15% -10%,rgba(201,162,75,.05),transparent),
     radial-gradient(ellipse 700px 500px at 100% 15%,rgba(195,74,110,.045),transparent)!important;
 }
