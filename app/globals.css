@@ -550,7 +550,11 @@
 .forum-page .thread-post-stats dd{font-family:var(--f-mono);color:var(--f-text-dim)}
 .forum-page .thread-post-meta{font-family:var(--f-mono);color:var(--f-text-faint)}
 .forum-page .thread-post-meta i{border-color:rgba(201,162,75,.35);color:var(--f-gold)}
-.forum-page .thread-post-body>p{font-family:var(--f-serif);font-size:15.5px;line-height:1.75;color:var(--f-text-dim)}
+.forum-page .thread-post-body>p{font-family:var(--f-serif);font-size:15.5px;line-height:1.75;color:var(--f-text-dim);max-width:74ch}
+/* Página de um tópico só (sem sidebar) sobrava muito vazio nas laterais em
+   telas largas — alarga o container em vez de deixar o post preso a
+   1080px; o texto em si continua com largura de leitura limitada acima. */
+.forum-page.thread-page .board-content{max-width:1320px}
 .forum-page .post-link{color:var(--f-gold);border-bottom-color:rgba(201,162,75,.4)}
 .forum-page .post-link:hover{border-bottom-color:var(--f-gold)}
 .forum-page .post-image{border-color:var(--f-rule-strong)}
