@@ -31,7 +31,7 @@ export default async function ForumBoard({ params }: { params: Promise<{ forumSl
         <p>{board.description}</p>
       </section>
       <section className="board-content board-layout">
-        <div>
+        <div className="board-main">
           <div className="board-toolbar">
             <span>{topics.length} {topics.length === 1 ? "tópico" : "tópicos"}</span>
             {board.canCreateTopics ? (
