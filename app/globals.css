@@ -483,15 +483,23 @@
 }
 .forum-page .forum-content,.forum-page .board-content{
   /* Funde com a arte do hero em vez de cortar seco: transparente no topo
-     (deixa a foto/degradê de .forum-page aparecer por baixo) até opaco
-     ~340px depois — a mesma distância que .forum-index já sobe por cima
-     do hero (margin-top:-54px) mais uma folga extra pra ficar suave. */
+     (deixa a foto/degradê de .forum-page aparecer por baixo), com vários
+     estágios intermediários ao longo de ~760px pra ficar gradual de
+     verdade em vez de uma única transição linear curta (que ainda lia
+     como um corte). */
   background-color:transparent!important;
   background-image:
-    linear-gradient(180deg,transparent 0,var(--f-bg) 340px,var(--f-bg) 100%),
+    linear-gradient(180deg,
+      transparent 0,
+      rgba(18,15,20,.22) 160px,
+      rgba(18,15,20,.5) 360px,
+      rgba(18,15,20,.82) 580px,
+      var(--f-bg) 760px,
+      var(--f-bg) 100%),
     radial-gradient(ellipse 900px 500px at 15% -10%,rgba(201,162,75,.05),transparent),
     radial-gradient(ellipse 700px 500px at 100% 15%,rgba(195,74,110,.045),transparent)!important;
 }
+.forum-page .forum-strip.square{background:rgba(18,15,20,.3)!important;box-shadow:none!important;backdrop-filter:none!important;border-color:var(--f-rule)!important}
 .forum-page .forum-content,.forum-page .board-content,.forum-page .board-sidebar{font-family:var(--f-serif);color:var(--f-text-dim)}
 .forum-page .forum-section-head h2,.forum-page .board-hero h1,.forum-page .thread-hero h1{font-family:var(--f-display);font-weight:600}
 
