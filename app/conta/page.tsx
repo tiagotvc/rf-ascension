@@ -8,7 +8,7 @@ export default function Conta(){
    <div className="account-panel account-locked">
     <span className="mini-label">CADASTRO AINDA FECHADO</span>
     <h2>Abre no dia do lançamento.</h2>
-    <p>Criação de conta e login abrem em <b>21/08/2026 às 20:00</b> (horário de Brasília), junto com o servidor. Não é possível criar conta antes disso.</p>
+    <p>Criação de conta e login abrem em <b>28/08/2026 às 20:00</b> (horário de Brasília), junto com o servidor. Não é possível criar conta antes disso.</p>
     <LaunchCountdown/>
     <a className="btn btn-ghost" href="/forum">Acompanhar novidades no fórum →</a>
    </div>

@@ -7,7 +7,7 @@ export default function Donate(){return <main className="premium-donation">
   <div className="account-panel account-locked store-locked">
    <span className="mini-label">PACKAGES NOT REVEALED YET</span>
    <h2>Unlocked on launch day.</h2>
-   <p>Prices, Cash Point exchange rate and exclusive items are published together with the server opening, on <b>08/21/2026 at 20:00</b> (GMT-3).</p>
+   <p>Prices, Cash Point exchange rate and exclusive items are published together with the server opening, on <b>08/28/2026 at 20:00</b> (GMT-3).</p>
    <LaunchCountdown/>
    <a className="btn btn-ghost" href="/en/forum">Follow news on the forum →</a>
   </div>

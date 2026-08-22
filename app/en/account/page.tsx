@@ -7,7 +7,7 @@ export default function EnglishAccount(){
    <div className="account-panel account-locked">
     <span className="mini-label">SIGNUPS STILL CLOSED</span>
     <h2>Opens on launch day.</h2>
-    <p>Account creation and sign-in open on <b>08/21/2026 at 20:00</b> (GMT-3), together with the server. You cannot create an account before that.</p>
+    <p>Account creation and sign-in open on <b>08/28/2026 at 20:00</b> (GMT-3), together with the server. You cannot create an account before that.</p>
     <LaunchCountdown/>
     <a className="btn btn-ghost" href="/en/forum">Follow news on the forum →</a>
    </div>

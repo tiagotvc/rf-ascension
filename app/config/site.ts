@@ -1,6 +1,6 @@
 export const siteConfig={
  name:"RF Echelon",operator:"CCR",locale:"pt-BR",timezone:"America/Sao_Paulo",
- launchAt:"2026-08-21T20:00:00-03:00",launchLabel:"21/08/2026 às 20:00",
+ launchAt:"2026-08-28T20:00:00-03:00",launchLabel:"28/08/2026 às 20:00",
  cashPerReal:1000,
  routes:{home:"/",download:"/#download",forum:"/forum",donation:"/doacao",account:"/conta",admin:"/admin"},
  legal:{privacy:"/legal/privacidade",cookies:"/legal/cookies",terms:"/legal/termos"}
