@@ -523,7 +523,8 @@
 
 /* Cabeçalho de mural + tópicos (board-content / thread-page) */
 .forum-page .tutorial-crumb,.forum-page .board-toolbar,.forum-page .board-staff-note,.forum-page .login-gate small,.forum-page .board-empty{font-family:var(--f-mono);color:var(--f-text-faint)}
-.forum-page .board-toolbar{border-bottom-color:var(--f-rule)}
+.forum-page .board-toolbar{border-bottom:none;margin-bottom:16px}
+.forum-page .board-empty{border:1px dashed var(--f-rule-strong);background:var(--f-bg-raised);padding:56px 24px;text-align:center;font-family:var(--f-serif);font-size:14.5px;color:var(--f-text-faint)}
 .forum-page .topic-index{background:var(--f-rule);border-color:var(--f-rule)}
 .forum-page .topic-index-row{background:var(--f-bg-raised)}
 .forum-page .topic-index-row:hover{background:#221b28}
