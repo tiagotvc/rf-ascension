@@ -555,6 +555,9 @@
    telas largas — alarga o container em vez de deixar o post preso a
    1080px; o texto em si continua com largura de leitura limitada acima. */
 .forum-page.thread-page .board-content{max-width:1320px}
+/* Espaço acima e abaixo do conteúdo era desigual (40px em cima, 110px
+   embaixo) — deixa igual dos dois lados. */
+.forum-page .board-content{padding-top:60px;padding-bottom:60px}
 .forum-page .post-link{color:var(--f-gold);border-bottom-color:rgba(201,162,75,.4)}
 .forum-page .post-link:hover{border-bottom-color:var(--f-gold)}
 .forum-page .post-image{border-color:var(--f-rule-strong)}
