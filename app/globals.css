@@ -554,10 +554,15 @@
 /* Página de um tópico só (sem sidebar) sobrava muito vazio nas laterais em
    telas largas — alarga o container em vez de deixar o post preso a
    1080px; o texto em si continua com largura de leitura limitada acima. */
-.forum-page.thread-page .board-content{max-width:1320px}
 /* Espaço acima e abaixo do conteúdo era desigual (40px em cima, 110px
    embaixo) — deixa igual dos dois lados. */
 .forum-page .board-content{padding-top:60px;padding-bottom:60px}
+/* Corpo do fórum ficava mais estreito que o cabeçalho (padding de 9vw +
+   teto de 1080/1280px, contra o 5vw sem teto do .site-header) — alinha
+   as bordas esquerda/direita do conteúdo com as do cabeçalho. */
+.forum-page .board-hero,.forum-page .thread-hero{padding-left:clamp(24px,5vw,84px);padding-right:clamp(24px,5vw,84px)}
+.forum-page .board-content{max-width:none;padding-left:clamp(24px,5vw,84px);padding-right:clamp(24px,5vw,84px)}
+.forum-page .board-layout{max-width:none}
 .forum-page .post-link{color:var(--f-gold);border-bottom-color:rgba(201,162,75,.4)}
 .forum-page .post-link:hover{border-bottom-color:var(--f-gold)}
 .forum-page .post-image{border-color:var(--f-rule-strong)}
