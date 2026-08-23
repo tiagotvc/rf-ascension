@@ -49,3 +49,28 @@ export function createGameAccount(username: string, password: string): Promise<G
 export function verifyGameAccount(username: string, password: string): Promise<GameAccountResult> {
   return callBridge("/v1/accounts/login", username, password);
 }
+
+export type ServerStatus = { online: boolean; playersOnline: number } | { online: null; playersOnline: null };
+
+// Estado real do servidor (online + jogadores conectados agora), lido do
+// mesmo mod side-channel que o launcher já usa — ver AccountBridge/README.md
+// (GET /v1/status). Nunca lança: se a ponte não estiver configurada ou fora
+// do ar, devolve {online:null} pra a página mostrar "indisponível" em vez de
+// inventar um número.
+export async function getServerStatus(): Promise<ServerStatus> {
+  const url = process.env.GAME_ACCOUNT_BRIDGE_URL;
+  const key = process.env.GAME_ACCOUNT_BRIDGE_KEY;
+  if (!url || !key) return { online: null, playersOnline: null };
+
+  try {
+    const res = await fetch(`${url}/v1/status`, {
+      headers: { "x-bridge-key": key },
+      next: { revalidate: 20 },
+    });
+    if (!res.ok) return { online: null, playersOnline: null };
+    const data = (await res.json()) as { online: boolean; playersOnline: number };
+    return data;
+  } catch {
+    return { online: null, playersOnline: null };
+  }
+}
