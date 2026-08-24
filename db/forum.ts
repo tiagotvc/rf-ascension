@@ -145,7 +145,7 @@ Item + 250 pedras do mesmo tier + Dalant (o custo sobe conforme o Rank atual do 
 Se falhar, as pedras e o Dalant são consumidos, mas o item não perde Rank.
 
 {pink:De onde vêm as pedras}
-Ainda não temos certeza de onde as pedras de Baixa/Média/Alta são obtidas — assim que confirmarmos, atualizamos aqui. A de Mais Alta parece vir de boss de campo neutro.`;
+Em breve.`;
 
 // Placeholders de imagem (pending) até as duas capturas de tela reais do RF
 // Editor serem publicadas.
