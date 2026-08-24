@@ -255,7 +255,6 @@ Taxas do servidor:
 - Drop de monstro: x5
 - Taxa de venda: x5
 - Mastery / Skill: x5
-- Membros por grupo: 8
 - Buffs ativos: 20
 - Janelas abertas ao mesmo tempo: 1 (free) / 2 (premium)
 
@@ -264,25 +263,7 @@ Recursos do servidor:
 - [Nosso Editor Próprio](/forum/${SERVER_INFO_SLUG}/topic/${ids.editorId})
 
 Eventos:
-- Invasão de monstros às terças e quintas, 10h e 16h (drops especiais e XP extra)
-
-Outros sistemas:
-- Quests reformuladas (todas as quests do servidor foram revisadas e refeitas)
-- Quests diárias
-- Novas poções e novas runas
-- Pedra de Proteção (protege o item de quebrar no upgrade)
-- Novo Sistema de Talismã (Talica)
-- Sistema de votação do Archon reformulado
-- Recompensas por quebrar chip, entregar chip e matar o portador do chip
-- Buffs de líder de guilda e líder de raça reformulados
-- Anúncio global de boss (aviso pro servidor inteiro quando nasce e quando morre)
-- XP no Maul (ganha experiência normalmente enquanto pilota)
-- Armadilhas de Caçador (também matam monstro e dão XP)
-- Torres de Caçador (também matam monstro e dão XP)
-- Munição de Carga (Charge Ammo)
-- Dungeon Solo e Dungeon PvP
-- Sistema de Módulos próprio do RF Echelon, em evolução constante
-- Chave do M.A.U. não é destruída ao explodir`;
+- Invasão de monstros às terças e quintas, 10h e 16h (drops especiais e XP extra)`;
 }
 
 // Cria um sub-tópico novo em SERVER_INFO_SLUG se ainda não existir — usado

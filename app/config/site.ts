@@ -10,7 +10,6 @@ export const serverRates=[
  {value:"x5",label:"Venda (valor original)"},
  {value:"x5",label:"PT / Skill"},
  {value:"x5",label:"Drop"},
- {value:"8",label:"Membros por grupo"},
  {value:"20",label:"Buffs ativos"},
  {value:"255",label:"Stack de item"}
 ] as const;
