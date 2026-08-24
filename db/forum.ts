@@ -20,7 +20,8 @@ const MASTER_TITLE = "Informações do servidor — RF Echelon";
 // Ascensão de Arma e Vínculo de Alma foram descontinuados — removidos daqui.
 // Cada seção tem um placeholder de foto (`pending`) até as imagens reais
 // chegarem; ver PostBody.tsx para a sintaxe (`![legenda](pending)`).
-const ITEMS_TOPIC_BODY = `O sistema de itens foi atualizado com foco em variedade de build e progressão de equipamento:
+function buildItemsTopicBody(rankupId: number): string {
+  return `O sistema de itens foi atualizado com foco em variedade de build e progressão de equipamento:
 
 {cyan:Efeitos Especiais Expandidos — até 10 por item}
 ![Efeitos Especiais Expandidos](pending)
@@ -31,8 +32,8 @@ Cada item agora pode receber até 10 efeitos especiais ao mesmo tempo, bem mais 
 Quando um item com efeito especial sai de um monstro, de uma caixa ou de qualquer outra fonte, os efeitos já vêm sorteados automaticamente na hora — sem precisar de uma etapa manual separada pra "rolar" o item depois de pegá-lo. O item já cai pronto pra avaliar.
 
 {orange:Sistema de Rank Up}
-![Sistema de Rank Up](pending)
-Itens ganham um rank que pode ser evoluído, aumentando os atributos base do equipamento conforme você investe nele — uma forma extra de progressão pro seu equipamento, além dos efeitos especiais.
+![Tooltip de arma mostrando Rank 17 level e o bônus de Attack Point](/assets/rankup/weapon.png)
+Todo item — arma ou armadura — carrega um Rank, que é um bônus fixo de ataque (arma) ou defesa (armadura) somado direto no combate, separado dos efeitos especiais e do +Upgrade normal de talica. Dá pra evoluir esse Rank investindo Pedra de Evolução no item. Tem um tutorial completo em [Sistema de Rank Up e Pedras de Evolução](/forum/${SERVER_INFO_SLUG}/topic/${rankupId}).
 
 {gold:Bônus de Ataque e Defesa por Raridade}
 Toda arma e armadura carrega uma raridade, que já vem com um bônus de ataque (arma) ou defesa (armadura) embutido — fixo naquele item específico, não é sorteado de novo depois:
@@ -57,6 +58,66 @@ O sistema de Talica ganhou talicas novas, cada uma com efeitos adicionais que n�
 Sistema de runas novo, que adiciona bônus extras aos seus itens.
 
 As fotos de cada sistema entram aqui assim que estiverem prontas.`;
+}
+
+// Baseado na fonte real do WorldServer (CItemRankMgr, RankStoneConfig,
+// CPlayer::pc_ItemUpgrade). Números conferidos contra o tooltip real (Rank
+// 17 = +114 de Attack Point bate exatamente com a fórmula). O tooltip da
+// Pedra de Evolução em jogo tem texto desatualizado (fala em "limite de
+// upgrade do item" e "sem penalidade na falha") — isso descreve o desenho
+// antigo do sistema, substituído em 19/08; o texto abaixo segue o código
+// atual, não o tooltip.
+const RANKUP_TOPIC_BODY = `O Rank é um atributo separado do +Upgrade normal (os pontinhos de talica) — existe tanto em arma quanto em armadura, e dá um bônus fixo de dano ou defesa que soma direto no combate, sem depender da fórmula normal de defesa.
+
+![Tooltip de arma mostrando Rank 17 level e +114 de Attack Point](/assets/rankup/weapon.png)
+
+{cyan:O que o Rank dá}
+- Em {white:arma}: bônus fixo de Attack Point.
+- Em {white:armadura}: bônus fixo de Defense Point, e também de Race Defense Point (esse último só conta em PvP e não aparece no tooltip).
+
+O Rank vai de 0 a 255, e o bônus não cresce de forma linear — cada nível vale um pouco mais que o anterior, então os ranks mais altos valem bem mais que os primeiros. Alguns exemplos reais, calculados a partir da fórmula do servidor:
+
+- Rank 17 — +114
+- Rank 50 — +487
+- Rank 100 — +1.242
+- Rank 150 — +2.148
+- Rank 200 — +3.167
+- Rank 255 (máximo) — +4.396
+
+{orange:Rank inicial ao dropar}
+Todo item já nasce com um Rank sorteado dentro de uma faixa, de acordo com a raridade dele:
+
+- {white:Normal} — 0 a 15
+- {green:Intense / Superior} — 0 a 20
+- {cyan:Relíquia / Hunter} — 0 a 25
+- {violet:Ascended} — 0 a 30
+- {pink:Quantum} — 0 a 35
+- {gold:Special} — 0 a 40
+
+Esse teto vale só pro sorteio inicial — depois que você começa a evoluir o item com Pedra de Evolução, o Rank pode passar bem desse número, até o limite absoluto de 255. Itens de stat fixo (aqueles que nunca rolam afixo/raridade) não recebem Rank.
+
+{violet:Pedras de Evolução}
+![Pedra de Evolução [Highest] e sua descrição](/assets/rankup/evolution_stone.png)
+
+Existem 4 tiers de pedra, cada uma com sua própria chance de sucesso e quanto Rank ela sobe de uma vez:
+
+- {white:Baixa} — 10% de sucesso, +1 rank
+- {green:Média} — 30% de sucesso, +1 a +3 rank
+- {orange:Alta} — 50% de sucesso, +1 a +5 rank
+- {gold:Mais Alta} — 70% de sucesso, +1 a +10 rank
+
+A pedra é sempre consumida, ganhe ou perca. Vale reforçar: a descrição da pedra em jogo está desatualizada em dois pontos — ela fala em "limite de upgrade do item" (hoje o teto é 255 pra qualquer item) e em "nada acontece na falha" (isso só vale pra uma das duas formas de usar a pedra, veja abaixo).
+
+{gold:Duas formas de usar a pedra}
+1. {cyan:Janela de Upgrade de Item} — arrasta a pedra pro socket principal de talica. Gasta 1 pedra só, de graça. Se falhar, tem uma chance extra de perder 1 rank do item: 40% na pedra Baixa, 25% na Média, 15% na Alta, 5% na Mais Alta.
+2. {cyan:Item Combiner} (janela de 5 slots):
+
+![Janela do Item Combiner com a arma e uma pilha de pedras](/assets/rankup/combination.png)
+
+Gasta 250 pedras do mesmo tier de uma vez, mais Dalant — o custo em Dalant sobe conforme o Rank atual do item, então cada tentativa fica mais cara quanto mais alto o item já estiver. Em compensação, essa rota nunca faz o item perder Rank numa falha — só consome as pedras e o Dalant.
+
+{pink:De onde vêm as pedras}
+Ainda não temos certeza de onde as pedras de Baixa/Média/Alta são obtidas — assim que confirmarmos, atualizamos aqui. A de Mais Alta parece vir de boss de campo neutro.`;
 
 // Placeholders de imagem (pending) até as duas capturas de tela reais do RF
 // Editor serem publicadas.
@@ -164,7 +225,9 @@ async function ensureForumSchema(db: Db) {
   await db.execute(sql`DELETE FROM forum_topics WHERE author_email = ${STAFF_EMAIL} AND id NOT IN (
     SELECT MIN(id) FROM forum_topics WHERE author_email = ${STAFF_EMAIL} GROUP BY forum_slug, title
   )`);
-  await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Sistema de Itens Atualizado", ITEMS_TOPIC_BODY);
+  const rankupId = await ensureSubTopic(db, "Sistema de Rank Up e Pedras de Evolução", RANKUP_TOPIC_BODY);
+  await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Sistema de Rank Up e Pedras de Evolução", RANKUP_TOPIC_BODY);
+  await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Sistema de Itens Atualizado", buildItemsTopicBody(rankupId));
   await ensureSubTopic(db, "Nosso Editor Próprio", EDITOR_TOPIC_BODY);
   await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Nosso Editor Próprio", EDITOR_TOPIC_BODY);
   await rewriteMasterTopicBody(db);
@@ -203,6 +266,7 @@ type MasterLinkIds = {
   towersId: number;
   guildId: number;
   editorId: number;
+  rankupId: number;
 };
 
 // Única fonte do texto do tópico mestre — usada tanto no seed inicial quanto
@@ -226,6 +290,7 @@ Recursos do servidor:
 - [Nova Dungeon Exclusiva](/forum/${SERVER_INFO_SLUG}/topic/${ids.dungeonId})
 - [Torres, M.A.U. e Minas Aprimoradas](/forum/${SERVER_INFO_SLUG}/topic/${ids.towersId})
 - [Novo Sistema de Guildas](/forum/${SERVER_INFO_SLUG}/topic/${ids.guildId})
+- [Sistema de Rank Up e Pedras de Evolução](/forum/${SERVER_INFO_SLUG}/topic/${ids.rankupId})
 - [Nosso Editor Próprio](/forum/${SERVER_INFO_SLUG}/topic/${ids.editorId})
 
 Eventos:
@@ -237,7 +302,6 @@ Outros sistemas:
 - Novas poções e novas runas
 - Pedra de Proteção (protege o item de quebrar no upgrade)
 - Novo Sistema de Talismã (Talica)
-- Sistema de Rank Up
 - Sistema de votação do Archon reformulado
 - Recompensas por quebrar chip, entregar chip e matar o portador do chip
 - Buffs de líder de guilda e líder de raça reformulados
@@ -302,9 +366,10 @@ async function rewriteMasterTopicBody(db: Db) {
   const towersId = await findId("Torres, M.A.U. e Minas Aprimoradas");
   const guildId = await findId("Novo Sistema de Guildas");
   const editorId = await findId("Nosso Editor Próprio");
-  if (!itemsId || !premiumId || !mountId || !dungeonId || !towersId || !guildId || !editorId) return;
+  const rankupId = await findId("Sistema de Rank Up e Pedras de Evolução");
+  if (!itemsId || !premiumId || !mountId || !dungeonId || !towersId || !guildId || !editorId || !rankupId) return;
 
-  const newBody = buildMasterBody({ itemsId, premiumId, mountId, dungeonId, towersId, guildId, editorId });
+  const newBody = buildMasterBody({ itemsId, premiumId, mountId, dungeonId, towersId, guildId, editorId, rankupId });
 
   const [original] = await db
     .select({ id: forumPosts.id, body: forumPosts.body })
@@ -341,7 +406,8 @@ async function seedServerInfo(db: Db) {
     return topic.id;
   }
 
-  const itemsId = await createStaffTopic("Sistema de Itens Atualizado", ITEMS_TOPIC_BODY);
+  const rankupId = await createStaffTopic("Sistema de Rank Up e Pedras de Evolução", RANKUP_TOPIC_BODY);
+  const itemsId = await createStaffTopic("Sistema de Itens Atualizado", buildItemsTopicBody(rankupId));
   const premiumId = await createStaffTopic(
     "Conveniências Premium: Auto Loot, Auto Sell e Tela de Teleporte",
     "Três conveniências para quem tem Premium ativo:\n\n- Auto Loot System (Premium)\n- Auto Sell System (Premium)\n- Tela de Teleporte (Teleportation Screen)\n\nAuto Loot recolhe os itens do chão automaticamente durante o farm. Auto Sell vende para o NPC sem precisar abrir a janela de loja o tempo todo. A Tela de Teleporte reúne os pontos de teleporte do mundo em uma única interface, sem precisar andar até o NPC."
@@ -366,7 +432,7 @@ async function seedServerInfo(db: Db) {
 
   await createStaffTopic(
     MASTER_TITLE,
-    buildMasterBody({ itemsId, premiumId, mountId, dungeonId, towersId, guildId, editorId }),
+    buildMasterBody({ itemsId, premiumId, mountId, dungeonId, towersId, guildId, editorId, rankupId }),
     true
   );
 }
