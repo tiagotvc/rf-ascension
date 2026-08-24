@@ -62,6 +62,36 @@ Queremos que investir em Tálica de Favor seja uma escolha que realmente compens
 // upgrade do item" e "sem penalidade na falha") — isso descreve o desenho
 // antigo do sistema, substituído em 19/08; o texto abaixo segue o código
 // atual, não o tooltip.
+// Baseado na fonte real do WorldServer (CItemGemMgr / GemAttachConfig,
+// mais o catálogo Lua RuneCatalog.lua e a receita RuneAttach.lua no NPC
+// Hero). Slot máximo (4) e chance de sucesso (100%, ainda marcada como
+// placeholder no código) confirmados no código; os valores por tier de
+// cada tipo de runa NÃO entram aqui de propósito — a imagem real (+300 em
+// "Rune of Strength") não bate com a tabela de tiers do catálogo Lua novo
+// (há uma tabela antiga em C++ e uma nova em Lua ainda não totalmente
+// unificadas), então preferimos não publicar número que pode contradizer
+// o que o jogador vê no próprio tooltip. Completar quando os dois lados
+// estiverem sincronizados.
+const RUNE_TOPIC_BODY = `Chegou um sistema novo de progressão pro seu equipamento: {cyan:slots de Runa}. É um encaixe separado do Rank e do +Upgrade normal de talica — mais uma camada de poder pra investir na sua peça.
+
+![Tooltip de arma mostrando 2 slots de Runa preenchidos com Rune of Strength](/assets/rune/runedweapon.png)
+
+{orange:O que são os slots de Runa}
+Arma e armadura podem nascer com até 4 slots de Runa — a quantidade varia de item pra item, e alguns não têm nenhum. Cada slot preenchido dá um bônus fixo, direto no seu personagem, somado ao que o item já entrega normalmente.
+
+{green:Como encaixar uma Runa}
+A Runa é aplicada pela combinação do {white:NPC Hero}. Encaixar tem {white:100% de chance de sucesso} — não tem risco de perder a runa ou o item na tentativa.
+
+![Combinação de Runa no NPC Hero](pending)
+
+{violet:Tipos de Runa}
+Cada tipo de Runa dá um bônus diferente (ataque, vida, esquiva, regeneração...). Fotos de cada tipo chegam aqui em breve.
+
+![Catálogo de tipos de Runa](pending)
+
+{gold:Runas Raras}
+Além das runas comuns, existem runas raras no jogo — mais fortes, algumas com mais de um bônus ao mesmo tempo. Essas a gente não vai revelar aqui: fazem parte da graça de explorar o servidor.`;
+
 const RANKUP_TOPIC_BODY = `O Rank é um atributo separado do +Upgrade normal (os pontinhos de talica) — existe tanto em arma quanto em armadura, e dá um bônus fixo de dano ou defesa que soma direto no combate, sem depender da fórmula normal de defesa.
 
 ![Tooltip de arma mostrando Rank 17 level e +114 de Attack Point](/assets/rankup/before.png)
@@ -250,6 +280,8 @@ async function ensureForumSchema(db: Db) {
   await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Nosso Editor Próprio", EDITOR_TOPIC_BODY);
   await ensureSubTopic(db, "Tálica de Favor — Ajuste de Balanceamento", TALICA_FAVOR_TOPIC_BODY);
   await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Tálica de Favor — Ajuste de Balanceamento", TALICA_FAVOR_TOPIC_BODY);
+  await ensureSubTopic(db, "Sistema de Runas — Novos Slots de Item", RUNE_TOPIC_BODY);
+  await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Sistema de Runas — Novos Slots de Item", RUNE_TOPIC_BODY);
   await rewriteMasterTopicBody(db);
   await seedServerInfo(db);
   await seedMonsterDrops(db);
@@ -282,6 +314,7 @@ type MasterLinkIds = {
   editorId: number;
   rankupId: number;
   talicaFavorId: number;
+  runeId: number;
 };
 
 // Única fonte do texto do tópico mestre — usada tanto no seed inicial quanto
@@ -303,6 +336,7 @@ Recursos do servidor:
 - [Sistema de Rank Up e Pedras de Evolução](/forum/${SERVER_INFO_SLUG}/topic/${ids.rankupId})
 - [Nosso Editor Próprio](/forum/${SERVER_INFO_SLUG}/topic/${ids.editorId})
 - [Tálica de Favor — Ajuste de Balanceamento](/forum/${SERVER_INFO_SLUG}/topic/${ids.talicaFavorId})
+- [Sistema de Runas — Novos Slots de Item](/forum/${SERVER_INFO_SLUG}/topic/${ids.runeId})
 
 Eventos:
 - Invasão de monstros às terças e quintas, 10h e 16h (drops especiais e XP extra)`;
@@ -355,9 +389,10 @@ async function rewriteMasterTopicBody(db: Db) {
   const editorId = await findId("Nosso Editor Próprio");
   const rankupId = await findId("Sistema de Rank Up e Pedras de Evolução");
   const talicaFavorId = await findId("Tálica de Favor — Ajuste de Balanceamento");
-  if (!editorId || !rankupId || !talicaFavorId) return;
+  const runeId = await findId("Sistema de Runas — Novos Slots de Item");
+  if (!editorId || !rankupId || !talicaFavorId || !runeId) return;
 
-  const newBody = buildMasterBody({ editorId, rankupId, talicaFavorId });
+  const newBody = buildMasterBody({ editorId, rankupId, talicaFavorId, runeId });
 
   const [original] = await db
     .select({ id: forumPosts.id, body: forumPosts.body })
@@ -397,8 +432,9 @@ async function seedServerInfo(db: Db) {
   const rankupId = await createStaffTopic("Sistema de Rank Up e Pedras de Evolução", RANKUP_TOPIC_BODY);
   const editorId = await createStaffTopic("Nosso Editor Próprio", EDITOR_TOPIC_BODY);
   const talicaFavorId = await createStaffTopic("Tálica de Favor — Ajuste de Balanceamento", TALICA_FAVOR_TOPIC_BODY);
+  const runeId = await createStaffTopic("Sistema de Runas — Novos Slots de Item", RUNE_TOPIC_BODY);
 
-  await createStaffTopic(MASTER_TITLE, buildMasterBody({ editorId, rankupId, talicaFavorId }), true);
+  await createStaffTopic(MASTER_TITLE, buildMasterBody({ editorId, rankupId, talicaFavorId, runeId }), true);
 }
 
 const DROPS_MASTER_TITLE = "Como funcionam os drops — RF Echelon";
