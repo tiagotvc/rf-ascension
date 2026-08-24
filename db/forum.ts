@@ -33,14 +33,16 @@ A Tálica de Favor passou a dar uma redução de dano real e proporcional ao ní
 {cyan:Exemplo prático}
 Imagine um golpe que causaria 1000 de dano sem nenhuma Tálica de Favor equipada na peça atingida. Veja quanto dano você realmente recebe, antes e depois do ajuste, por nível da tálica:
 
-- Sem tálica — 1000 antes, 1000 agora
-- +1 — 995 antes, 952 agora
-- +2 — 987 antes, 885 agora
-- +3 — 975 antes, 800 agora
-- +4 — 950 antes, 667 agora
-- +5 — 921 antes, 556 agora
-- +6 — 866 antes, 425 agora
-- +7 — 802 antes, **333 agora**
+| Nível da Tálica | Dano recebido ANTES | Dano recebido AGORA |
+|:---:|:---:|:---:|
+| Sem tálica | 1000 | 1000 |
+| +1 | 995 | 952 |
+| +2 | 987 | 885 |
+| +3 | 975 | 800 |
+| +4 | 950 | 667 |
+| +5 | 921 | 556 |
+| +6 | 866 | 425 |
+| +7 | 802 | **333** |
 
 (números ilustrativos — o valor exato varia um pouco conforme o tier do seu equipamento, mas a proporção do ganho é essa)
 

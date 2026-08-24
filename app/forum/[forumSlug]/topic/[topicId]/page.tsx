@@ -63,7 +63,7 @@ export default async function ForumTopic({
                 </aside>
                 <div className="thread-post-body">
                   <div className="thread-post-meta"><i>{i === 0 ? "✦" : "↳"}</i><span>{i === 0 ? "Publicação original" : `Resposta #${i}`} · {formatForumDate(post.createdAt)}</span></div>
-                  <p><PostBody text={post.body} /></p>
+                  <div className="thread-post-copy"><PostBody text={post.body} /></div>
                 </div>
               </article>
             );

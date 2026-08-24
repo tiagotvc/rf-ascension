@@ -450,7 +450,12 @@
 .thread-post-body{padding:26px 30px;display:grid;align-content:start;gap:16px}
 .thread-post-meta{display:flex;align-items:center;gap:9px;color:#5c6672;font:7px var(--font-geist-mono);text-transform:uppercase;letter-spacing:.1em}
 .thread-post-meta i{width:22px;height:22px;display:grid;place-items:center;border:1px solid rgba(92,225,230,.28);color:var(--cyan);font-style:normal;font-size:11px}
-.thread-post-body>p{color:#c3c9d1;font-size:13.5px;line-height:1.8;margin:0;white-space:pre-wrap}
+.thread-post-body>.thread-post-copy{color:#c3c9d1;font-size:13.5px;line-height:1.8;margin:0;white-space:pre-wrap}
+.post-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12.5px;white-space:normal}
+.post-table th,.post-table td{padding:8px 14px;border:1px solid #202a34;text-align:left}
+.post-table th{background:rgba(255,255,255,.03);color:#e6eaee;font-weight:600;white-space:nowrap}
+.post-table td{color:#c3c9d1}
+.post-table tbody tr:nth-child(even){background:rgba(255,255,255,.015)}
 .post-link{color:var(--cyan);border-bottom:1px solid rgba(92,225,230,.4);white-space:normal}
 .post-link:hover{border-bottom-color:var(--cyan)}
 .post-image{display:block;max-width:100%;margin:0;border:1px solid #202a34;transition:border-color .2s,opacity .2s}
@@ -559,7 +564,11 @@
 .forum-page .thread-post-stats dd{font-family:var(--f-mono);color:var(--f-text-dim)}
 .forum-page .thread-post-meta{font-family:var(--f-mono);color:var(--f-text-faint)}
 .forum-page .thread-post-meta i{border-color:rgba(201,162,75,.35);color:var(--f-gold)}
-.forum-page .thread-post-body>p{font-family:var(--f-serif);font-size:15.5px;line-height:1.75;color:var(--f-text-dim);max-width:74ch}
+.forum-page .thread-post-body>.thread-post-copy{font-family:var(--f-serif);font-size:15.5px;line-height:1.75;color:var(--f-text-dim);max-width:74ch}
+.forum-page .post-table{font-family:var(--f-mono)}
+.forum-page .post-table th,.forum-page .post-table td{border-color:var(--f-rule-strong)}
+.forum-page .post-table th{background:rgba(0,0,0,.15);color:var(--f-text)}
+.forum-page .post-table td{color:var(--f-text-dim)}
 /* Página de um tópico só (sem sidebar) sobrava muito vazio nas laterais em
    telas largas — alarga o container em vez de deixar o post preso a
    1080px; o texto em si continua com largura de leitura limitada acima. */
