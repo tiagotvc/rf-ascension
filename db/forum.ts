@@ -42,16 +42,15 @@ O Rank vai de 0 a 255, e o bônus não cresce de forma linear — cada nível va
 - Rank 255 (máximo) — +4.396
 
 {orange:Rank inicial ao dropar}
-Todo item já nasce com um Rank sorteado dentro de uma faixa, de acordo com a raridade dele:
+Todo item já nasce com um Rank sorteado entre 1 e 10, valendo igual pra essas raridades:
 
-- {white:Normal} — 0 a 15
-- {green:Intense / Superior} — 0 a 20
-- {cyan:Relíquia / Hunter} — 0 a 25
-- {violet:Ascended} — 0 a 30
-- {pink:Quantum} — 0 a 35
-- {gold:Special} — 0 a 40
+- {violet:A}
+- {white:Normal}
+- {green:Intense}
+- {orange:Superior}
+- {gold:Leon}
 
-Esse teto vale só pro sorteio inicial — depois que você começa a evoluir o item com Pedra de Evolução, o Rank pode passar bem desse número, até o limite absoluto de 255. Itens de stat fixo (aqueles que nunca rolam afixo/raridade) não recebem Rank.
+Essa faixa vale só pro sorteio inicial — depois que você começa a evoluir o item com Pedra de Evolução, o Rank pode passar bem desse número, até o limite absoluto de 255. Itens de stat fixo (aqueles que nunca rolam afixo/raridade) não recebem Rank.
 
 {violet:Pedras de Evolução}
 ![Pedra de Evolução [Highest] e sua descrição](/assets/rankup/evolution_stone.png)
@@ -63,15 +62,18 @@ Existem 4 tiers de pedra, cada uma com sua própria chance de sucesso e quanto R
 - {orange:Alta} — 50% de sucesso, +1 a +5 rank
 - {gold:Mais Alta} — 70% de sucesso, +1 a +10 rank
 
-A pedra é sempre consumida, ganhe ou perca. Vale reforçar: a descrição da pedra em jogo está desatualizada em dois pontos — ela fala em "limite de upgrade do item" (hoje o teto é 255 pra qualquer item) e em "nada acontece na falha" (isso só vale pra uma das duas formas de usar a pedra, veja abaixo).
+A pedra é sempre consumida, ganhe ou perca. Vale reforçar: a descrição da pedra em jogo está desatualizada num ponto — ela fala em "limite de upgrade do item", mas hoje o teto real é 255 pra qualquer item, não o limite de upgrade dele.
 
-{gold:Duas formas de usar a pedra}
-1. {cyan:Janela de Upgrade de Item} — arrasta a pedra pro socket principal de talica. Gasta 1 pedra só, de graça. Se falhar, tem uma chance extra de perder 1 rank do item: 40% na pedra Baixa, 25% na Média, 15% na Alta, 5% na Mais Alta.
-2. {cyan:Item Combiner} (janela de 5 slots):
+{gold:Como usar a pedra}
+A única forma de investir a pedra no item é pelo {cyan:Item Combiner} (janela de 5 slots):
+
+!icon[Item a evoluir](/assets/rankup/weapon_tooltip.png) + !icon[Pedra de Evolução](/assets/rankup/evolution_sotne_tooltip.png) ×250 = !icon[Mesmo item, Rank maior](/assets/rankup/weapon_tooltip.png)
+
+Item + 250 pedras do mesmo tier + Dalant (o custo sobe conforme o Rank atual do item, então cada tentativa fica mais cara quanto mais alto o item já estiver) = o mesmo item, com o Rank maior se a tentativa der certo.
 
 ![Janela do Item Combiner com a arma e uma pilha de pedras](/assets/rankup/combination.png)
 
-Gasta 250 pedras do mesmo tier de uma vez, mais Dalant — o custo em Dalant sobe conforme o Rank atual do item, então cada tentativa fica mais cara quanto mais alto o item já estiver. Em compensação, essa rota nunca faz o item perder Rank numa falha — só consome as pedras e o Dalant.
+Se falhar, as pedras e o Dalant são consumidos, mas o item não perde Rank.
 
 {pink:De onde vêm as pedras}
 Ainda não temos certeza de onde as pedras de Baixa/Média/Alta são obtidas — assim que confirmarmos, atualizamos aqui. A de Mais Alta parece vir de boss de campo neutro.`;

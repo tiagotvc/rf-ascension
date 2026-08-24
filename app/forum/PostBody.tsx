@@ -1,13 +1,17 @@
 "use client";
 import { useEffect, useState } from "react";
 
-// Suporte mínimo a quatro sintaxes dentro de uma mensagem:
+// Suporte mínimo a cinco sintaxes dentro de uma mensagem:
 // - negrito: `**texto**`
 // - cor: `{nome:texto}` — nome vem de uma lista fixa (COLOR_MAP), nunca CSS livre
 // - link: `[texto](/caminho)`
 // - imagem: `![legenda](/caminho)` — ou `![legenda](pending)` pra reservar o
 //   espaço de uma foto que ainda não existe (renderiza um placeholder, não
-//   uma tag <img> quebrada). Imagem real é clicável e abre em zoom.
+//   uma tag <img> quebrada). Imagem real é clicável e abre em zoom. Ocupa a
+//   largura toda, uma por linha.
+// - ícone inline: `!icon[legenda](/caminho)` — mesma ideia, mas pequeno e no
+//   fluxo do texto, pra montar fórmula de combinação lado a lado (ex.: item
+//   + material ×N = resultado) sem precisar de captura de tela pronta.
 // Nunca usa dangerouslySetInnerHTML — o texto vira nós de texto do React
 // (sempre escapado) e só o elemento reconhecido vira um nó real.
 function isSafeHref(href: string): boolean {
@@ -42,11 +46,12 @@ export default function PostBody({ text }: { text: string }) {
   const nodes: React.ReactNode[] = [];
   let lastIndex = 0;
   let key = 0;
-  const pattern = /!\[([^\]]+)\]\(([^)]+)\)|\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*|\{(\w+):([^}]+)\}/g;
+  const pattern =
+    /!\[([^\]]+)\]\(([^)]+)\)|!icon\[([^\]]+)\]\(([^)]+)\)|\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*|\{(\w+):([^}]+)\}/g;
   let match: RegExpExecArray | null;
   while ((match = pattern.exec(text))) {
     if (match.index > lastIndex) nodes.push(text.slice(lastIndex, match.index));
-    const [full, imgLabel, imgHref, linkLabel, linkHref, boldText, colorName, colorText] = match;
+    const [full, imgLabel, imgHref, iconLabel, iconHref, linkLabel, linkHref, boldText, colorName, colorText] = match;
     if (imgLabel !== undefined) {
       if (imgHref === "pending") {
         nodes.push(
@@ -65,6 +70,28 @@ export default function PostBody({ text }: { text: string }) {
             aria-label={`Ampliar imagem: ${imgLabel}`}
           >
             <img className="post-image" src={imgHref} alt={imgLabel} />
+          </button>
+        );
+      } else {
+        nodes.push(full);
+      }
+    } else if (iconLabel !== undefined) {
+      if (iconHref === "pending") {
+        nodes.push(
+          <span className="post-icon-pending" key={key++} title={iconLabel}>
+            🖼
+          </span>
+        );
+      } else if (isSafeHref(iconHref)) {
+        nodes.push(
+          <button
+            type="button"
+            className="post-icon-trigger"
+            key={key++}
+            onClick={() => setZoomed({ src: iconHref, alt: iconLabel })}
+            aria-label={`Ampliar imagem: ${iconLabel}`}
+          >
+            <img className="post-icon" src={iconHref} alt={iconLabel} />
           </button>
         );
       } else {
