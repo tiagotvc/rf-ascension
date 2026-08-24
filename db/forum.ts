@@ -26,7 +26,7 @@ const MASTER_TITLE = "Informações do servidor — RF Echelon";
 // atual, não o tooltip.
 const RANKUP_TOPIC_BODY = `O Rank é um atributo separado do +Upgrade normal (os pontinhos de talica) — existe tanto em arma quanto em armadura, e dá um bônus fixo de dano ou defesa que soma direto no combate, sem depender da fórmula normal de defesa.
 
-![Tooltip de arma mostrando Rank 17 level e +114 de Attack Point](/assets/rankup/weapon.png)
+![Tooltip de arma mostrando Rank 17 level e +114 de Attack Point](/assets/rankup/before.png)
 
 {cyan:O que o Rank dá}
 - Em {white:arma}: bônus fixo de Attack Point.
@@ -68,6 +68,10 @@ A pedra é sempre consumida, ganhe ou perca. Vale reforçar: a descrição da pe
 A única forma de investir a pedra no item é pelo {cyan:Item Combiner} (janela de 5 slots):
 
 !icon[Item a evoluir](/assets/rankup/weapon_tooltip.png) + !icon[Pedra de Evolução](/assets/rankup/evolution_sotne_tooltip.png) ×250 = !icon[Mesmo item, Rank maior](/assets/rankup/weapon_tooltip.png)
+
+![Tooltip da arma antes de evoluir — Rank 17, +114 de Attack Point](/assets/rankup/before.png)
+![Tooltip da arma depois de evoluir — Rank 36, +313 de Attack Point](/assets/rankup/after.png)
+![Tooltip da Pedra de Evolução, igual aparece no jogo](/assets/rankup/evolution_stone.png)
 
 Item + 250 pedras do mesmo tier + Dalant (o custo sobe conforme o Rank atual do item, então cada tentativa fica mais cara quanto mais alto o item já estiver) = o mesmo item, com o Rank maior se a tentativa der certo.
 
