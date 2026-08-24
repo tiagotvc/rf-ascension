@@ -17,6 +17,42 @@ export function isStaffEmail(email: string): boolean {
 // função abaixo apaga só os tópicos da equipe nesse mural antes de recriar).
 const MASTER_TITLE = "Informações do servidor — RF Echelon";
 
+// Texto pronto de RF-Online/docs/patch-notes/2026-08-24-talica-de-favor.md
+// (seção "TEXTO PRA PUBLICAR"), em linguagem de jogador. Nomes de sistema
+// internos, o valor exato do teto de segurança e os eixos ainda não
+// implementados (resistência a longa distância, resistência via
+// durabilidade) ficam de fora de propósito — não são pra público.
+const TALICA_FAVOR_TOPIC_BODY = `Revisamos como a **Tálica de Favor** (a tálica de defesa, socketável em armadura/escudo) funciona por baixo dos panos. Resumo rápido: antes, ela quase não fazia diferença em combate — agora faz, e bastante.
+
+{orange:O problema (antes)}
+O bônus da Tálica de Favor existia, mas se diluía na hora de calcular o dano que você recebia. Mesmo com a peça maxada em +7, a proteção real que você sentia em combate era bem menor do que os números do item sugeriam — o "+200%" no tooltip virava uma diferença quase imperceptível na prática.
+
+{green:A correção (agora)}
+A Tálica de Favor passou a dar uma redução de dano real e proporcional ao nível dela. Cada nível, de +1 até +7, entrega uma proteção nitidamente melhor que o anterior — sem estagnar no meio do caminho.
+
+{cyan:Exemplo prático}
+Imagine um golpe que causaria 1000 de dano sem nenhuma Tálica de Favor equipada na peça atingida. Veja quanto dano você realmente recebe, antes e depois do ajuste, por nível da tálica:
+
+- Sem tálica — 1000 antes, 1000 agora
+- +1 — 995 antes, 952 agora
+- +2 — 987 antes, 885 agora
+- +3 — 975 antes, 800 agora
+- +4 — 950 antes, 667 agora
+- +5 — 921 antes, 556 agora
+- +6 — 866 antes, 425 agora
+- +7 — 802 antes, **333 agora**
+
+(números ilustrativos — o valor exato varia um pouco conforme o tier do seu equipamento, mas a proporção do ganho é essa)
+
+Com a peça no +7, você agora recebe cerca de 1/3 do dano normal — uma diferença que dá pra sentir de verdade numa luta, não só um número maior na tela de status.
+
+{violet:O que continua igual}
+- {white:Durabilidade ainda importa} — a proteção da Tálica de Favor está ligada à barra de durabilidade do seu equipamento, que vai esvaziando conforme você leva golpes. Com a durabilidade alta, você recebe o bônus completo; se ela cair demais (numa luta longa, ou sendo focado por vários inimigos ao mesmo tempo), a proteção da Tálica cai junto. Ela se recupera sozinha com o tempo — dar uma respirada entre combates ajuda a manter o benefício em dia.
+- {white:Existe um teto de segurança} — pra ninguém ficar literalmente invencível, mesmo empilhando Tálica de Favor em várias peças de armadura ao mesmo tempo. Uma peça sozinha, sem ajuda de nenhuma outra, nunca esbarra nesse teto — a progressão do +1 ao +7 é sempre real.
+
+{gold:Por que mudamos isso}
+Queremos que investir em Tálica de Favor seja uma escolha que realmente compensa em combate — não só um número maior no tooltip, mas uma diferença de verdade em quanto dano você aguenta na prática.`;
+
 // Baseado na fonte real do WorldServer (CItemRankMgr, RankStoneConfig,
 // CPlayer::pc_ItemUpgrade). Números conferidos contra o tooltip real (Rank
 // 17 = +114 de Attack Point bate exatamente com a fórmula). O tooltip da
@@ -210,6 +246,8 @@ async function ensureForumSchema(db: Db) {
   await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Sistema de Rank Up e Pedras de Evolução", RANKUP_TOPIC_BODY);
   await ensureSubTopic(db, "Nosso Editor Próprio", EDITOR_TOPIC_BODY);
   await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Nosso Editor Próprio", EDITOR_TOPIC_BODY);
+  await ensureSubTopic(db, "Tálica de Favor — Ajuste de Balanceamento", TALICA_FAVOR_TOPIC_BODY);
+  await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Tálica de Favor — Ajuste de Balanceamento", TALICA_FAVOR_TOPIC_BODY);
   await rewriteMasterTopicBody(db);
   await seedServerInfo(db);
   await seedMonsterDrops(db);
@@ -241,6 +279,7 @@ async function rewriteTopicBodyIfChanged(db: Db, forumSlug: string, title: strin
 type MasterLinkIds = {
   editorId: number;
   rankupId: number;
+  talicaFavorId: number;
 };
 
 // Única fonte do texto do tópico mestre — usada tanto no seed inicial quanto
@@ -261,6 +300,7 @@ Taxas do servidor:
 Recursos do servidor:
 - [Sistema de Rank Up e Pedras de Evolução](/forum/${SERVER_INFO_SLUG}/topic/${ids.rankupId})
 - [Nosso Editor Próprio](/forum/${SERVER_INFO_SLUG}/topic/${ids.editorId})
+- [Tálica de Favor — Ajuste de Balanceamento](/forum/${SERVER_INFO_SLUG}/topic/${ids.talicaFavorId})
 
 Eventos:
 - Invasão de monstros às terças e quintas, 10h e 16h (drops especiais e XP extra)`;
@@ -312,9 +352,10 @@ async function rewriteMasterTopicBody(db: Db) {
 
   const editorId = await findId("Nosso Editor Próprio");
   const rankupId = await findId("Sistema de Rank Up e Pedras de Evolução");
-  if (!editorId || !rankupId) return;
+  const talicaFavorId = await findId("Tálica de Favor — Ajuste de Balanceamento");
+  if (!editorId || !rankupId || !talicaFavorId) return;
 
-  const newBody = buildMasterBody({ editorId, rankupId });
+  const newBody = buildMasterBody({ editorId, rankupId, talicaFavorId });
 
   const [original] = await db
     .select({ id: forumPosts.id, body: forumPosts.body })
@@ -353,8 +394,9 @@ async function seedServerInfo(db: Db) {
 
   const rankupId = await createStaffTopic("Sistema de Rank Up e Pedras de Evolução", RANKUP_TOPIC_BODY);
   const editorId = await createStaffTopic("Nosso Editor Próprio", EDITOR_TOPIC_BODY);
+  const talicaFavorId = await createStaffTopic("Tálica de Favor — Ajuste de Balanceamento", TALICA_FAVOR_TOPIC_BODY);
 
-  await createStaffTopic(MASTER_TITLE, buildMasterBody({ editorId, rankupId }), true);
+  await createStaffTopic(MASTER_TITLE, buildMasterBody({ editorId, rankupId, talicaFavorId }), true);
 }
 
 const DROPS_MASTER_TITLE = "Como funcionam os drops — RF Echelon";
