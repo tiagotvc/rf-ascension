@@ -19,7 +19,8 @@ export const serverRates=[
 // guia correspondente.
 export const serverSystems=[
  {name:"CCR Box",active:false,icon:"▣"},
- {name:"Novo Sistema de Itens",active:true,icon:"◈",detail:"Upgrade de Talica (com talicas novas), Sistema de Runas e Rank Up System.",guidePath:"/forum/01-2/topic/14"},
+ {name:"Novo Sistema de Itens",active:true,icon:"◈",detail:"Upgrade de Talica (com talicas novas) e Rank Up System.",guidePath:"/forum/01-2/topic/14"},
+ {name:"Sistema de Runas",active:true,icon:"❖",detail:"Novos slots de item, separados do Rank e da Talica.",guidePath:"/forum/01-2/topic/16"},
  {name:"Efeitos Especiais Estendidos",active:true,icon:"✦",detail:"Até 10 efeitos especiais por item."},
  {name:"Auto Rollup de Efeitos Especiais",active:true,icon:"↻",detail:"Em drop, abertura de caixa e outras fontes de item."},
  {name:"Guild Passives System",active:true,icon:"♜"},
