@@ -17,49 +17,6 @@ export function isStaffEmail(email: string): boolean {
 // função abaixo apaga só os tópicos da equipe nesse mural antes de recriar).
 const MASTER_TITLE = "Informações do servidor — RF Echelon";
 
-// Ascensão de Arma e Vínculo de Alma foram descontinuados — removidos daqui.
-// Cada seção tem um placeholder de foto (`pending`) até as imagens reais
-// chegarem; ver PostBody.tsx para a sintaxe (`![legenda](pending)`).
-function buildItemsTopicBody(rankupId: number): string {
-  return `O sistema de itens foi atualizado com foco em variedade de build e progressão de equipamento:
-
-{cyan:Efeitos Especiais Expandidos — até 10 por item}
-![Efeitos Especiais Expandidos](pending)
-Cada item agora pode receber até 10 efeitos especiais ao mesmo tempo, bem mais que o padrão original. Isso abre espaço pra montar equipamentos com combinações mais completas de dano, defesa, utilidade e efeitos de status, em vez de precisar escolher só 2 ou 3 bônus.
-
-{green:Sistema de Rollup no Drop}
-![Sistema de Rollup no Drop](pending)
-Quando um item com efeito especial sai de um monstro, de uma caixa ou de qualquer outra fonte, os efeitos já vêm sorteados automaticamente na hora — sem precisar de uma etapa manual separada pra "rolar" o item depois de pegá-lo. O item já cai pronto pra avaliar.
-
-{orange:Sistema de Rank Up}
-![Tooltip de arma mostrando Rank 17 level e o bônus de Attack Point](/assets/rankup/weapon.png)
-Todo item — arma ou armadura — carrega um Rank, que é um bônus fixo de ataque (arma) ou defesa (armadura) somado direto no combate, separado dos efeitos especiais e do +Upgrade normal de talica. Dá pra evoluir esse Rank investindo Pedra de Evolução no item. Tem um tutorial completo em [Sistema de Rank Up e Pedras de Evolução](/forum/${SERVER_INFO_SLUG}/topic/${rankupId}).
-
-{gold:Bônus de Ataque e Defesa por Raridade}
-Toda arma e armadura carrega uma raridade, que já vem com um bônus de ataque (arma) ou defesa (armadura) embutido — fixo naquele item específico, não é sorteado de novo depois:
-
-- {white:Normal} — +2% a +9%
-- {green:Intense} — +10% a +16%
-- {orange:Superior} — bônus do Intense +2% a +8% em cima
-- {cyan:Relíquia} — bônus do Superior +2% a +8% em cima
-- {pink:Quantum} — bônus da Relíquia +2% a +8% em cima
-- {gold:Special} — bônus do Quantum +2% a +8% em cima, a raridade mais alta
-
-Ascended existe no sistema mas não vai estar disponível por enquanto.
-
-Essas faixas são uma configuração própria do RF Echelon, não são do RF Online original — podem ser ajustadas antes do lançamento.
-
-{violet:Novas Talicas, com novos adicionais}
-![Novas Talicas](pending)
-O sistema de Talica ganhou talicas novas, cada uma com efeitos adicionais que não existiam antes — mais opções de bônus pra encaixar no seu build.
-
-{pink:Rune System}
-![Rune System](pending)
-Sistema de runas novo, que adiciona bônus extras aos seus itens.
-
-As fotos de cada sistema entram aqui assim que estiverem prontas.`;
-}
-
 // Baseado na fonte real do WorldServer (CItemRankMgr, RankStoneConfig,
 // CPlayer::pc_ItemUpgrade). Números conferidos contra o tooltip real (Rank
 // 17 = +114 de Attack Point bate exatamente com a fórmula). O tooltip da
@@ -204,6 +161,27 @@ async function ensureForumSchema(db: Db) {
   // como é mural de equipe isso nunca existiu de qualquer forma).
   await db.execute(sql`DELETE FROM forum_posts WHERE topic_id IN (SELECT id FROM forum_topics WHERE forum_slug = ${SERVER_INFO_SLUG} AND author_email = ${STAFF_EMAIL} AND title = 'Ofícios, Coleta e Crafting')`);
   await db.execute(sql`DELETE FROM forum_topics WHERE forum_slug = ${SERVER_INFO_SLUG} AND author_email = ${STAFF_EMAIL} AND title = 'Ofícios, Coleta e Crafting'`);
+  // Curadoria a pedido: mural "Informações do servidor" reduzido pra só os
+  // tópicos prontos (mestre, Rank Up e Editor Próprio) — os demais eram
+  // stubs/placeholders e foram removidos.
+  await db.execute(sql`DELETE FROM forum_posts WHERE topic_id IN (
+    SELECT id FROM forum_topics WHERE forum_slug = ${SERVER_INFO_SLUG} AND author_email = ${STAFF_EMAIL} AND title IN (
+      'Sistema de Itens Atualizado',
+      'Conveniências Premium: Auto Loot, Auto Sell e Tela de Teleporte',
+      'Sistema de Montaria',
+      'Nova Dungeon Exclusiva',
+      'Torres, M.A.U. e Minas Aprimoradas',
+      'Novo Sistema de Guildas'
+    )
+  )`);
+  await db.execute(sql`DELETE FROM forum_topics WHERE forum_slug = ${SERVER_INFO_SLUG} AND author_email = ${STAFF_EMAIL} AND title IN (
+    'Sistema de Itens Atualizado',
+    'Conveniências Premium: Auto Loot, Auto Sell e Tela de Teleporte',
+    'Sistema de Montaria',
+    'Nova Dungeon Exclusiva',
+    'Torres, M.A.U. e Minas Aprimoradas',
+    'Novo Sistema de Guildas'
+  )`);
   // Limpa tópicos de teste criados durante o desenvolvimento local.
   await db.execute(
     sql`DELETE FROM forum_posts WHERE author_email IN ('jogador@exemplo.com') OR topic_id IN (SELECT id FROM forum_topics WHERE author_email LIKE 'teste%@exemplo.com')`
@@ -225,9 +203,8 @@ async function ensureForumSchema(db: Db) {
   await db.execute(sql`DELETE FROM forum_topics WHERE author_email = ${STAFF_EMAIL} AND id NOT IN (
     SELECT MIN(id) FROM forum_topics WHERE author_email = ${STAFF_EMAIL} GROUP BY forum_slug, title
   )`);
-  const rankupId = await ensureSubTopic(db, "Sistema de Rank Up e Pedras de Evolução", RANKUP_TOPIC_BODY);
+  await ensureSubTopic(db, "Sistema de Rank Up e Pedras de Evolução", RANKUP_TOPIC_BODY);
   await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Sistema de Rank Up e Pedras de Evolução", RANKUP_TOPIC_BODY);
-  await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Sistema de Itens Atualizado", buildItemsTopicBody(rankupId));
   await ensureSubTopic(db, "Nosso Editor Próprio", EDITOR_TOPIC_BODY);
   await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Nosso Editor Próprio", EDITOR_TOPIC_BODY);
   await rewriteMasterTopicBody(db);
@@ -259,12 +236,6 @@ async function rewriteTopicBodyIfChanged(db: Db, forumSlug: string, title: strin
 }
 
 type MasterLinkIds = {
-  itemsId: number;
-  premiumId: number;
-  mountId: number;
-  dungeonId: number;
-  towersId: number;
-  guildId: number;
   editorId: number;
   rankupId: number;
 };
@@ -276,20 +247,16 @@ function buildMasterBody(ids: MasterLinkIds): string {
   return `RF Echelon roda sobre a base Cliente e Servidor 2.2.3.2, com GameGuard próprio.
 
 Taxas do servidor:
-- XP base: x5
+- XP base: x10
 - XP Animus: x7
 - Drop de monstro: x5
-- Taxa de venda: x2
+- Taxa de venda: x5
 - Mastery / Skill: x5
+- Membros por grupo: 8
+- Buffs ativos: 20
 - Janelas abertas ao mesmo tempo: 1 (free) / 2 (premium)
 
 Recursos do servidor:
-- [Sistema de Itens Atualizado](/forum/${SERVER_INFO_SLUG}/topic/${ids.itemsId})
-- [Conveniências Premium: Auto Loot, Auto Sell e Tela de Teleporte](/forum/${SERVER_INFO_SLUG}/topic/${ids.premiumId})
-- [Sistema de Montaria](/forum/${SERVER_INFO_SLUG}/topic/${ids.mountId})
-- [Nova Dungeon Exclusiva](/forum/${SERVER_INFO_SLUG}/topic/${ids.dungeonId})
-- [Torres, M.A.U. e Minas Aprimoradas](/forum/${SERVER_INFO_SLUG}/topic/${ids.towersId})
-- [Novo Sistema de Guildas](/forum/${SERVER_INFO_SLUG}/topic/${ids.guildId})
 - [Sistema de Rank Up e Pedras de Evolução](/forum/${SERVER_INFO_SLUG}/topic/${ids.rankupId})
 - [Nosso Editor Próprio](/forum/${SERVER_INFO_SLUG}/topic/${ids.editorId})
 
@@ -359,17 +326,11 @@ async function rewriteMasterTopicBody(db: Db) {
     return row?.id ?? null;
   }
 
-  const itemsId = await findId("Sistema de Itens Atualizado");
-  const premiumId = await findId("Conveniências Premium: Auto Loot, Auto Sell e Tela de Teleporte");
-  const mountId = await findId("Sistema de Montaria");
-  const dungeonId = await findId("Nova Dungeon Exclusiva");
-  const towersId = await findId("Torres, M.A.U. e Minas Aprimoradas");
-  const guildId = await findId("Novo Sistema de Guildas");
   const editorId = await findId("Nosso Editor Próprio");
   const rankupId = await findId("Sistema de Rank Up e Pedras de Evolução");
-  if (!itemsId || !premiumId || !mountId || !dungeonId || !towersId || !guildId || !editorId || !rankupId) return;
+  if (!editorId || !rankupId) return;
 
-  const newBody = buildMasterBody({ itemsId, premiumId, mountId, dungeonId, towersId, guildId, editorId, rankupId });
+  const newBody = buildMasterBody({ editorId, rankupId });
 
   const [original] = await db
     .select({ id: forumPosts.id, body: forumPosts.body })
@@ -407,34 +368,9 @@ async function seedServerInfo(db: Db) {
   }
 
   const rankupId = await createStaffTopic("Sistema de Rank Up e Pedras de Evolução", RANKUP_TOPIC_BODY);
-  const itemsId = await createStaffTopic("Sistema de Itens Atualizado", buildItemsTopicBody(rankupId));
-  const premiumId = await createStaffTopic(
-    "Conveniências Premium: Auto Loot, Auto Sell e Tela de Teleporte",
-    "Três conveniências para quem tem Premium ativo:\n\n- Auto Loot System (Premium)\n- Auto Sell System (Premium)\n- Tela de Teleporte (Teleportation Screen)\n\nAuto Loot recolhe os itens do chão automaticamente durante o farm. Auto Sell vende para o NPC sem precisar abrir a janela de loja o tempo todo. A Tela de Teleporte reúne os pontos de teleporte do mundo em uma única interface, sem precisar andar até o NPC."
-  );
-  const mountId = await createStaffTopic(
-    "Sistema de Montaria",
-    "RF Echelon conta com sistema de montaria próprio. Formas de obtenção, evolução e velocidades serão detalhadas aqui antes do lançamento."
-  );
-  const dungeonId = await createStaffTopic(
-    "Nova Dungeon Exclusiva",
-    "A dungeon ganhou um sistema exclusivo, com fluxo completo: navegador de salas (lista pública, sala própria e sala da dungeon), timer de tempo restante e uma janela de resultado no final que mostra a recompensa de cada jogador do grupo para todo mundo, não só para quem recebeu o item."
-  );
-  const towersId = await createStaffTopic(
-    "Torres, M.A.U. e Minas Aprimoradas",
-    "Torres, M.A.U. e minas foram todos revisados:\n\n- Torres de guerra agora têm tooltip detalhado direto no inventário, para comparar upgrade antes de instalar.\n- Bellato ganhou o M.A.U., um mecha pilotável.\n- Pontos de mineração foram revisados.\n\nMais detalhes de cada um em breve."
-  );
-  const guildId = await createStaffTopic(
-    "Novo Sistema de Guildas",
-    "As guildas agora acumulam pontos de habilidade para investir em passivos próprios, com uma janela de reset mensal para reorganizar a build da guilda sem perder progresso permanentemente."
-  );
   const editorId = await createStaffTopic("Nosso Editor Próprio", EDITOR_TOPIC_BODY);
 
-  await createStaffTopic(
-    MASTER_TITLE,
-    buildMasterBody({ itemsId, premiumId, mountId, dungeonId, towersId, guildId, editorId, rankupId }),
-    true
-  );
+  await createStaffTopic(MASTER_TITLE, buildMasterBody({ editorId, rankupId }), true);
 }
 
 const DROPS_MASTER_TITLE = "Como funcionam os drops — RF Echelon";

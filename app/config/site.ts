@@ -7,22 +7,19 @@ export const siteConfig={
 } as const;
 export const serverRates=[
  {value:"10x",label:"Experiência (XP)"},
- {value:"x4",label:"Venda (valor original)"},
- {value:"x3",label:"PT / Skill"},
+ {value:"x5",label:"Venda (valor original)"},
+ {value:"x5",label:"PT / Skill"},
  {value:"x5",label:"Drop"},
- {value:"16",label:"Membros por grupo"},
- {value:"16",label:"Buffs ativos"},
+ {value:"8",label:"Membros por grupo"},
+ {value:"20",label:"Buffs ativos"},
  {value:"255",label:"Stack de item"}
 ] as const;
 export const serverSystems=[
- {name:"Consil Armor",active:false},
  {name:"CCR Box",active:false},
  {name:"Novo Sistema de Itens",active:true,detail:"Upgrade de Talica (com talicas novas), Sistema de Runas e Rank Up System."},
  {name:"Efeitos Especiais Estendidos",active:true,detail:"Até 10 efeitos especiais por item."},
  {name:"Auto Rollup de Efeitos Especiais",active:true,detail:"Em drop, abertura de caixa e outras fontes de item."},
  {name:"Guild Passives System",active:true},
- {name:"Guild Research System",active:true},
- {name:"Quests Reformuladas",active:true,detail:"Todas as quests do servidor foram revisadas e refeitas."},
  {name:"Quests Diárias",active:true},
  {name:"Anúncio Global de Boss",active:true,detail:"Aviso pra todo o servidor quando um boss nasce e quando ele morre."},
  {name:"XP no Maul",active:true,detail:"Ganha experiência normalmente enquanto pilota o Maul."},
