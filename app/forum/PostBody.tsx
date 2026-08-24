@@ -12,6 +12,9 @@ import { useEffect, useState } from "react";
 // - ícone inline: `!icon[legenda](/caminho)` — mesma ideia, mas pequeno e no
 //   fluxo do texto, pra montar fórmula de combinação lado a lado (ex.: item
 //   + material ×N = resultado) sem precisar de captura de tela pronta.
+//   Aceita um segundo `(/caminho-do-tooltip)` logo em seguida — mostra essa
+//   imagem (o tooltip real do item, por exemplo) só no hover/foco do ícone,
+//   igual passar o mouse em cima do item no jogo.
 // Nunca usa dangerouslySetInnerHTML — o texto vira nós de texto do React
 // (sempre escapado) e só o elemento reconhecido vira um nó real.
 function isSafeHref(href: string): boolean {
@@ -47,11 +50,12 @@ export default function PostBody({ text }: { text: string }) {
   let lastIndex = 0;
   let key = 0;
   const pattern =
-    /!\[([^\]]+)\]\(([^)]+)\)|!icon\[([^\]]+)\]\(([^)]+)\)|\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*|\{(\w+):([^}]+)\}/g;
+    /!\[([^\]]+)\]\(([^)]+)\)|!icon\[([^\]]+)\]\(([^)]+)\)(?:\(([^)]+)\))?|\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*|\{(\w+):([^}]+)\}/g;
   let match: RegExpExecArray | null;
   while ((match = pattern.exec(text))) {
     if (match.index > lastIndex) nodes.push(text.slice(lastIndex, match.index));
-    const [full, imgLabel, imgHref, iconLabel, iconHref, linkLabel, linkHref, boldText, colorName, colorText] = match;
+    const [full, imgLabel, imgHref, iconLabel, iconHref, iconTooltipHref, linkLabel, linkHref, boldText, colorName, colorText] =
+      match;
     if (imgLabel !== undefined) {
       if (imgHref === "pending") {
         nodes.push(
@@ -83,6 +87,7 @@ export default function PostBody({ text }: { text: string }) {
           </span>
         );
       } else if (isSafeHref(iconHref)) {
+        const hasTooltip = iconTooltipHref !== undefined && isSafeHref(iconTooltipHref);
         nodes.push(
           <button
             type="button"
@@ -92,6 +97,11 @@ export default function PostBody({ text }: { text: string }) {
             aria-label={`Ampliar imagem: ${iconLabel}`}
           >
             <img className="post-icon" src={iconHref} alt={iconLabel} />
+            {hasTooltip && (
+              <span className="post-icon-tooltip">
+                <img src={iconTooltipHref} alt="" aria-hidden="true" />
+              </span>
+            )}
           </button>
         );
       } else {

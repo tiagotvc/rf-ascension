@@ -67,11 +67,8 @@ A pedra é sempre consumida, ganhe ou perca. Vale reforçar: a descrição da pe
 {gold:Como usar a pedra}
 A única forma de investir a pedra no item é pelo {cyan:Item Combiner} (janela de 5 slots):
 
-!icon[Item a evoluir](/assets/rankup/weapon_tooltip.png) + !icon[Pedra de Evolução](/assets/rankup/evolution_sotne_tooltip.png) ×250 = !icon[Mesmo item, Rank maior](/assets/rankup/weapon_tooltip.png)
-
-![Tooltip da arma antes de evoluir — Rank 17, +114 de Attack Point](/assets/rankup/before.png)
-![Tooltip da arma depois de evoluir — Rank 36, +313 de Attack Point](/assets/rankup/after.png)
-![Tooltip da Pedra de Evolução, igual aparece no jogo](/assets/rankup/evolution_stone.png)
+!icon[Item a evoluir](/assets/rankup/weapon_tooltip.png)(/assets/rankup/before.png) + !icon[Pedra de Evolução](/assets/rankup/evolution_sotne_tooltip.png)(/assets/rankup/evolution_stone.png) ×250 = !icon[Mesmo item, Rank maior](/assets/rankup/weapon_tooltip.png)(/assets/rankup/after.png)
+Passe o mouse em cima de cada ícone pra ver o tooltip real, igual no jogo.
 
 Item + 250 pedras do mesmo tier + Dalant (o custo sobe conforme o Rank atual do item, então cada tentativa fica mais cara quanto mais alto o item já estiver) = o mesmo item, com o Rank maior se a tentativa der certo.
 
