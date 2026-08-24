@@ -13,22 +13,26 @@ export const serverRates=[
  {value:"20",label:"Buffs ativos"},
  {value:"255",label:"Stack de item"}
 ] as const;
+// `guidePath`, quando presente, aponta pro guia real desse sistema no fórum
+// — só adicionar quando o guia de fato existir (ver db/forum.ts), nunca um
+// link de enfeite. Os demais sistemas ganham o campo conforme escrevemos o
+// guia correspondente.
 export const serverSystems=[
- {name:"CCR Box",active:false},
- {name:"Novo Sistema de Itens",active:true,detail:"Upgrade de Talica (com talicas novas), Sistema de Runas e Rank Up System."},
- {name:"Efeitos Especiais Estendidos",active:true,detail:"Até 10 efeitos especiais por item."},
- {name:"Auto Rollup de Efeitos Especiais",active:true,detail:"Em drop, abertura de caixa e outras fontes de item."},
- {name:"Guild Passives System",active:true},
- {name:"Quests Diárias",active:true},
- {name:"Anúncio Global de Boss",active:true,detail:"Aviso pra todo o servidor quando um boss nasce e quando ele morre."},
- {name:"XP no Maul",active:true,detail:"Ganha experiência normalmente enquanto pilota o Maul."},
- {name:"Armadilhas de Caçador",active:true,detail:"Também podem ser usadas pra matar monstro e ganhar XP."},
- {name:"Torres de Caçador",active:true,detail:"Também podem ser usadas pra matar monstro e ganhar XP."},
- {name:"Munição de Carga",active:true,detail:"Sistema de balas com carga (Charge Ammo)."},
- {name:"Dungeon Solo",active:true},
- {name:"Dungeon PvP",active:true},
- {name:"Sistema de Módulos",active:true,detail:"Sistema próprio do RF Echelon, em evolução constante."},
- {name:"Destruir chave do M.A.U. ao explodir",active:false}
+ {name:"CCR Box",active:false,icon:"▣"},
+ {name:"Novo Sistema de Itens",active:true,icon:"◈",detail:"Upgrade de Talica (com talicas novas), Sistema de Runas e Rank Up System.",guidePath:"/forum/01-2/topic/14"},
+ {name:"Efeitos Especiais Estendidos",active:true,icon:"✦",detail:"Até 10 efeitos especiais por item."},
+ {name:"Auto Rollup de Efeitos Especiais",active:true,icon:"↻",detail:"Em drop, abertura de caixa e outras fontes de item."},
+ {name:"Guild Passives System",active:true,icon:"♜"},
+ {name:"Quests Diárias",active:true,icon:"☀"},
+ {name:"Anúncio Global de Boss",active:true,icon:"☠",detail:"Aviso pra todo o servidor quando um boss nasce e quando ele morre."},
+ {name:"XP no Maul",active:true,icon:"⚙",detail:"Ganha experiência normalmente enquanto pilota o Maul."},
+ {name:"Armadilhas de Caçador",active:true,icon:"⌖",detail:"Também podem ser usadas pra matar monstro e ganhar XP."},
+ {name:"Torres de Caçador",active:true,icon:"♖",detail:"Também podem ser usadas pra matar monstro e ganhar XP."},
+ {name:"Munição de Carga",active:true,icon:"⚡",detail:"Sistema de balas com carga (Charge Ammo)."},
+ {name:"Dungeon Solo",active:true,icon:"◐"},
+ {name:"Dungeon PvP",active:true,icon:"⚔"},
+ {name:"Sistema de Módulos",active:true,icon:"▦",detail:"Sistema próprio do RF Echelon, em evolução constante."},
+ {name:"Destruir chave do M.A.U. ao explodir",active:false,icon:"⚷"}
 ] as const;
 export const donationPackages=[
  {id:"starter",name:"Iniciante",priceBRL:49.9,baseCash:49900,bonusPercent:0,totalCash:49900,premiumDays:30},
