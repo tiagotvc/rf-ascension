@@ -28,10 +28,8 @@ export const serverSystems=[
  {name:"XP no Maul",active:true,icon:"⚙",detail:"Ganha experiência normalmente enquanto pilota o Maul."},
  {name:"Armadilhas de Caçador",active:true,icon:"⌖",detail:"Também podem ser usadas pra matar monstro e ganhar XP."},
  {name:"Torres de Caçador",active:true,icon:"♖",detail:"Também podem ser usadas pra matar monstro e ganhar XP."},
- {name:"Munição de Carga",active:true,icon:"⚡",detail:"Sistema de balas com carga (Charge Ammo)."},
  {name:"Dungeon Solo",active:true,icon:"◐"},
  {name:"Dungeon PvP",active:true,icon:"⚔"},
- {name:"Sistema de Módulos",active:true,icon:"▦",detail:"Sistema próprio do RF Echelon, em evolução constante."},
  {name:"Destruir chave do M.A.U. ao explodir",active:false,icon:"⚷"}
 ] as const;
 export const donationPackages=[
