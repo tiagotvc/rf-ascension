@@ -613,23 +613,21 @@
 .rate-label{color:#8994a1;font-size:11px;letter-spacing:.01em}
 .system-list{margin-top:56px;border-top:1px solid rgba(255,255,255,.08);padding-top:40px}
 .system-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
-.system-card{position:relative;overflow:hidden;min-height:176px;background:#0a0e13;border:1px solid #1c242e;padding:24px 22px;display:flex;flex-direction:column;gap:10px;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,0 100%);transition:background .2s,border-color .2s,transform .2s,box-shadow .2s}
-.system-card:before{content:"";position:absolute;left:0;top:50%;width:2px;height:0;background:var(--cyan);box-shadow:0 0 12px var(--cyan);transition:height .2s,top .2s}
-.system-card:hover{background:#0d1219;border-color:#2a3540;transform:translateY(-3px);box-shadow:0 14px 30px rgba(0,0,0,.35)}
-.system-card:hover:before{height:70%;top:15%}
-.system-card-top{display:flex;align-items:center;justify-content:space-between}
-.system-icon{width:44px;height:44px;display:grid;place-items:center;border:1px solid #263440;background:#111821;color:var(--cyan);font-size:17px;text-shadow:0 0 12px rgba(92,225,230,.3)}
-.system-card:has(.system-status.off) .system-icon{color:#5c6672;border-color:#232d38;background:rgba(255,255,255,.015);text-shadow:none}
-.system-status{position:relative;width:max-content;padding:4px 8px 4px 20px;font:700 8px var(--font-geist-mono);letter-spacing:.1em;border:1px solid}
-.system-status:before{content:"";position:absolute;left:8px;top:50%;width:6px;height:6px;border-radius:50%;transform:translateY(-50%)}
-.system-status.on{color:#59e7a4;border-color:rgba(89,231,164,.3);background:rgba(89,231,164,.05)}
-.system-status.on:before{background:#59e7a4;box-shadow:0 0 6px rgba(89,231,164,.7)}
-.system-status.off{color:#8994a1;border-color:#2a3540;background:rgba(255,255,255,.02)}
-.system-status.off:before{background:#ff6b6b;box-shadow:0 0 6px rgba(255,107,107,.55)}
-.system-card strong{font-size:15px;color:#f2f5f7;letter-spacing:.01em}
+/* Cards imitam a tooltip de item do jogo: painel azul-marinho translúcido,
+   titulo entre colchetes, icone emoldurado no canto, linhas rotulo:valor. */
+.system-card{position:relative;background:linear-gradient(180deg,rgba(13,20,34,.97),rgba(6,10,18,.98));border:1px solid #2c3f58;padding:16px 58px 18px 16px;min-height:150px;display:flex;flex-direction:column;gap:8px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04);transition:border-color .2s}
+.system-card:hover{border-color:rgba(92,225,230,.55)}
+.system-icon{position:absolute;top:14px;right:14px;width:42px;height:42px;display:grid;place-items:center;border:1px solid #c9a24b;background:#0d1420;color:var(--cyan);font-size:16px;box-shadow:0 0 8px rgba(201,162,75,.2)}
+.system-card:has(.system-status.off) .system-icon{border-color:#3a4550;color:#5c6672;box-shadow:none}
+.system-card strong{font-size:14px;color:#e9b960;font-weight:700}
 .system-card:has(.system-status.off) strong{color:#6a747f;text-decoration:line-through;text-decoration-color:#3a4550}
-.system-card p{margin:0;color:#69737f;font-size:11px;line-height:1.6;flex:1}
-.system-card-link{display:inline-flex;align-items:center;gap:6px;margin-top:4px;font:700 9px var(--font-geist-mono);color:var(--cyan);letter-spacing:.04em;text-decoration:none;width:max-content}
+.system-card-row{display:flex;align-items:center;gap:8px;font-size:11px}
+.system-card-row span{color:#7fb3e0}
+.system-status{font-weight:700}
+.system-status.on{color:#59e7a4}
+.system-status.off{color:#8994a1}
+.system-card p{margin:0;color:#b7c0c9;font-size:11px;line-height:1.6;flex:1}
+.system-card-link{display:inline-flex;align-items:center;gap:6px;margin-top:2px;font:700 9px var(--font-geist-mono);color:var(--cyan);letter-spacing:.04em;text-decoration:none;width:max-content}
 .system-card-link span{transition:transform .2s}
 .system-card-link:hover span{transform:translateX(3px)}
 .rates-note{margin-top:30px;color:#5f6a75;font-size:11px;text-align:center;letter-spacing:.02em}
