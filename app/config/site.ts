@@ -21,6 +21,8 @@ export const serverSystems=[
  {name:"CCR Box",active:false,icon:"▣"},
  {name:"Novo Sistema de Itens",active:true,icon:"◈",detail:"Upgrade de Talica (com talicas novas) e Rank Up System.",guidePath:"/forum/01-2/topic/14"},
  {name:"Sistema de Runas",active:true,icon:"❖",detail:"Novos slots de item, separados do Rank e da Talica.",guidePath:"/forum/01-2/topic/16"},
+ {name:"Tálica de Favor",active:true,icon:"⛨",detail:"Ajuste de balanceamento: a defesa que ela dá agora é real de verdade.",guidePath:"/forum/01-2/topic/15"},
+ {name:"Tooltip de Skills e Buffs",active:true,icon:"◉",detail:"Tooltip mostra o valor real do efeito, direto na tela.",guidePath:"/forum/01-2/topic/17"},
  {name:"Efeitos Especiais Estendidos",active:true,icon:"✦",detail:"Até 10 efeitos especiais por item."},
  {name:"Auto Rollup de Efeitos Especiais",active:true,icon:"↻",detail:"Em drop, abertura de caixa e outras fontes de item."},
  {name:"Guild Passives System",active:true,icon:"♜"},
