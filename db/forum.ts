@@ -73,6 +73,14 @@ Imagine um golpe que causaria 1000 de dano sem nenhuma Tálica de Favor equipada
 
 Com a peça no +7, você agora recebe cerca de 1/3 do dano normal — uma diferença que dá pra sentir de verdade numa luta, não só um número maior na tela de status.
 
+{pink:Provado em combate real}
+Isso não é só matemática: testamos em combate real, no mesmo monstro (Giant Baba), com e sem a Tálica de Favor equipada.
+
+![Sem Tálica de Favor: Giant Baba batendo 2326 de dano](/assets/favor/0favor.png)
+![Com Tálica de Favor +5: o mesmo Giant Baba batendo só 516 de dano](/assets/favor/full5tfavor.png)
+
+Mesmo bicho, mesmo golpe — de 2326 pra 516 de dano recebido só com a Tálica de Favor +5 equipada. É a defesa que estava faltando.
+
 {violet:O que continua igual}
 - {white:Durabilidade ainda importa} — a proteção da Tálica de Favor está ligada à barra de durabilidade do seu equipamento, que vai esvaziando conforme você leva golpes. Com a durabilidade alta, você recebe o bônus completo; se ela cair demais (numa luta longa, ou sendo focado por vários inimigos ao mesmo tempo), a proteção da Tálica cai junto. Ela se recupera sozinha com o tempo — dar uma respirada entre combates ajuda a manter o benefício em dia.
 - {white:Existe um teto de segurança} — pra ninguém ficar literalmente invencível, mesmo empilhando Tálica de Favor em várias peças de armadura ao mesmo tempo. Uma peça sozinha, sem ajuda de nenhuma outra, nunca esbarra nesse teto — a progressão do +1 ao +7 é sempre real.
