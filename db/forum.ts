@@ -17,6 +17,31 @@ export function isStaffEmail(email: string): boolean {
 // função abaixo apaga só os tópicos da equipe nesse mural antes de recriar).
 const MASTER_TITLE = "Informações do servidor — RF Echelon";
 
+// Baseado nas 5 capturas reais de tooltip em public/assets/skills/. Cobre
+// só o que as imagens mostram (buff comum, skill comum, buff de classe,
+// skill de classe) — nada inventado além disso.
+const SKILL_TOOLTIP_TOPIC_BODY = `Melhoramos a tooltip de skills e buffs em toda a interface. Antes, você via o nome do efeito sem saber o valor exato que ele dá no seu nível atual — agora a tooltip mostra o número real, direto na tela, sem precisar testar em combate pra descobrir.
+
+{cyan:Buffs — o bônus real, no seu nível}
+Todo buff agora mostra o valor exato do efeito na sua barra de nível atual, não só o nome do efeito.
+
+![Tooltip de buff (Bull's Eye) mostrando +30 de Critical Rate no nível atual](/assets/skills/skill01.png)
+![Tooltip de buff (Evasion) mostrando +30 de Avoid Rate no nível atual](/assets/skills/skill02.png)
+
+{green:Skills de dano — o percentual real do seu ataque}
+Skill de dano agora mostra quanto ela bate em relação ao seu ataque base, em porcentagem — dá pra comparar skills entre si antes de gastar ponto.
+
+![Tooltip de skill (Multi Shot) mostrando ~156% do seu ataque](/assets/skills/skill03.png)
+
+{orange:O mesmo vale pra skill de classe}
+Buff de classe e skill de dano de classe recebem exatamente a mesma clareza — os valores reais aparecem igual, sem diferença entre skill comum e skill de classe.
+
+![Tooltip de buff de classe (Faith, Zealot) mostrando os 3 bônus reais no nível atual](/assets/skills/skill04.png)
+![Tooltip de skill de classe (Full Swing) mostrando ~244% do seu ataque](/assets/skills/skill05.png)
+
+{pink:Por que isso importa}
+Build de skill sempre exigiu tentativa e erro ou consulta externa pra saber se vale a pena investir ponto. Com os valores reais na própria tooltip, dá pra planejar sua build só olhando pro jogo.`;
+
 // Texto pronto de RF-Online/docs/patch-notes/2026-08-24-talica-de-favor.md
 // (seção "TEXTO PRA PUBLICAR"), em linguagem de jogador. Nomes de sistema
 // internos, o valor exato do teto de segurança e os eixos ainda não
@@ -282,6 +307,8 @@ async function ensureForumSchema(db: Db) {
   await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Tálica de Favor — Ajuste de Balanceamento", TALICA_FAVOR_TOPIC_BODY);
   await ensureSubTopic(db, "Sistema de Runas — Novos Slots de Item", RUNE_TOPIC_BODY);
   await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Sistema de Runas — Novos Slots de Item", RUNE_TOPIC_BODY);
+  await ensureSubTopic(db, "Novo Tooltip de Skills e Buffs", SKILL_TOOLTIP_TOPIC_BODY);
+  await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Novo Tooltip de Skills e Buffs", SKILL_TOOLTIP_TOPIC_BODY);
   await rewriteMasterTopicBody(db);
   await seedServerInfo(db);
   await seedMonsterDrops(db);
@@ -315,6 +342,7 @@ type MasterLinkIds = {
   rankupId: number;
   talicaFavorId: number;
   runeId: number;
+  skillTooltipId: number;
 };
 
 // Única fonte do texto do tópico mestre — usada tanto no seed inicial quanto
@@ -337,6 +365,7 @@ Recursos do servidor:
 - [Nosso Editor Próprio](/forum/${SERVER_INFO_SLUG}/topic/${ids.editorId})
 - [Tálica de Favor — Ajuste de Balanceamento](/forum/${SERVER_INFO_SLUG}/topic/${ids.talicaFavorId})
 - [Sistema de Runas — Novos Slots de Item](/forum/${SERVER_INFO_SLUG}/topic/${ids.runeId})
+- [Novo Tooltip de Skills e Buffs](/forum/${SERVER_INFO_SLUG}/topic/${ids.skillTooltipId})
 
 Eventos:
 - Invasão de monstros às terças e quintas, 10h e 16h (drops especiais e XP extra)`;
@@ -390,9 +419,10 @@ async function rewriteMasterTopicBody(db: Db) {
   const rankupId = await findId("Sistema de Rank Up e Pedras de Evolução");
   const talicaFavorId = await findId("Tálica de Favor — Ajuste de Balanceamento");
   const runeId = await findId("Sistema de Runas — Novos Slots de Item");
-  if (!editorId || !rankupId || !talicaFavorId || !runeId) return;
+  const skillTooltipId = await findId("Novo Tooltip de Skills e Buffs");
+  if (!editorId || !rankupId || !talicaFavorId || !runeId || !skillTooltipId) return;
 
-  const newBody = buildMasterBody({ editorId, rankupId, talicaFavorId, runeId });
+  const newBody = buildMasterBody({ editorId, rankupId, talicaFavorId, runeId, skillTooltipId });
 
   const [original] = await db
     .select({ id: forumPosts.id, body: forumPosts.body })
@@ -433,8 +463,9 @@ async function seedServerInfo(db: Db) {
   const editorId = await createStaffTopic("Nosso Editor Próprio", EDITOR_TOPIC_BODY);
   const talicaFavorId = await createStaffTopic("Tálica de Favor — Ajuste de Balanceamento", TALICA_FAVOR_TOPIC_BODY);
   const runeId = await createStaffTopic("Sistema de Runas — Novos Slots de Item", RUNE_TOPIC_BODY);
+  const skillTooltipId = await createStaffTopic("Novo Tooltip de Skills e Buffs", SKILL_TOOLTIP_TOPIC_BODY);
 
-  await createStaffTopic(MASTER_TITLE, buildMasterBody({ editorId, rankupId, talicaFavorId, runeId }), true);
+  await createStaffTopic(MASTER_TITLE, buildMasterBody({ editorId, rankupId, talicaFavorId, runeId, skillTooltipId }), true);
 }
 
 const DROPS_MASTER_TITLE = "Como funcionam os drops — RF Echelon";
