@@ -1,16 +1,216 @@
 import LaunchCountdown from "../LaunchCountdown";
-const Brand=()=> <span className="brand"><span className="brand-mark">RF</span><span className="brand-copy"><strong>ECHELON</strong><small>PRIVATE SERVER</small></span></span>;
-export default function Donation(){return <main className="premium-donation">
- <header className="site-header"><a href="/"><Brand/></a><nav><a href="/">Início</a><a href="/#download">Download</a><a className="active" href="/doacao">Doação</a><a href="/forum">Fórum</a><a href="/conta">Minha conta</a></nav><div className="header-tools"><span className="lang-switch"><b>PT</b><a href="/en/donate">EN</a></span><a className="header-cta" href="/conta">Minha conta <span>↗</span></a></div></header>
- <section className="donation-hero"><div className="donation-orbit"/><div className="donation-copy"><span className="kicker">CENTRAL DE CONTRIBUIÇÕES · ACESSO PREMIUM</span><h1>Fortaleça o<br/><em>RF Echelon.</em></h1><p>Sua contribuição mantém Novus online, protegido e em constante evolução. Os pacotes e a cotação de Cash Points serão publicados na sexta-feira, junto com a abertura do servidor.</p><div className="trust-line"><span>◆ PAGAMENTO SEGURO</span><span>◆ PACOTES NA SEXTA-FEIRA</span><span>◆ SUPORTE DA EQUIPE</span></div></div><aside className="donation-balance"><div className="vip-sigil">◈<span>ECHELON<br/>VAULT</span></div><span>SALDO DA CONTA</span><strong>0 <small>CP</small></strong><p>As contas abrem na sexta-feira. Ainda não é possível consultar saldo.</p><div className="balance-meta"><span>STATUS <b>SEGURO</b></span><span>ABERTURA <b>28/08</b></span></div><a href="/conta" className="corner-button">ACESSAR MINHA CONTA <b>↗</b></a></aside><div className="premium-stats"><span><b>01</b> Pacotes divulgados na sexta</span><span><b>02</b> Confirme o pagamento</span><span><b>03</b> Receba seus Cash Points</span></div></section>
- <section className="donation-store"><header><div><span className="kicker">COLEÇÃO ECHELON</span><h2>Escolha seu poder.</h2></div><p>Os valores, o câmbio de Cash e os itens exclusivos de cada pacote ainda não foram divulgados.</p></header>
-  <div className="account-panel account-locked store-locked">
-   <span className="mini-label">PACOTES AINDA NÃO DIVULGADOS</span>
-   <h2>Liberados na sexta-feira.</h2>
-   <p>Preços, câmbio de Cash Points e itens exclusivos de cada pacote são publicados junto com a abertura do servidor, em <b>28/08/2026 às 20:00</b>.</p>
-   <LaunchCountdown/>
-   <a className="btn btn-ghost" href="/forum">Acompanhar novidades no fórum →</a>
-  </div>
-  <div className="payment-bar"><span>FORMAS DE PAGAMENTO</span><b>PIX</b><b>Cartão</b><b>Mercado Pago</b><small>Ambiente protegido e confirmação automática</small></div></section>
- <section className="donation-values"><div><span className="kicker">CONTRIBUIÇÃO TRANSPARENTE</span><h2>O servidor cresce<br/>com a comunidade.</h2></div><div className="value-list"><article><b>01</b><h3>Infraestrutura</h3><p>Servidores estáveis, baixa latência e proteção contra ataques.</p></article><article><b>02</b><h3>Conteúdo</h3><p>Novos eventos, melhorias e atualizações frequentes.</p></article><article><b>03</b><h3>Jogo justo</h3><p>As recompensas apoiam sua jornada sem substituir a evolução.</p></article></div></section>
- </main>}
+import DonationStore from "./DonationStore";
+import { getSessionUser } from "../lib/auth";
+import { isStaffEmail } from "../../db/forum";
+import { getPlayerSession } from "../lib/player-auth";
+import { listCharacters } from "../lib/game-account";
+import { listDonationPackages, getWalletBalance } from "../../db/store";
+
+export const dynamic = "force-dynamic";
+
+const Brand = () => (
+  <span className="brand">
+    <span className="brand-mark">RF</span>
+    <span className="brand-copy">
+      <strong>ECHELON</strong>
+      <small>PRIVATE SERVER</small>
+    </span>
+  </span>
+);
+
+export default async function Donation() {
+  const staffUser = await getSessionUser();
+  const isStaff = staffUser !== null && isStaffEmail(staffUser.email);
+
+  const header = (
+    <header className="site-header">
+      <a href="/">
+        <Brand />
+      </a>
+      <nav>
+        <a href="/">Início</a>
+        <a href="/#download">Download</a>
+        <a className="active" href="/doacao">
+          Doação
+        </a>
+        <a href="/forum">Fórum</a>
+        <a href="/conta">Minha conta</a>
+      </nav>
+      <div className="header-tools">
+        <span className="lang-switch">
+          <b>PT</b>
+          <a href="/en/donate">EN</a>
+        </span>
+        <a className="header-cta" href="/conta">
+          Minha conta <span>↗</span>
+        </a>
+      </div>
+    </header>
+  );
+
+  if (!isStaff) {
+    return (
+      <main className="premium-donation">
+        {header}
+        <section className="donation-hero">
+          <div className="donation-orbit" />
+          <div className="donation-copy">
+            <span className="kicker">CENTRAL DE CONTRIBUIÇÕES · ACESSO PREMIUM</span>
+            <h1>
+              Fortaleça o
+              <br />
+              <em>RF Echelon.</em>
+            </h1>
+            <p>
+              Sua contribuição mantém Novus online, protegido e em constante evolução. Os pacotes e a cotação de
+              Cash Points serão publicados na sexta-feira, junto com a abertura do servidor.
+            </p>
+            <div className="trust-line">
+              <span>◆ PAGAMENTO SEGURO</span>
+              <span>◆ PACOTES NA SEXTA-FEIRA</span>
+              <span>◆ SUPORTE DA EQUIPE</span>
+            </div>
+          </div>
+          <aside className="donation-balance">
+            <div className="vip-sigil">
+              ◈
+              <span>
+                ECHELON
+                <br />
+                VAULT
+              </span>
+            </div>
+            <span>SALDO DA CONTA</span>
+            <strong>
+              0 <small>CP</small>
+            </strong>
+            <p>As contas abrem na sexta-feira. Ainda não é possível consultar saldo.</p>
+            <div className="balance-meta">
+              <span>
+                STATUS <b>SEGURO</b>
+              </span>
+              <span>
+                ABERTURA <b>28/08</b>
+              </span>
+            </div>
+            <a href="/conta" className="corner-button">
+              ACESSAR MINHA CONTA <b>↗</b>
+            </a>
+          </aside>
+          <div className="premium-stats">
+            <span>
+              <b>01</b> Pacotes divulgados na sexta
+            </span>
+            <span>
+              <b>02</b> Confirme o pagamento
+            </span>
+            <span>
+              <b>03</b> Receba seus Cash Points
+            </span>
+          </div>
+        </section>
+        <section className="donation-store">
+          <header>
+            <div>
+              <span className="kicker">COLEÇÃO ECHELON</span>
+              <h2>Escolha seu poder.</h2>
+            </div>
+            <p>Os valores, o câmbio de Cash e os itens exclusivos de cada pacote ainda não foram divulgados.</p>
+          </header>
+          <div className="account-panel account-locked store-locked">
+            <span className="mini-label">PACOTES AINDA NÃO DIVULGADOS</span>
+            <h2>Liberados na sexta-feira.</h2>
+            <p>
+              Preços, câmbio de Cash Points e itens exclusivos de cada pacote são publicados junto com a abertura
+              do servidor, em <b>28/08/2026 às 20:00</b>.
+            </p>
+            <LaunchCountdown />
+            <a className="btn btn-ghost" href="/forum">
+              Acompanhar novidades no fórum →
+            </a>
+          </div>
+          <div className="payment-bar">
+            <span>FORMAS DE PAGAMENTO</span>
+            <b>PIX</b>
+            <b>Cartão</b>
+            <b>Mercado Pago</b>
+            <small>Ambiente protegido e confirmação automática</small>
+          </div>
+        </section>
+        <section className="donation-values">
+          <div>
+            <span className="kicker">CONTRIBUIÇÃO TRANSPARENTE</span>
+            <h2>
+              O servidor cresce
+              <br />
+              com a comunidade.
+            </h2>
+          </div>
+          <div className="value-list">
+            <article>
+              <b>01</b>
+              <h3>Infraestrutura</h3>
+              <p>Servidores estáveis, baixa latência e proteção contra ataques.</p>
+            </article>
+            <article>
+              <b>02</b>
+              <h3>Conteúdo</h3>
+              <p>Novos eventos, melhorias e atualizações frequentes.</p>
+            </article>
+            <article>
+              <b>03</b>
+              <h3>Jogo justo</h3>
+              <p>As recompensas apoiam sua jornada sem substituir a evolução.</p>
+            </article>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  const [packages, playerSession] = await Promise.all([listDonationPackages(true), getPlayerSession()]);
+  const [walletBalance, characters] = playerSession
+    ? await Promise.all([getWalletBalance(playerSession.username), listCharacters(playerSession.username)])
+    : [null, []];
+
+  return (
+    <main className="premium-donation">
+      {header}
+      <section className="donation-hero admin-preview">
+        <div className="donation-copy">
+          <span className="kicker">MODO EQUIPE · LOJA REAL (FASE 1)</span>
+          <h1>
+            Loja de
+            <br />
+            <em>Doações.</em>
+          </h1>
+          <p>
+            Visível só pra equipe por enquanto. Pagamento real via Asaas, saldo real, estoque real — a entrega
+            automática no personagem (Fase 2) ainda não existe, a compra fica registrada na fila.
+          </p>
+        </div>
+      </section>
+      <section className="donation-store">
+        <header>
+          <div>
+            <span className="kicker">COLEÇÃO ECHELON</span>
+            <h2>Escolha seu poder.</h2>
+          </div>
+        </header>
+        <DonationStore
+          packages={packages.map((p) => ({
+            key: p.key,
+            name: p.name,
+            priceBrlCents: p.priceBrlCents,
+            cashAmount: p.cashAmount,
+            stockRemaining: p.stockRemaining,
+            stockTotal: p.stockTotal,
+          }))}
+          loggedInUsername={playerSession?.username ?? null}
+          walletBalance={walletBalance}
+          characters={characters.map((c) => ({ serial: c.serial, name: c.name, level: c.level }))}
+        />
+      </section>
+    </main>
+  );
+}

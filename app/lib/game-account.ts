@@ -50,6 +50,31 @@ export function verifyGameAccount(username: string, password: string): Promise<G
   return callBridge("/v1/accounts/login", username, password);
 }
 
+export type GameCharacter = { serial: number; name: string; level: number; race: number };
+
+// Lista os personagens de uma conta — GET /v1/characters na AccountBridge
+// (consulta tbl_base no banco RF_World). Usado na loja de doações pra
+// escolher em qual personagem a compra deve cair. Nunca lança: se a ponte
+// não estiver configurada ou fora do ar, devolve [] (a página trata como
+// "não deu pra carregar seus personagens agora").
+export async function listCharacters(username: string): Promise<GameCharacter[]> {
+  const url = process.env.GAME_ACCOUNT_BRIDGE_URL;
+  const key = process.env.GAME_ACCOUNT_BRIDGE_KEY;
+  if (!url || !key) return [];
+
+  try {
+    const res = await fetch(`${url}/v1/characters?username=${encodeURIComponent(username)}`, {
+      headers: { "x-bridge-key": key },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    const data = (await res.json()) as GameCharacter[];
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
 export type ServerStatus = { online: boolean; playersOnline: number } | { online: null; playersOnline: null };
 
 // Estado real do servidor (online + jogadores conectados agora), lido do

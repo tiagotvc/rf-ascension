@@ -35,9 +35,3 @@ export const serverSystems=[
  {name:"Dungeon PvP",active:true,icon:"⚔"},
  {name:"Destruir chave do M.A.U. ao explodir",active:false,icon:"⚷"}
 ] as const;
-export const donationPackages=[
- {id:"starter",name:"Iniciante",priceBRL:49.9,baseCash:49900,bonusPercent:0,totalCash:49900,premiumDays:30},
- {id:"ascendant",name:"Ascendente",priceBRL:109.9,baseCash:109900,bonusPercent:10,totalCash:120890,premiumDays:30},
- {id:"dominator",name:"Dominador",priceBRL:179.9,baseCash:179900,bonusPercent:15,totalCash:206885,premiumDays:30},
- {id:"emperor",name:"Imperador",priceBRL:300,baseCash:300000,bonusPercent:30,totalCash:390000,premiumDays:30}
-] as const;

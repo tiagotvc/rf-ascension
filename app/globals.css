@@ -634,3 +634,17 @@
 .rates-note{margin-top:30px;color:#5f6a75;font-size:11px;text-align:center;letter-spacing:.02em}
 @media(max-width:900px){.rate-grid{grid-template-columns:repeat(2,1fr)}.system-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.system-grid{grid-template-columns:1fr}}
+
+/* Loja de doações real (Fase 1) — visível só pra equipe por enquanto. */
+.donation-hero.admin-preview{grid-template-columns:1fr}
+.store-login{max-width:420px;margin:34px auto 0}
+.store-panel{margin-top:20px}
+.store-wallet{max-width:640px;margin:0 auto 30px;padding:24px 28px}
+.store-wallet>p{margin:0;color:#c8ced5;font-size:13px}
+.store-wallet strong{color:var(--gold)}
+.store-topup-form{display:flex;gap:10px;margin-top:16px}
+.store-topup-form input{flex:1;height:44px;padding:0 14px;color:#fff;background:#090d12;border:1px solid #222c36;font:12px var(--font-geist-mono)}
+.store-character-select{display:block;margin-top:16px;color:#9ba5b1;font:600 9px var(--font-geist-mono);text-transform:uppercase;letter-spacing:.1em}
+.store-character-select select{display:block;margin-top:8px;width:100%;height:44px;padding:0 14px;color:#fff;background:#090d12;border:1px solid #222c36;font:12px var(--font-geist-mono)}
+.store-error{color:#ff6b6b;font-size:11px;margin:10px 0 0}
+.store-message{max-width:640px;margin:24px auto 0;padding:16px 20px;border:1px solid rgba(255,173,82,.3);background:rgba(255,173,82,.06);color:#e9b960;font-size:12px;text-align:center}
