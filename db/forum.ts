@@ -95,35 +95,49 @@ Queremos que investir em Tálica de Favor seja uma escolha que realmente compens
 // upgrade do item" e "sem penalidade na falha") — isso descreve o desenho
 // antigo do sistema, substituído em 19/08; o texto abaixo segue o código
 // atual, não o tooltip.
-// Baseado na fonte real do WorldServer (CItemGemMgr / GemAttachConfig,
-// mais o catálogo Lua RuneCatalog.lua e a receita RuneAttach.lua no NPC
-// Hero). Slot máximo (4) e chance de sucesso (100%, ainda marcada como
-// placeholder no código) confirmados no código; os valores por tier de
-// cada tipo de runa NÃO entram aqui de propósito — a imagem real (+300 em
-// "Rune of Strength") não bate com a tabela de tiers do catálogo Lua novo
-// (há uma tabela antiga em C++ e uma nova em Lua ainda não totalmente
-// unificadas), então preferimos não publicar número que pode contradizer
-// o que o jogador vê no próprio tooltip. Completar quando os dois lados
-// estiverem sincronizados.
+// Baseado na fonte real do WorldServer (CItemGemMgr / GemAttachConfig, mais
+// o catálogo Lua RuneCatalog.lua e a receita RuneAttach.lua no NPC Hero) e
+// confirmado por screenshots reais dos tooltips das runas. As tooltips reais
+// (Tier 1 de Strength/Vitality/Regeneration, Tier 5 de Avoidance) batem
+// exatamente com os valores do RuneCatalog.lua — por isso agora publicamos
+// a tabela completa de tiers pra Strength/Vitality/Avoidance. Regeneration
+// só tem o Tier 1 confirmado por screenshot; os tiers 2-5 não batem com uma
+// progressão linear óbvia (Strength/Vitality não são lineares), então não
+// arriscamos inventar os valores do meio — só o Tier 1 e a existência do
+// Tier 6, sem o número exato dele.
 const RUNE_TOPIC_BODY = `Chegou um sistema novo de progressão pro seu equipamento: {cyan:slots de Runa}. É um encaixe separado do Rank e do +Upgrade normal de talica — mais uma camada de poder pra investir na sua peça.
 
-![Tooltip de arma mostrando 2 slots de Runa preenchidos com Rune of Strength](/assets/rune/runedweapon.png)
+![Item com 4 slots de Runa vazios (0/4)](/assets/rune/empty_slots.png)
 
 {orange:O que são os slots de Runa}
-Arma e armadura podem nascer com até 4 slots de Runa — a quantidade varia de item pra item, e alguns não têm nenhum. Cada slot preenchido dá um bônus fixo, direto no seu personagem, somado ao que o item já entrega normalmente.
+Arma e armadura podem nascer com até 4 slots de Runa — a quantidade varia de item pra item, sorteada na hora que o item é criado, e alguns não têm nenhum. Cada slot preenchido dá um bônus fixo, direto no seu personagem, somado ao que o item já entrega normalmente.
 
 {green:Como encaixar uma Runa}
-A Runa é aplicada pela combinação do {white:NPC Hero}. Encaixar tem {white:100% de chance de sucesso} — não tem risco de perder a runa ou o item na tentativa.
+A Runa é aplicada pela combinação do {white:NPC Hero}, na janela do Item Combiner. Encaixar tem {white:100% de chance de sucesso} — não tem risco de perder a runa ou o item na tentativa.
 
-![Combinação de Runa no NPC Hero](pending)
+![Janela do Item Combiner do NPC Hero, usada pra encaixar a Runa](/assets/rune/socketing.png)
 
-{violet:Tipos de Runa}
-Cada tipo de Runa dá um bônus diferente (ataque, vida, esquiva, regeneração...). Fotos de cada tipo chegam aqui em breve.
+{violet:Enchendo os slots}
+Cada Runa encaixada aparece na tooltip do item, com o efeito dela escrito embaixo do nome. Veja o mesmo item ganhando runa por runa:
 
-![Catálogo de tipos de Runa](pending)
+![Item com 1 de 3 slots de Runa preenchidos: Rune of Strength dando +50 de ataque](/assets/rune/after.png)
+![O mesmo item com 2 de 3 slots preenchidos: Rune of Strength e Rune of Vitality](/assets/rune/two_runes.png)
+
+{gold:Tipos de Runa}
+Existem 4 linhas de Runa hoje, cada uma com vários tiers — quanto maior o tier, maior o bônus:
+
+![Rune of Strength, Tier 1: +50 de Ataque](/assets/rune/rune_of_power.png)
+![Rune of Vitality, Tier 1: +50 de HP](/assets/rune/rune_of_vitality.png)
+![Rune of Avoidance, Tier 5: +5 de Esquiva](/assets/rune/rune_of_avoidance.png)
+![Rune of Regeneration, Tier 1: +15 de HP por tick](/assets/rune/rune_of_regeneration.png)
+
+- {orange:Rune of Strength} (ataque) — Tier 1 a 6: +50 / +180 / +400 / +1.200 / +1.600 / +2.500
+- {green:Rune of Vitality} (HP) — Tier 1 a 6: +50 / +180 / +400 / +1.200 / +1.600 / +2.500
+- {cyan:Rune of Avoidance} (esquiva) — Tier 1 a 5: +1 / +2 / +3 / +4 / +5
+- {pink:Rune of Regeneration} (HP por tick) — Tier 1 confirmado em +15, sobe até o Tier 6 (valores dos tiers do meio ainda não confirmados, atualizamos aqui assim que tivermos certeza)
 
 {gold:Runas Raras}
-Além das runas comuns, existem runas raras no jogo — mais fortes, algumas com mais de um bônus ao mesmo tempo. Essas a gente não vai revelar aqui: fazem parte da graça de explorar o servidor.`;
+Além dessas 4 linhas comuns, existem runas raras no jogo — mais fortes, algumas com mais de um bônus ao mesmo tempo. Essas a gente não vai revelar aqui: fazem parte da graça de explorar o servidor.`;
 
 const RANKUP_TOPIC_BODY = `O Rank é um atributo separado do +Upgrade normal (os pontinhos de talica) — existe tanto em arma quanto em armadura, e dá um bônus fixo de dano ou defesa que soma direto no combate, sem depender da fórmula normal de defesa.
 
