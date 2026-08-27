@@ -139,13 +139,26 @@ export async function setOrderAsaasReference(orderId: number, asaasPaymentId: st
 // Chamado só pelo webhook, depois de reconfirmar o pagamento direto na API
 // da Asaas (nunca confiar só no corpo do webhook). Idempotente: se a order
 // já estiver 'paid', não credita de novo — trava a linha (FOR UPDATE) pra
-// evitar corrida caso o mesmo webhook chegue em paralelo.
-export async function confirmTopupPayment(orderId: number, asaasPaymentId: string): Promise<{ credited: boolean }> {
+// evitar corrida caso o mesmo webhook chegue em paralelo. `paidValueBrlCents`
+// tem que bater exatamente com o valor da order — proteção extra contra
+// qualquer jeito de um payment_id real, mas de valor diferente do
+// esperado, acabar creditando a order errada.
+export async function confirmTopupPayment(
+  orderId: number,
+  asaasPaymentId: string,
+  paidValueBrlCents: number
+): Promise<{ credited: boolean }> {
   const db = await getDb();
   await ensureStoreSchema(db);
   return db.transaction(async (tx) => {
     const [order] = await tx.select().from(orders).where(eq(orders.id, orderId)).for("update");
-    if (!order || order.kind !== "topup" || order.status === "paid" || !order.amountBrlCents) {
+    if (
+      !order ||
+      order.kind !== "topup" ||
+      order.status === "paid" ||
+      !order.amountBrlCents ||
+      order.amountBrlCents !== paidValueBrlCents
+    ) {
       return { credited: false };
     }
 

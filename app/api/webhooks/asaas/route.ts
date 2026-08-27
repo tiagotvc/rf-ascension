@@ -42,10 +42,15 @@ export async function POST(request: Request) {
 
   // Nunca confia no `payment` do corpo do webhook — rebusca server-to-server.
   const realPayment = await fetchAsaasPayment(paymentId);
-  if (!realPayment || realPayment.id !== paymentId || !isAsaasPaymentConfirmed(realPayment.status)) {
+  if (
+    !realPayment ||
+    realPayment.id !== paymentId ||
+    !isAsaasPaymentConfirmed(realPayment.status) ||
+    realPayment.valueBrlCents === null
+  ) {
     return Response.json({ ok: true });
   }
 
-  await confirmTopupPayment(orderId, paymentId);
+  await confirmTopupPayment(orderId, paymentId, realPayment.valueBrlCents);
   return Response.json({ ok: true });
 }

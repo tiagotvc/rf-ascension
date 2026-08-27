@@ -82,10 +82,12 @@ export async function createTopupCheckout(params: {
   return { ok: true, checkoutUrl, asaasCheckoutId };
 }
 
-export type AsaasPaymentStatus = { id: string; status: string; externalReference: string | null };
+export type AsaasPaymentStatus = { id: string; status: string; externalReference: string | null; valueBrlCents: number | null };
 
 // Rebusca o pagamento direto na API — nunca confiar só no corpo do
-// webhook, mesmo depois de validar o token de autenticação dele.
+// webhook, mesmo depois de validar o token de autenticação dele. Inclui o
+// valor pago (`value`, em reais) pra quem chamar poder conferir que bate
+// com o valor esperado da order antes de creditar qualquer coisa.
 export async function fetchAsaasPayment(paymentId: string): Promise<AsaasPaymentStatus | null> {
   const { baseUrl, apiKey } = asaasConfig();
 
@@ -105,6 +107,7 @@ export async function fetchAsaasPayment(paymentId: string): Promise<AsaasPayment
   return {
     id: data.id,
     status: data.status,
+    valueBrlCents: typeof data.value === "number" ? Math.round(data.value * 100) : null,
     externalReference: typeof data.externalReference === "string" ? data.externalReference : null,
   };
 }
