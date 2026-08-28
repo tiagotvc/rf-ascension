@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/store/process-deliveries",
+      "schedule": "*/5 * * * *"
+    }
+  ]
+}

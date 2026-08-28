@@ -20,11 +20,13 @@ async function ensureStoreSchema(db: Db) {
     name TEXT NOT NULL,
     price_brl_cents INTEGER NOT NULL,
     cash_amount INTEGER NOT NULL,
+    item_code TEXT NOT NULL DEFAULT 'iwswb55',
     stock_total INTEGER NOT NULL,
     stock_remaining INTEGER NOT NULL,
     visible_to_players BOOLEAN NOT NULL DEFAULT false,
     created_at TEXT NOT NULL
   )`);
+  await db.execute(sql`ALTER TABLE donation_packages ADD COLUMN IF NOT EXISTS item_code TEXT NOT NULL DEFAULT 'iwswb55'`);
   await db.execute(sql`CREATE TABLE IF NOT EXISTS wallet_ledger (
     id SERIAL PRIMARY KEY,
     account_username TEXT NOT NULL,
@@ -61,15 +63,26 @@ async function ensureStoreSchema(db: Db) {
     character_serial INTEGER NOT NULL,
     character_name TEXT NOT NULL,
     package_id INTEGER NOT NULL REFERENCES donation_packages(id),
+    item_code TEXT NOT NULL DEFAULT 'iwswb55',
     cash_amount INTEGER NOT NULL,
     status TEXT NOT NULL DEFAULT 'queued',
+    delivery_method TEXT,
+    attempts INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL,
     delivered_at TEXT
   )`);
+  await db.execute(sql`ALTER TABLE deliveries ADD COLUMN IF NOT EXISTS item_code TEXT NOT NULL DEFAULT 'iwswb55'`);
+  await db.execute(sql`ALTER TABLE deliveries ADD COLUMN IF NOT EXISTS delivery_method TEXT`);
+  await db.execute(sql`ALTER TABLE deliveries ADD COLUMN IF NOT EXISTS attempts INTEGER NOT NULL DEFAULT 0`);
   await db.execute(sql`CREATE INDEX IF NOT EXISTS deliveries_status_idx ON deliveries (status)`);
   await seedPackages(db);
   bootstrapped = true;
 }
+
+// "iwswb55" é item de teste — nenhuma "Cápsula de Cash" real existe ainda
+// no jogo. Troca o item_code de cada pacote direto no banco quando os
+// itens de verdade forem criados no RF Editor; nenhum código muda.
+const TEST_ITEM_CODE = "iwswb55";
 
 const PACKAGE_SEED = [
   { key: "pack_150", name: "Pacote 150", priceBrlCents: 15000 },
@@ -88,6 +101,7 @@ async function seedPackages(db: Db) {
       name: p.name,
       priceBrlCents: p.priceBrlCents,
       cashAmount,
+      itemCode: TEST_ITEM_CODE,
       stockTotal: 100,
       stockRemaining: 100,
       visibleToPlayers: false,
@@ -186,7 +200,9 @@ export async function confirmTopupPayment(
   });
 }
 
-export type PurchaseResult = { ok: true; deliveryId: number } | { ok: false; error: string };
+export type PurchaseResult =
+  | { ok: true; deliveryId: number; characterSerial: number; itemCode: string; cashAmount: number }
+  | { ok: false; error: string };
 
 // Gasta saldo (GP) já existente na carteira — não fala com a Asaas nessa
 // etapa. `allowHidden` só deve vir true quando o chamador já confirmou
@@ -249,11 +265,76 @@ export async function purchasePackage(
         characterSerial,
         characterName,
         packageId: pkg.id,
+        itemCode: pkg.itemCode,
         cashAmount: pkg.cashAmount,
         status: "queued",
       })
       .returning({ id: deliveries.id });
 
-    return { ok: true, deliveryId: delivery.id };
+    return { ok: true, deliveryId: delivery.id, characterSerial, itemCode: pkg.itemCode, cashAmount: pkg.cashAmount };
   });
+}
+
+export type QueuedDelivery = {
+  id: number;
+  characterSerial: number;
+  itemCode: string;
+  cashAmount: number;
+  attempts: number;
+};
+
+// Fila pro retry (cron) — entregas que ainda não confirmaram sucesso.
+// Não reprocessa indefinidamente: para depois de MAX_DELIVERY_ATTEMPTS
+// tentativas, marcando 'failed' pra investigação manual em vez de martelar
+// o WorldServer pra sempre se algo estiver genuinamente errado.
+const MAX_DELIVERY_ATTEMPTS = 20;
+
+export async function listQueuedDeliveries(limit: number): Promise<QueuedDelivery[]> {
+  const db = await getDb();
+  await ensureStoreSchema(db);
+  const rows = await db
+    .select({
+      id: deliveries.id,
+      characterSerial: deliveries.characterSerial,
+      itemCode: deliveries.itemCode,
+      cashAmount: deliveries.cashAmount,
+      attempts: deliveries.attempts,
+    })
+    .from(deliveries)
+    .where(eq(deliveries.status, "queued"))
+    .limit(limit);
+  return rows;
+}
+
+// Chamado depois de CADA tentativa de entrega (sucesso ou falha) — sempre
+// incrementa `attempts`; só marca 'delivered'/'failed' conforme o caso.
+export async function recordDeliveryAttempt(
+  deliveryId: number,
+  result: { delivered: true; method: "bag" | "mail" } | { delivered: false }
+): Promise<void> {
+  const db = await getDb();
+  await ensureStoreSchema(db);
+
+  if (result.delivered) {
+    await db
+      .update(deliveries)
+      .set({
+        status: "delivered",
+        deliveryMethod: result.method,
+        deliveredAt: new Date().toISOString(),
+        attempts: sql`${deliveries.attempts} + 1`,
+      })
+      .where(eq(deliveries.id, deliveryId));
+    return;
+  }
+
+  const [row] = await db.select({ attempts: deliveries.attempts }).from(deliveries).where(eq(deliveries.id, deliveryId));
+  const nextAttempts = (row?.attempts ?? 0) + 1;
+  await db
+    .update(deliveries)
+    .set({
+      attempts: nextAttempts,
+      status: nextAttempts >= MAX_DELIVERY_ATTEMPTS ? "failed" : "queued",
+    })
+    .where(eq(deliveries.id, deliveryId));
 }

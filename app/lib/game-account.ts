@@ -75,6 +75,42 @@ export async function listCharacters(username: string): Promise<GameCharacter[]>
   }
 }
 
+export type DeliverItemResult =
+  | { ok: true; method: "bag" | "mail" }
+  | { ok: false; reason: "not_found" | "unreachable" | "error" };
+
+// Entrega de verdade no personagem — POST /v1/deliver na AccountBridge, que
+// aciona o canal novo do WorldServer (CStoreDeliveryChannel, porta 27602).
+// Cai na bag se o personagem estiver online com espaço; senão vai por
+// correio in-game. Nunca lança: falha de rede/servidor fora do ar vira
+// {ok:false, reason:"unreachable"} — quem chama decide se tenta de novo.
+export async function deliverItem(characterSerial: number, itemCode: string, amount: number): Promise<DeliverItemResult> {
+  const url = process.env.GAME_ACCOUNT_BRIDGE_URL;
+  const key = process.env.GAME_ACCOUNT_BRIDGE_KEY;
+  if (!url || !key) return { ok: false, reason: "unreachable" };
+
+  let res: Response;
+  try {
+    res = await fetch(`${url}/v1/deliver`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-bridge-key": key },
+      body: JSON.stringify({ characterSerial, itemCode, amount }),
+    });
+  } catch {
+    return { ok: false, reason: "unreachable" };
+  }
+
+  if (!res.ok) return { ok: false, reason: "unreachable" };
+  const data = (await res.json().catch(() => null)) as { ok?: boolean; status?: string } | null;
+  if (!data?.ok) {
+    return { ok: false, reason: data?.status === "not_found" ? "not_found" : "error" };
+  }
+  if (data.status === "bag" || data.status === "mail") {
+    return { ok: true, method: data.status };
+  }
+  return { ok: false, reason: "error" };
+}
+
 export type ServerStatus = { online: boolean; playersOnline: number } | { online: null; playersOnline: null };
 
 // Estado real do servidor (online + jogadores conectados agora), lido do

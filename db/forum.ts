@@ -139,6 +139,40 @@ Existem 4 linhas de Runa hoje, cada uma com vários tiers — quanto maior o tie
 {gold:Runas Raras}
 Além dessas 4 linhas comuns, existem runas raras no jogo — mais fortes, algumas com mais de um bônus ao mesmo tempo. Essas a gente não vai revelar aqui: fazem parte da graça de explorar o servidor.`;
 
+// Baseado na receita real (WorldServer/LuaScript/ItemCombine/Hooks/SuperiorPromote.lua,
+// RECIPE_ENABLED=true, confirmada ao vivo pelos screenshots reais). Vale pra arma, armadura
+// e escudo (generalizado em 27/08) — doador e receptor têm que ser do MESMO grupo (os dois
+// arma, ou os dois armadura/escudo). Nomes de item code (irrc02/irrc03) ficam de fora do
+// texto — o jogador só precisa saber que precisa da Superior Recipe + mais um material.
+const SUPERIOR_TOPIC_BODY = `Combine Superior é uma combinação especial (Combine Ex) que promove uma peça {white:Intense} pra {orange:Superior} de verdade — não é só um número maior, é a raridade real do item mudando. Funciona pra arma, armadura ou escudo.
+
+![Peça Intense antes da promoção — Rank 5, sem efeito especial, 0/4 slots de Runa](/assets/superior/intense.png)
+
+{cyan:O que você precisa}
+- 1 peça {white:Intense} — vira o resultado, o mesmo item físico (mesmo serial), só muda de raridade.
+- 1 peça {violet:Roxa} — doadora, é destruída na combinação. Tem que ser do mesmo tipo (arma+arma, ou armadura/escudo+armadura/escudo) — não dá pra puxar efeito de escudo pra espada.
+- 1 Superior Recipe + mais um material, em quantidade.
+- Sem custo em Dalant — só os materiais.
+
+{violet:O efeito especial vem da peça Roxa}
+A peça Roxa doadora pode trazer efeitos bem diferentes — alguns exemplos reais:
+
+![Roxa com Increases FP recovery by 4](/assets/superior/purple.png)
+![Roxa com Increases maximum HP by 3%](/assets/superior/purple2.png)
+![Roxa com Increases critical hit chance against monsters by 4%](/assets/superior/purple3.png)
+
+Qual efeito sua peça final recebe depende de qual Roxa você usou como doadora — vale a pena escolher com calma.
+
+{gold:O Superior Recipe}
+![Tooltip do item Superior Recipe](/assets/superior/superior.png)
+
+{pink:O resultado}
+A peça Intense vira Superior de verdade, herda o efeito especial da Roxa, e {white:Talica, Runas e Rank são todos resetados a zero} — a peça sai limpa, pronta pra você investir de novo do seu jeito. E tem um bônus a mais: ela ganha um {gold:rebaixamento de level sorteado (0 a 10)}, só naquela peça. Com sorte, uma peça de nível 50 pode ficar exigindo bem menos — o tooltip mostra o "Effective Level" real:
+
+![Resultado real: Superior Intense Hora Sword, Effective Level 42 (need 50)](/assets/superior/result.png)
+
+Nesse exemplo a peça saiu com rebaixamento de 8 — quem tem nível 42 já consegue usar uma peça que originalmente pedia nível 50. É sorte pura, roda de novo a cada combinação.`;
+
 const RANKUP_TOPIC_BODY = `O Rank é um atributo separado do +Upgrade normal (os pontinhos de talica) — existe tanto em arma quanto em armadura, e dá um bônus fixo de dano ou defesa que soma direto no combate, sem depender da fórmula normal de defesa.
 
 ![Tooltip de arma mostrando Rank 17 level e +114 de Attack Point](/assets/rankup/before.png)
@@ -331,6 +365,8 @@ async function ensureForumSchema(db: Db) {
   await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Sistema de Runas — Novos Slots de Item", RUNE_TOPIC_BODY);
   await ensureSubTopic(db, "Novo Tooltip de Skills e Buffs", SKILL_TOOLTIP_TOPIC_BODY);
   await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Novo Tooltip de Skills e Buffs", SKILL_TOOLTIP_TOPIC_BODY);
+  await ensureSubTopic(db, "Combine Superior — Promova seu Equipamento", SUPERIOR_TOPIC_BODY);
+  await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Combine Superior — Promova seu Equipamento", SUPERIOR_TOPIC_BODY);
   await rewriteMasterTopicBody(db);
   await seedServerInfo(db);
   await seedMonsterDrops(db);
@@ -365,6 +401,7 @@ type MasterLinkIds = {
   talicaFavorId: number;
   runeId: number;
   skillTooltipId: number;
+  superiorId: number;
 };
 
 // Única fonte do texto do tópico mestre — usada tanto no seed inicial quanto
@@ -388,6 +425,7 @@ Recursos do servidor:
 - [Tálica de Favor — Ajuste de Balanceamento](/forum/${SERVER_INFO_SLUG}/topic/${ids.talicaFavorId})
 - [Sistema de Runas — Novos Slots de Item](/forum/${SERVER_INFO_SLUG}/topic/${ids.runeId})
 - [Novo Tooltip de Skills e Buffs](/forum/${SERVER_INFO_SLUG}/topic/${ids.skillTooltipId})
+- [Combine Superior — Promova seu Equipamento](/forum/${SERVER_INFO_SLUG}/topic/${ids.superiorId})
 
 Eventos:
 - Invasão de monstros às terças e quintas, 10h e 16h (drops especiais e XP extra)`;
@@ -442,9 +480,10 @@ async function rewriteMasterTopicBody(db: Db) {
   const talicaFavorId = await findId("Tálica de Favor — Ajuste de Balanceamento");
   const runeId = await findId("Sistema de Runas — Novos Slots de Item");
   const skillTooltipId = await findId("Novo Tooltip de Skills e Buffs");
-  if (!editorId || !rankupId || !talicaFavorId || !runeId || !skillTooltipId) return;
+  const superiorId = await findId("Combine Superior — Promova seu Equipamento");
+  if (!editorId || !rankupId || !talicaFavorId || !runeId || !skillTooltipId || !superiorId) return;
 
-  const newBody = buildMasterBody({ editorId, rankupId, talicaFavorId, runeId, skillTooltipId });
+  const newBody = buildMasterBody({ editorId, rankupId, talicaFavorId, runeId, skillTooltipId, superiorId });
 
   const [original] = await db
     .select({ id: forumPosts.id, body: forumPosts.body })
@@ -486,8 +525,13 @@ async function seedServerInfo(db: Db) {
   const talicaFavorId = await createStaffTopic("Tálica de Favor — Ajuste de Balanceamento", TALICA_FAVOR_TOPIC_BODY);
   const runeId = await createStaffTopic("Sistema de Runas — Novos Slots de Item", RUNE_TOPIC_BODY);
   const skillTooltipId = await createStaffTopic("Novo Tooltip de Skills e Buffs", SKILL_TOOLTIP_TOPIC_BODY);
+  const superiorId = await createStaffTopic("Combine Superior — Promova seu Equipamento", SUPERIOR_TOPIC_BODY);
 
-  await createStaffTopic(MASTER_TITLE, buildMasterBody({ editorId, rankupId, talicaFavorId, runeId, skillTooltipId }), true);
+  await createStaffTopic(
+    MASTER_TITLE,
+    buildMasterBody({ editorId, rankupId, talicaFavorId, runeId, skillTooltipId, superiorId }),
+    true
+  );
 }
 
 const DROPS_MASTER_TITLE = "Como funcionam os drops — RF Echelon";

@@ -1,8 +1,8 @@
 import { getPlayerSession } from "../../../lib/player-auth";
 import { getSessionUser } from "../../../lib/auth";
 import { isStaffEmail } from "../../../../db/forum";
-import { listCharacters } from "../../../lib/game-account";
-import { purchasePackage } from "../../../../db/store";
+import { listCharacters, deliverItem } from "../../../lib/game-account";
+import { purchasePackage, recordDeliveryAttempt } from "../../../../db/store";
 
 export async function POST(request: Request) {
   const session = await getPlayerSession();
@@ -41,5 +41,14 @@ export async function POST(request: Request) {
     return Response.json({ error: result.error }, { status: 400 });
   }
 
-  return Response.json({ ok: true, deliveryId: result.deliveryId });
+  // A compra já valeu (GP debitado, estoque decrementado) mesmo se essa
+  // tentativa de entrega falhar — fica 'queued' e o cron de retry tenta de
+  // novo depois (ver app/api/store/process-deliveries/route.ts).
+  const delivery = await deliverItem(result.characterSerial, result.itemCode, 1);
+  await recordDeliveryAttempt(
+    result.deliveryId,
+    delivery.ok ? { delivered: true, method: delivery.method } : { delivered: false }
+  );
+
+  return Response.json({ ok: true, deliveryId: result.deliveryId, delivered: delivery.ok });
 }

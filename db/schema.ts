@@ -54,6 +54,10 @@ export const donationPackages = pgTable("donation_packages", {
   name: text("name").notNull(),
   priceBrlCents: integer("price_brl_cents").notNull(),
   cashAmount: integer("cash_amount").notNull(),
+  // Código do item real entregue no personagem (Fase 2 — CStoreDeliveryChannel
+  // no WorldServer). "iwswb55" é item de teste enquanto a Cápsula de Cash de
+  // verdade não existe no RF Editor; troca aqui sem precisar mexer em código.
+  itemCode: text("item_code").notNull(),
   stockTotal: integer("stock_total").notNull(),
   stockRemaining: integer("stock_remaining").notNull(),
   visibleToPlayers: boolean("visible_to_players").notNull().default(false),
@@ -118,8 +122,11 @@ export const deliveries = pgTable(
     packageId: integer("package_id")
       .notNull()
       .references(() => donationPackages.id),
+    itemCode: text("item_code").notNull(),
     cashAmount: integer("cash_amount").notNull(),
     status: text("status").notNull().default("queued"), // 'queued' | 'delivered' | 'failed'
+    deliveryMethod: text("delivery_method"), // 'bag' | 'mail', preenchido quando delivered
+    attempts: integer("attempts").notNull().default(0),
     createdAt: timestamp(),
     deliveredAt: text("delivered_at"),
   },
