@@ -8,6 +8,7 @@ export type StorePackage = {
   cashAmount: number;
   stockRemaining: number;
   stockTotal: number;
+  items: { itemCode: string; amount: number; label: string }[];
 };
 
 export type StoreCharacter = { serial: number; name: string; level: number };
@@ -94,7 +95,9 @@ export default function DonationStore({
         return;
       }
       setPurchaseMessage(
-        "Compra registrada! O pacote fica na fila de entrega até a Fase 2 (entrega automática no jogo) existir."
+        data.delivered
+          ? "Compra entregue! Confira a bag (ou o correio in-game) do personagem escolhido."
+          : "Compra registrada — o WorldServer não respondeu agora, vamos tentar de novo automaticamente em breve."
       );
       window.location.reload();
     } finally {
@@ -177,8 +180,16 @@ export default function DonationStore({
             <div className="cash-value">
               <b>◈</b>
               <strong>{p.cashAmount.toLocaleString("pt-BR")}</strong>
-              <small>CASH POINTS</small>
+              <small>CASH</small>
             </div>
+            <ul className="pack-benefits">
+              {p.items.map((item) => (
+                <li key={item.itemCode}>
+                  {item.label}
+                  {item.amount > 1 ? ` x${item.amount}` : ""}
+                </li>
+              ))}
+            </ul>
             <div className="pack-price">R$ {(p.priceBrlCents / 100).toFixed(2).replace(".", ",")}</div>
             <button
               className="btn btn-primary"

@@ -111,6 +111,52 @@ export async function deliverItem(characterSerial: number, itemCode: string, amo
   return { ok: false, reason: "error" };
 }
 
+export type DeliverPackageResult =
+  | { ok: true; cashStatus: "credited" | "skipped"; itemStatuses: ("bag" | "mail")[] }
+  | { ok: false; cashStatus: string; itemStatuses: string[] };
+
+// Entrega de pacote completo (Fase 3 — item(s) + Cash real numa call só) —
+// POST /v1/deliver-package na AccountBridge, que aciona o canal do
+// WorldServer (CStoreDeliveryChannel, opcode 3/4). Nunca lança: falha de
+// rede/servidor fora do ar vira {ok:false} — quem chama decide se tenta de
+// novo (fila `deliveries`, retry via cron).
+export async function deliverPackage(
+  characterSerial: number,
+  accountUsername: string,
+  cashAmount: number,
+  items: { itemCode: string; amount: number }[]
+): Promise<DeliverPackageResult> {
+  const url = process.env.GAME_ACCOUNT_BRIDGE_URL;
+  const key = process.env.GAME_ACCOUNT_BRIDGE_KEY;
+  if (!url || !key) return { ok: false, cashStatus: "error", itemStatuses: [] };
+
+  let res: Response;
+  try {
+    res = await fetch(`${url}/v1/deliver-package`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-bridge-key": key },
+      body: JSON.stringify({ characterSerial, accountUsername, cashAmount, items }),
+    });
+  } catch {
+    return { ok: false, cashStatus: "error", itemStatuses: [] };
+  }
+
+  if (!res.ok) return { ok: false, cashStatus: "error", itemStatuses: [] };
+  const data = (await res.json().catch(() => null)) as
+    | { ok?: boolean; cashStatus?: string; itemStatuses?: string[] }
+    | null;
+  if (!data) return { ok: false, cashStatus: "error", itemStatuses: [] };
+
+  if (data.ok) {
+    return {
+      ok: true,
+      cashStatus: data.cashStatus as "credited" | "skipped",
+      itemStatuses: (data.itemStatuses ?? []) as ("bag" | "mail")[],
+    };
+  }
+  return { ok: false, cashStatus: data.cashStatus ?? "error", itemStatuses: data.itemStatuses ?? [] };
+}
+
 export type ServerStatus = { online: boolean; playersOnline: number } | { online: null; playersOnline: null };
 
 // Estado real do servidor (online + jogadores conectados agora), lido do

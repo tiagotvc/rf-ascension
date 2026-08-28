@@ -185,8 +185,8 @@ export default async function Donation() {
             <em>Doações.</em>
           </h1>
           <p>
-            Visível só pra equipe por enquanto. Pagamento real via Asaas, saldo real, estoque real — a entrega
-            automática no personagem (Fase 2) ainda não existe, a compra fica registrada na fila.
+            Visível só pra equipe por enquanto. Pagamento real via Asaas, saldo real, estoque real, entrega
+            automática no personagem (item na bag/correio + Cash real do jogo).
           </p>
         </div>
       </section>
@@ -205,6 +205,7 @@ export default async function Donation() {
             cashAmount: p.cashAmount,
             stockRemaining: p.stockRemaining,
             stockTotal: p.stockTotal,
+            items: p.items.map((i) => ({ itemCode: i.itemCode, amount: i.amount, label: i.label })),
           }))}
           loggedInUsername={playerSession?.username ?? null}
           walletBalance={walletBalance}

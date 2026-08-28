@@ -44,25 +44,48 @@ export const forumPosts = pgTable(
   })
 );
 
-// Loja de doações — preços e valores de cash sempre em centavos/unidades
-// inteiras (nunca float), pra nunca ter erro de arredondamento em dinheiro
-// real. `visibleToPlayers` é o único controle de visibilidade: enquanto
-// false, só quem tem sessão de equipe vê o pacote em /doacao.
+// Loja de doações — preços sempre em centavos (nunca float). `cashAmount`
+// agora é Cash REAL do jogo (loja nativa RF Online, tbl_UserStatus.Cash na
+// base BILLING — Fase 3), creditado via CStoreDeliveryChannel opcode 3/4,
+// não a carteira GP do site (essa continua em wallet_balances, sistema
+// separado, usado só pra "comprar" o pacote). `visibleToPlayers` é o único
+// controle de visibilidade: enquanto false, só quem tem sessão de equipe vê
+// o pacote em /doacao.
 export const donationPackages = pgTable("donation_packages", {
   id: serial("id").primaryKey(),
   key: text("key").notNull().unique(),
   name: text("name").notNull(),
   priceBrlCents: integer("price_brl_cents").notNull(),
   cashAmount: integer("cash_amount").notNull(),
-  // Código do item real entregue no personagem (Fase 2 — CStoreDeliveryChannel
-  // no WorldServer). "iwswb55" é item de teste enquanto a Cápsula de Cash de
-  // verdade não existe no RF Editor; troca aqui sem precisar mexer em código.
+  // Legado da Fase 2 (1 item só por pacote) — mantido só pra não quebrar a
+  // coluna NOT NULL existente; a entrega real agora usa donation_package_items
+  // (N itens por pacote). Não lido por nenhum código novo.
   itemCode: text("item_code").notNull(),
   stockTotal: integer("stock_total").notNull(),
   stockRemaining: integer("stock_remaining").notNull(),
   visibleToPlayers: boolean("visible_to_players").notNull().default(false),
   createdAt: timestamp(),
 });
+
+// N itens por pacote (Fase 3) — cada linha é 1 item real entregue na compra
+// (bag ou correio, via CStoreDeliveryChannel). `label` é só pra exibição na
+// loja (nome amigável do item, pode divergir do nome real do jogo).
+export const donationPackageItems = pgTable(
+  "donation_package_items",
+  {
+    id: serial("id").primaryKey(),
+    packageId: integer("package_id")
+      .notNull()
+      .references(() => donationPackages.id, { onDelete: "cascade" }),
+    itemCode: text("item_code").notNull(),
+    amount: integer("amount").notNull(),
+    label: text("label").notNull(),
+    createdAt: timestamp(),
+  },
+  (table) => ({
+    packageIdIdx: index("donation_package_items_package_id_idx").on(table.packageId),
+  })
+);
 
 // Fonte da verdade do saldo: append-only, nunca editado nem apagado.
 // wallet_balances é só um cache derivado, atualizado na mesma transação

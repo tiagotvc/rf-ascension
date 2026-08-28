@@ -1,17 +1,17 @@
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, inArray } from "drizzle-orm";
 import { getDb } from "./index";
-import { donationPackages, walletLedger, walletBalances, orders, deliveries } from "./schema";
+import { donationPackages, donationPackageItems, walletLedger, walletBalances, orders, deliveries } from "./schema";
 import { siteConfig } from "../app/config/site";
 
 type Db = Awaited<ReturnType<typeof getDb>>;
 
 let bootstrapped = false;
 
-// Loja de doações: pacotes de cash (dinheiro real via Asaas), carteira (GP)
-// e a fila de entrega pro personagem (consumida pela Fase 2, ainda não
-// implementada — WorldServer precisa de código novo em C++ pra entregar
-// item de fora do processo). Preços e cash sempre em inteiro (centavos pro
-// preço, unidades de cash pro valor), nunca float.
+// Loja de doações: pacotes reais (item + Cash de verdade do jogo, Fase 3),
+// carteira (GP, usada só pra "pagar" o pacote dentro do site) e a fila de
+// entrega pro personagem via CStoreDeliveryChannel (WorldServer, opcode
+// 3/4). Preços e cash sempre em inteiro (centavos pro preço, unidades de
+// Cash pro valor), nunca float.
 async function ensureStoreSchema(db: Db) {
   if (bootstrapped) return;
   await db.execute(sql`CREATE TABLE IF NOT EXISTS donation_packages (
@@ -27,6 +27,15 @@ async function ensureStoreSchema(db: Db) {
     created_at TEXT NOT NULL
   )`);
   await db.execute(sql`ALTER TABLE donation_packages ADD COLUMN IF NOT EXISTS item_code TEXT NOT NULL DEFAULT 'iwswb55'`);
+  await db.execute(sql`CREATE TABLE IF NOT EXISTS donation_package_items (
+    id SERIAL PRIMARY KEY,
+    package_id INTEGER NOT NULL REFERENCES donation_packages(id) ON DELETE CASCADE,
+    item_code TEXT NOT NULL,
+    amount INTEGER NOT NULL,
+    label TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  )`);
+  await db.execute(sql`CREATE INDEX IF NOT EXISTS donation_package_items_package_id_idx ON donation_package_items (package_id)`);
   await db.execute(sql`CREATE TABLE IF NOT EXISTS wallet_ledger (
     id SERIAL PRIMARY KEY,
     account_username TEXT NOT NULL,
@@ -79,46 +88,122 @@ async function ensureStoreSchema(db: Db) {
   bootstrapped = true;
 }
 
-// "iwswb55" é item de teste — nenhuma "Cápsula de Cash" real existe ainda
-// no jogo. Troca o item_code de cada pacote direto no banco quando os
-// itens de verdade forem criados no RF Editor; nenhum código muda.
-const TEST_ITEM_CODE = "iwswb55";
-
+// Pacotes reais (Fase 3) — item_code de donation_packages fica legado
+// (não lido); a entrega real usa PACKAGE_SEED[].items abaixo, uma linha por
+// item real em donation_package_items. Cash é Cash de verdade do jogo
+// (loja nativa RF Online), não a carteira GP do site.
 const PACKAGE_SEED = [
-  { key: "pack_150", name: "Pacote 150", priceBrlCents: 15000 },
-  { key: "pack_300", name: "Pacote 300", priceBrlCents: 30000 },
-  { key: "pack_500", name: "Pacote 500", priceBrlCents: 50000 },
+  {
+    key: "pack_50",
+    name: "Pacote 50",
+    priceBrlCents: 5000,
+    cashAmount: 55000,
+    items: [
+      { itemCode: "irgn0029", amount: 1, label: "Jade Premium (30 Dias)" },
+      { itemCode: "irchm01", amount: 1, label: "Wrapping Charm" },
+      { itemCode: "ipupr01", amount: 1, label: "Upgrade Protection Potion" },
+      { itemCode: "iwspu10", amount: 1, label: "Speed Knife Tier 1" },
+    ],
+  },
+  {
+    key: "pack_150",
+    name: "Pacote 150",
+    priceBrlCents: 15000,
+    cashAmount: 170000,
+    items: [
+      { itemCode: "irgn0029", amount: 1, label: "Jade Premium (30 Dias)" },
+      { itemCode: "irchm02", amount: 1, label: "Trading Charm" },
+      { itemCode: "iwspu11", amount: 1, label: "Speed Knife Tier 2" },
+      { itemCode: "ipupr01", amount: 3, label: "Upgrade Protection Potion" },
+      { itemCode: "irunv04", amount: 255, label: "Evolution Stone [Highest]" },
+      { itemCode: "irrc02", amount: 2, label: "Superior Recipe" },
+    ],
+  },
+  {
+    key: "pack_250",
+    name: "Pacote 250",
+    priceBrlCents: 25000,
+    cashAmount: 320000,
+    items: [
+      { itemCode: "irgn0029", amount: 1, label: "Jade Premium (30 Dias)" },
+      { itemCode: "iwspu12", amount: 1, label: "Speed Knife Tier 3" },
+      { itemCode: "irchm63", amount: 1, label: "All in One Charm" },
+      { itemCode: "ipupr01", amount: 5, label: "Upgrade Protection Potion" },
+      { itemCode: "irunv04", amount: 765, label: "Evolution Stone [Highest]" },
+      { itemCode: "irrc02", amount: 4, label: "Superior Recipe" },
+    ],
+  },
 ];
 
 async function seedPackages(db: Db) {
-  const [existing] = await db.select({ id: donationPackages.id }).from(donationPackages).limit(1);
-  if (existing) return;
+  const expectedKeys = PACKAGE_SEED.map((p) => p.key);
+  const existing = await db.select({ id: donationPackages.id, key: donationPackages.key }).from(donationPackages);
+  const existingKeys = new Set(existing.map((r) => r.key));
+  const isCurrent = expectedKeys.length === existing.length && expectedKeys.every((k) => existingKeys.has(k));
+  if (isCurrent) return;
+
+  // Estrutura mudou (pacotes antigos de teste, ou versão anterior dos 3
+  // reais) — apaga tudo e recria do zero, mesmo padrão de "recria" já usado
+  // no fórum (db/forum.ts, seedServerInfo).
+  if (existing.length > 0) {
+    await db.delete(donationPackages).where(
+      inArray(
+        donationPackages.id,
+        existing.map((r) => r.id)
+      )
+    );
+  }
 
   for (const p of PACKAGE_SEED) {
-    const cashAmount = Math.round((p.priceBrlCents / 100) * siteConfig.cashPerReal);
-    await db.insert(donationPackages).values({
-      key: p.key,
-      name: p.name,
-      priceBrlCents: p.priceBrlCents,
-      cashAmount,
-      itemCode: TEST_ITEM_CODE,
-      stockTotal: 100,
-      stockRemaining: 100,
-      visibleToPlayers: false,
-    });
+    const [pkg] = await db
+      .insert(donationPackages)
+      .values({
+        key: p.key,
+        name: p.name,
+        priceBrlCents: p.priceBrlCents,
+        cashAmount: p.cashAmount,
+        itemCode: p.items[0]?.itemCode ?? "iwswb55",
+        stockTotal: 100,
+        stockRemaining: 100,
+        visibleToPlayers: false,
+      })
+      .returning({ id: donationPackages.id });
+
+    for (const item of p.items) {
+      await db.insert(donationPackageItems).values({
+        packageId: pkg.id,
+        itemCode: item.itemCode,
+        amount: item.amount,
+        label: item.label,
+      });
+    }
   }
 }
 
 export type DonationPackage = typeof donationPackages.$inferSelect;
+export type DonationPackageItem = typeof donationPackageItems.$inferSelect;
+export type DonationPackageWithItems = DonationPackage & { items: DonationPackageItem[] };
 
 // `includeHidden` só deve vir true quando o chamador já confirmou sessão de
 // equipe — pacotes com visible_to_players=false não podem aparecer pra
 // jogador comum.
-export async function listDonationPackages(includeHidden: boolean): Promise<DonationPackage[]> {
+export async function listDonationPackages(includeHidden: boolean): Promise<DonationPackageWithItems[]> {
   const db = await getDb();
   await ensureStoreSchema(db);
   const rows = await db.select().from(donationPackages).orderBy(donationPackages.priceBrlCents);
-  return includeHidden ? rows : rows.filter((r) => r.visibleToPlayers);
+  const visible = includeHidden ? rows : rows.filter((r) => r.visibleToPlayers);
+  if (visible.length === 0) return [];
+
+  const items = await db
+    .select()
+    .from(donationPackageItems)
+    .where(
+      inArray(
+        donationPackageItems.packageId,
+        visible.map((r) => r.id)
+      )
+    );
+  return visible.map((pkg) => ({ ...pkg, items: items.filter((i) => i.packageId === pkg.id) }));
 }
 
 export async function getWalletBalance(accountUsername: string): Promise<number> {
@@ -201,7 +286,14 @@ export async function confirmTopupPayment(
 }
 
 export type PurchaseResult =
-  | { ok: true; deliveryId: number; characterSerial: number; itemCode: string; cashAmount: number }
+  | {
+      ok: true;
+      deliveryId: number;
+      characterSerial: number;
+      accountUsername: string;
+      cashAmount: number;
+      items: { itemCode: string; amount: number }[];
+    }
   | { ok: false; error: string };
 
 // Gasta saldo (GP) já existente na carteira — não fala com a Asaas nessa
@@ -229,6 +321,8 @@ export async function purchasePackage(
       .for("update");
     const balance = wallet?.balanceCash ?? 0;
     if (balance < pkg.cashAmount) return { ok: false, error: "Saldo insuficiente." };
+
+    const items = await tx.select().from(donationPackageItems).where(eq(donationPackageItems.packageId, pkg.id));
 
     await tx
       .update(donationPackages)
@@ -265,28 +359,40 @@ export async function purchasePackage(
         characterSerial,
         characterName,
         packageId: pkg.id,
-        itemCode: pkg.itemCode,
+        // Legado da Fase 2 (1 item só) — coluna NOT NULL sem uso real agora, os itens de verdade
+        // vêm de donation_package_items via packageId (ver listQueuedDeliveries).
+        itemCode: "iwswb55",
         cashAmount: pkg.cashAmount,
         status: "queued",
       })
       .returning({ id: deliveries.id });
 
-    return { ok: true, deliveryId: delivery.id, characterSerial, itemCode: pkg.itemCode, cashAmount: pkg.cashAmount };
+    return {
+      ok: true,
+      deliveryId: delivery.id,
+      characterSerial,
+      accountUsername,
+      cashAmount: pkg.cashAmount,
+      items: items.map((i) => ({ itemCode: i.itemCode, amount: i.amount })),
+    };
   });
 }
 
 export type QueuedDelivery = {
   id: number;
   characterSerial: number;
-  itemCode: string;
+  accountUsername: string;
   cashAmount: number;
   attempts: number;
+  items: { itemCode: string; amount: number }[];
 };
 
-// Fila pro retry (cron) — entregas que ainda não confirmaram sucesso.
-// Não reprocessa indefinidamente: para depois de MAX_DELIVERY_ATTEMPTS
-// tentativas, marcando 'failed' pra investigação manual em vez de martelar
-// o WorldServer pra sempre se algo estiver genuinamente errado.
+// Fila pro retry (cron) — entregas que ainda não confirmaram sucesso. Os
+// itens são relidos de donation_package_items via packageId (fonte da
+// verdade sempre atual), não guardados na própria delivery. Não reprocessa
+// indefinidamente: para depois de MAX_DELIVERY_ATTEMPTS tentativas,
+// marcando 'failed' pra investigação manual em vez de martelar o
+// WorldServer pra sempre se algo estiver genuinamente errado.
 const MAX_DELIVERY_ATTEMPTS = 20;
 
 export async function listQueuedDeliveries(limit: number): Promise<QueuedDelivery[]> {
@@ -296,14 +402,34 @@ export async function listQueuedDeliveries(limit: number): Promise<QueuedDeliver
     .select({
       id: deliveries.id,
       characterSerial: deliveries.characterSerial,
-      itemCode: deliveries.itemCode,
+      accountUsername: deliveries.accountUsername,
       cashAmount: deliveries.cashAmount,
       attempts: deliveries.attempts,
+      packageId: deliveries.packageId,
     })
     .from(deliveries)
     .where(eq(deliveries.status, "queued"))
     .limit(limit);
-  return rows;
+  if (rows.length === 0) return [];
+
+  const items = await db
+    .select()
+    .from(donationPackageItems)
+    .where(
+      inArray(
+        donationPackageItems.packageId,
+        rows.map((r) => r.packageId)
+      )
+    );
+
+  return rows.map((r) => ({
+    id: r.id,
+    characterSerial: r.characterSerial,
+    accountUsername: r.accountUsername,
+    cashAmount: r.cashAmount,
+    attempts: r.attempts,
+    items: items.filter((i) => i.packageId === r.packageId).map((i) => ({ itemCode: i.itemCode, amount: i.amount })),
+  }));
 }
 
 // Chamado depois de CADA tentativa de entrega (sucesso ou falha) — sempre
