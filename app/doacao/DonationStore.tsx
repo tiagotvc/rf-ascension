@@ -13,6 +13,10 @@ export type StorePackage = {
 
 export type StoreCharacter = { serial: number; name: string; level: number };
 
+const ITEM_ICONS: Record<string, string> = {
+  iywml01: "/assets/donnate/watermelon.png",
+};
+
 export default function DonationStore({
   packages,
   loggedInUsername,
@@ -184,7 +188,11 @@ export default function DonationStore({
             </div>
             <ul className="pack-benefits">
               {p.items.map((item) => (
-                <li key={item.itemCode}>
+                <li key={item.itemCode} className="pack-benefit-item">
+                  {ITEM_ICONS[item.itemCode] && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={ITEM_ICONS[item.itemCode]} alt="" className="pack-benefit-icon" />
+                  )}
                   {item.label}
                   {item.amount > 1 ? ` x${item.amount}` : ""}
                 </li>

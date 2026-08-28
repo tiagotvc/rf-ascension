@@ -103,6 +103,7 @@ const PACKAGE_SEED = [
       { itemCode: "irchm01", amount: 1, label: "Wrapping Charm" },
       { itemCode: "ipupr01", amount: 1, label: "Upgrade Protection Potion" },
       { itemCode: "iwspu10", amount: 1, label: "Speed Knife Tier 1" },
+      { itemCode: "iywml01", amount: 2, label: "Watermelon" },
     ],
   },
   {
@@ -117,6 +118,7 @@ const PACKAGE_SEED = [
       { itemCode: "ipupr01", amount: 3, label: "Upgrade Protection Potion" },
       { itemCode: "irunv04", amount: 255, label: "Evolution Stone [Highest]" },
       { itemCode: "irrc02", amount: 2, label: "Superior Recipe" },
+      { itemCode: "iywml01", amount: 3, label: "Watermelon" },
     ],
   },
   {
@@ -131,47 +133,94 @@ const PACKAGE_SEED = [
       { itemCode: "ipupr01", amount: 5, label: "Upgrade Protection Potion" },
       { itemCode: "irunv04", amount: 765, label: "Evolution Stone [Highest]" },
       { itemCode: "irrc02", amount: 4, label: "Superior Recipe" },
+      { itemCode: "iywml01", amount: 5, label: "Watermelon" },
     ],
   },
 ];
 
 async function seedPackages(db: Db) {
-  const expectedKeys = PACKAGE_SEED.map((p) => p.key);
-  const existing = await db.select({ id: donationPackages.id, key: donationPackages.key }).from(donationPackages);
-  const existingKeys = new Set(existing.map((r) => r.key));
-  const isCurrent = expectedKeys.length === existing.length && expectedKeys.every((k) => existingKeys.has(k));
+  const existing = await db.select().from(donationPackages);
+  const existingItems =
+    existing.length > 0
+      ? await db
+          .select()
+          .from(donationPackageItems)
+          .where(
+            inArray(
+              donationPackageItems.packageId,
+              existing.map((r) => r.id)
+            )
+          )
+      : [];
+  const isCurrent =
+    existing.length === PACKAGE_SEED.length &&
+    PACKAGE_SEED.every((p) => {
+      const row = existing.find((r) => r.key === p.key);
+      if (!row || row.visibleToPlayers !== true) return false;
+      const rowItems = existingItems.filter((i) => i.packageId === row.id);
+      if (rowItems.length !== p.items.length) return false;
+      return p.items.every((expected) =>
+        rowItems.some(
+          (i) => i.itemCode === expected.itemCode && i.amount === expected.amount && i.label === expected.label
+        )
+      );
+    });
   if (isCurrent) return;
 
-  // Estrutura mudou (pacotes antigos de teste, ou versão anterior dos 3
-  // reais) — apaga tudo e recria do zero, mesmo padrão de "recria" já usado
-  // no fórum (db/forum.ts, seedServerInfo).
-  if (existing.length > 0) {
+  // Faz upsert por `key` em vez de apagar e recriar tudo: preserva
+  // stockRemaining dos pacotes que já existiam (pode ter compra de teste da
+  // equipe), só substitui de fato os itens (não carregam estoque, seguro
+  // recriar) e os campos de catálogo (nome/preço/cash/visibilidade). Pacotes
+  // que saíram do PACKAGE_SEED (versão antiga de teste) são removidos.
+  const expectedKeys = new Set(PACKAGE_SEED.map((p) => p.key));
+  const stale = existing.filter((r) => !expectedKeys.has(r.key));
+  if (stale.length > 0) {
     await db.delete(donationPackages).where(
       inArray(
         donationPackages.id,
-        existing.map((r) => r.id)
+        stale.map((r) => r.id)
       )
     );
   }
 
   for (const p of PACKAGE_SEED) {
-    const [pkg] = await db
-      .insert(donationPackages)
-      .values({
-        key: p.key,
-        name: p.name,
-        priceBrlCents: p.priceBrlCents,
-        cashAmount: p.cashAmount,
-        itemCode: p.items[0]?.itemCode ?? "iwswb55",
-        stockTotal: 100,
-        stockRemaining: 100,
-        visibleToPlayers: false,
-      })
-      .returning({ id: donationPackages.id });
+    const row = existing.find((r) => r.key === p.key);
+    const itemCode = p.items[0]?.itemCode ?? "iwswb55";
+    const packageId = row
+      ? row.id
+      : (
+          await db
+            .insert(donationPackages)
+            .values({
+              key: p.key,
+              name: p.name,
+              priceBrlCents: p.priceBrlCents,
+              cashAmount: p.cashAmount,
+              itemCode,
+              stockTotal: 100,
+              stockRemaining: 100,
+              visibleToPlayers: true,
+            })
+            .returning({ id: donationPackages.id })
+        )[0].id;
+
+    if (row) {
+      await db
+        .update(donationPackages)
+        .set({
+          name: p.name,
+          priceBrlCents: p.priceBrlCents,
+          cashAmount: p.cashAmount,
+          itemCode,
+          visibleToPlayers: true,
+        })
+        .where(eq(donationPackages.id, packageId));
+      await db.delete(donationPackageItems).where(eq(donationPackageItems.packageId, packageId));
+    }
 
     for (const item of p.items) {
       await db.insert(donationPackageItems).values({
-        packageId: pkg.id,
+        packageId,
         itemCode: item.itemCode,
         amount: item.amount,
         label: item.label,

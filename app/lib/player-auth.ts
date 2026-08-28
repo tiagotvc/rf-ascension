@@ -3,12 +3,13 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 // Sessão de JOGADOR — separada da sessão de equipe (ver app/lib/auth.ts).
 // Login com usuário/senha da conta real do jogo (verifyGameAccount, via
-// AccountBridge). TTL curto de propósito: é só pro fluxo de compra na loja
-// de doações, não pra navegação livre no site.
+// AccountBridge). Usada tanto pra /conta (cadastro/login geral, navegação
+// livre) quanto pro fluxo de compra na loja de doações — mesmo cookie,
+// TTL de 7 dias (era 2h quando isso servia só a compra).
 export type PlayerSession = { username: string };
 
 const COOKIE_NAME = "echelon_player_session";
-const SESSION_TTL_MS = 1000 * 60 * 60 * 2;
+const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7;
 
 function getSecret(): string {
   const secret = process.env.PLAYER_SESSION_SECRET || process.env.SESSION_SECRET;
