@@ -50,7 +50,7 @@ export function verifyGameAccount(username: string, password: string): Promise<G
   return callBridge("/v1/accounts/login", username, password);
 }
 
-export type GameCharacter = { serial: number; name: string; level: number; race: number };
+export type GameCharacter = { serial: number; name: string; level: number; race: number; dalant: number; goldPoint: number };
 
 // Lista os personagens de uma conta — GET /v1/characters na AccountBridge
 // (consulta tbl_base no banco RF_World). Usado na loja de doações pra
@@ -155,6 +155,54 @@ export async function deliverPackage(
     };
   }
   return { ok: false, cashStatus: data.cashStatus ?? "error", itemStatuses: data.itemStatuses ?? [] };
+}
+
+// Saldo real de Cash (GET /v1/cash na AccountBridge, tbl_UserStatus na base BILLING) — é por CONTA,
+// não por personagem. Nunca lança: sem ponte configurada ou fora do ar, devolve 0.
+export async function getGameCash(username: string): Promise<number> {
+  const url = process.env.GAME_ACCOUNT_BRIDGE_URL;
+  const key = process.env.GAME_ACCOUNT_BRIDGE_KEY;
+  if (!url || !key) return 0;
+
+  try {
+    const res = await fetch(`${url}/v1/cash?username=${encodeURIComponent(username)}`, {
+      headers: { "x-bridge-key": key },
+      cache: "no-store",
+    });
+    if (!res.ok) return 0;
+    const data = (await res.json()) as { cash?: number };
+    return typeof data.cash === "number" ? data.cash : 0;
+  } catch {
+    return 0;
+  }
+}
+
+// Troca Game CP (site) por moeda real do jogo (Fase 5) — POST /v1/exchange na AccountBridge, que
+// aciona o opcode 5/6 do CStoreDeliveryChannel. Dalant/Gold Point exigem characterSerial (moeda por
+// personagem); Cash é por conta, characterSerial é ignorado nesse caso. Nunca lança: falha de
+// rede/servidor fora do ar vira {ok:false} — quem chama decide se desfaz o débito de GP.
+export async function exchangeCurrency(
+  characterSerial: number,
+  accountUsername: string,
+  currency: "cash" | "dalant" | "goldpoint",
+  amount: number
+): Promise<{ ok: boolean }> {
+  const url = process.env.GAME_ACCOUNT_BRIDGE_URL;
+  const key = process.env.GAME_ACCOUNT_BRIDGE_KEY;
+  if (!url || !key) return { ok: false };
+
+  try {
+    const res = await fetch(`${url}/v1/exchange`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-bridge-key": key },
+      body: JSON.stringify({ characterSerial, accountUsername, currency, amount }),
+    });
+    if (!res.ok) return { ok: false };
+    const data = (await res.json().catch(() => null)) as { ok?: boolean } | null;
+    return { ok: data?.ok === true };
+  } catch {
+    return { ok: false };
+  }
 }
 
 export type ServerStatus = { online: boolean; playersOnline: number } | { online: null; playersOnline: null };

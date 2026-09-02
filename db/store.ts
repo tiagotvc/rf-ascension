@@ -541,3 +541,52 @@ export async function recordDeliveryAttempt(
     })
     .where(eq(deliveries.id, deliveryId));
 }
+
+// Taxas de troca GP -> moeda real (Fase 5, aba Recarregar). Confirmadas com o usuário: 1 GP = 1
+// Cash (mesma base que os pacotes já usam), 1 GP = 1.000.000 Dalant, 1 GP = 25 Gold Point. São só
+// constantes — fácil de trocar depois se o balanceamento mudar.
+export const EXCHANGE_RATES = {
+  cash: 1,
+  dalant: 1_000_000,
+  goldpoint: 25,
+} as const;
+
+export type ExchangeCurrency = keyof typeof EXCHANGE_RATES;
+
+// Debita GP da carteira — mesmo lock/transação de purchasePackage. `reason` vai pro ledger só pra
+// auditoria (ex. "exchange:dalant"). Retorna erro sem debitar nada se o saldo não bater.
+export async function spendGp(accountUsername: string, gpAmount: number, reason: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const db = await getDb();
+  await ensureStoreSchema(db);
+  return db.transaction(async (tx) => {
+    const [wallet] = await tx.select().from(walletBalances).where(eq(walletBalances.accountUsername, accountUsername)).for("update");
+    const balance = wallet?.balanceCash ?? 0;
+    if (balance < gpAmount) return { ok: false, error: "Saldo insuficiente." };
+
+    await tx.insert(walletLedger).values({ accountUsername, deltaCash: -gpAmount, reason, referenceId: null });
+    await tx
+      .update(walletBalances)
+      .set({ balanceCash: sql`${walletBalances.balanceCash} - ${gpAmount}`, updatedAt: new Date().toISOString() })
+      .where(eq(walletBalances.accountUsername, accountUsername));
+
+    return { ok: true };
+  });
+}
+
+// Devolve GP pra carteira — usado quando o débito já aconteceu (spendGp) mas a entrega real da
+// moeda no jogo falhou (WorldServer fora do ar, etc.), pra não ficar com o débito sem nada em troca
+// (diferente de purchasePackage, que tem fila de retry — troca de moeda hoje é síncrona, sem fila).
+export async function refundGp(accountUsername: string, gpAmount: number, reason: string): Promise<void> {
+  const db = await getDb();
+  await ensureStoreSchema(db);
+  await db.transaction(async (tx) => {
+    await tx.insert(walletLedger).values({ accountUsername, deltaCash: gpAmount, reason, referenceId: null });
+    await tx
+      .insert(walletBalances)
+      .values({ accountUsername, balanceCash: gpAmount })
+      .onConflictDoUpdate({
+        target: walletBalances.accountUsername,
+        set: { balanceCash: sql`${walletBalances.balanceCash} + ${gpAmount}`, updatedAt: new Date().toISOString() },
+      });
+  });
+}

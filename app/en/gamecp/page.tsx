@@ -1,7 +1,7 @@
 import GameCpPortal from "../../gamecp/GameCpPortal";
 import HeaderAuth from "../../HeaderAuth";
 import { getPlayerSession } from "../../lib/player-auth";
-import { listCharacters } from "../../lib/game-account";
+import { listCharacters, getGameCash } from "../../lib/game-account";
 import { listDonationPackages, getWalletBalance } from "../../../db/store";
 
 export const dynamic = "force-dynamic";
@@ -18,9 +18,9 @@ const Brand = () => (
 
 export default async function EnglishGameCp() {
   const [packages, playerSession] = await Promise.all([listDonationPackages(false), getPlayerSession()]);
-  const [walletBalance, characters] = playerSession
-    ? await Promise.all([getWalletBalance(playerSession.username), listCharacters(playerSession.username)])
-    : [null, []];
+  const [walletBalance, characters, gameCash] = playerSession
+    ? await Promise.all([getWalletBalance(playerSession.username), listCharacters(playerSession.username), getGameCash(playerSession.username)])
+    : [null, [], null];
 
   const header = (
     <header className="site-header forum-nav">
@@ -92,7 +92,8 @@ export default async function EnglishGameCp() {
           }))}
           loggedInUsername={playerSession.username}
           walletBalance={walletBalance}
-          characters={characters.map((c) => ({ serial: c.serial, name: c.name, level: c.level }))}
+          characters={characters.map((c) => ({ serial: c.serial, name: c.name, level: c.level, dalant: c.dalant, goldPoint: c.goldPoint }))}
+          gameCash={gameCash}
           locale="en"
         />
       </section>
