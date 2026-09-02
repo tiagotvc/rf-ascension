@@ -17,6 +17,22 @@ const ITEM_ICONS: Record<string, string> = {
   iywml01: "/assets/donnate/watermelon.png",
 };
 
+// Sem arte real extraída do cliente pra maioria dos itens ainda — emoji
+// temático por código, só pra o grid de ícones não ficar todo com a mesma
+// letra. Troca por ícone real assim que tivermos os assets.
+const ITEM_EMOJI: Record<string, string> = {
+  irgn0029: "💎",
+  irchm01: "🎁",
+  irchm02: "💰",
+  irchm63: "⭐",
+  ipupr01: "🧪",
+  iwspu10: "🗡️",
+  iwspu11: "🗡️",
+  iwspu12: "🗡️",
+  irunv04: "🔮",
+  irrc02: "📜",
+};
+
 const COPY = {
   pt: {
     createTab: "Criar conta",
@@ -50,6 +66,11 @@ const COPY = {
     qty: "Qtd.",
     shopTitle: "Pacotes disponíveis",
     shopHint: "Entrega automática — item na bag (ou correio) + Cash real do jogo.",
+    mostPopular: "Mais popular",
+    bestValue: "Melhor valor",
+    trustBar: "Compra 100% segura. Entrega automática diretamente na sua bag (ou correio) e adição de Cash real do jogo.",
+    download: "Baixar cliente",
+    logout: "Sair",
     chooseCharFirst: "Escolha um personagem primeiro.",
     genericLoginError: "Erro ao entrar.",
     genericTopupError: "Erro ao criar cobrança.",
@@ -89,6 +110,11 @@ const COPY = {
     qty: "Qty.",
     shopTitle: "Available packages",
     shopHint: "Automatic delivery — item in the bag (or mail) + real in-game Cash.",
+    mostPopular: "Most popular",
+    bestValue: "Best value",
+    trustBar: "100% secure purchase. Automatic delivery straight to your bag (or mail) and real in-game Cash added.",
+    download: "Download client",
+    logout: "Log out",
     chooseCharFirst: "Choose a character first.",
     genericLoginError: "Login error.",
     genericTopupError: "Error creating charge.",
@@ -153,6 +179,16 @@ export default function GameCpPortal({
         setFormError(data.error ?? t.genericLoginError);
         return;
       }
+      window.location.reload();
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleLogout() {
+    setLoading(true);
+    try {
+      await fetch("/api/store/logout", { method: "POST" });
       window.location.reload();
     } finally {
       setLoading(false);
@@ -273,6 +309,14 @@ export default function GameCpPortal({
           <span>{(walletBalance ?? 0).toLocaleString(numberLocale)}</span>
           <small>{t.gameCp}</small>
         </div>
+        <div className="gamecp-topbar-actions">
+          <a className="btn btn-ghost" href={locale === "en" ? "/en#download" : "/#download"}>
+            <span aria-hidden>⬇</span> {t.download}
+          </a>
+          <button className="btn btn-ghost" onClick={handleLogout} disabled={loading} type="button">
+            <span aria-hidden>⇥</span> {t.logout}
+          </button>
+        </div>
       </div>
 
       <nav className="gamecp-subnav">
@@ -293,20 +337,31 @@ export default function GameCpPortal({
             <h2>{t.shopTitle}</h2>
             <p>{t.shopHint}</p>
           </div>
-          <div className="gamecp-list">
-            {packages.map((p) => (
-              <div className="gamecp-row" key={p.key}>
-                <div className="gamecp-row-icon">◈</div>
-                <div className="gamecp-row-main">
-                  <strong>{p.name}</strong>
-                  <span className="gamecp-row-items">
+          <div className="gamecp-cards">
+            {packages.map((p, i) => {
+              const badge = i === 1 ? t.mostPopular : i === 2 ? t.bestValue : null;
+              const qty = getQuantity(p.key, p.stockRemaining);
+              return (
+                <div className={`gamecp-card${badge ? " featured" : ""}`} key={p.key}>
+                  {badge && (
+                    <span className="gamecp-card-badge">
+                      {i === 1 ? "★" : "◆"} {badge}
+                    </span>
+                  )}
+                  <div className="gamecp-card-icons">
+                    <span className="gamecp-item-badge">
+                      <span className="gamecp-item-fallback">◈</span>
+                      <span className="gamecp-item-tooltip">
+                        {p.cashAmount.toLocaleString(numberLocale)} {t.cash}
+                      </span>
+                    </span>
                     {p.items.map((item) => (
                       <span className="gamecp-item-badge" key={item.itemCode}>
                         {ITEM_ICONS[item.itemCode] ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={ITEM_ICONS[item.itemCode]} alt="" />
                         ) : (
-                          <span className="gamecp-item-fallback">{item.label.charAt(0)}</span>
+                          <span className="gamecp-item-fallback">{ITEM_EMOJI[item.itemCode] ?? item.label.charAt(0)}</span>
                         )}
                         <span className="gamecp-item-tooltip">
                           {item.label}
@@ -314,39 +369,55 @@ export default function GameCpPortal({
                         </span>
                       </span>
                     ))}
-                  </span>
-                  <small>
-                    +{p.cashAmount.toLocaleString(numberLocale)} {t.cash} · {p.stockRemaining}/{p.stockTotal} {t.inStock}
-                  </small>
-                </div>
-                <div className="gamecp-row-buy">
-                  <span>
-                    {(p.gpPrice * getQuantity(p.key, p.stockRemaining)).toLocaleString(numberLocale)} {t.gp}
-                  </span>
+                  </div>
+                  <strong className="gamecp-card-name">{p.name}</strong>
+                  <p className="gamecp-card-cash">
+                    <b>◈</b> +{p.cashAmount.toLocaleString(numberLocale)} {t.cash}
+                  </p>
+                  <p className="gamecp-card-stock">
+                    <span aria-hidden>📦</span> {p.stockRemaining}/{p.stockTotal} {t.inStock}
+                  </p>
+                  <div className="gamecp-card-divider" />
+                  <p className="gamecp-card-price">
+                    {(p.gpPrice * qty).toLocaleString(numberLocale)} <small>{t.gp}</small>
+                  </p>
                   {p.stockRemaining > 0 && (
                     <div className="gamecp-qty">
                       <label>{t.qty}</label>
+                      <button type="button" onClick={() => setQuantity(p.key, qty - 1, p.stockRemaining)} disabled={qty <= 1}>
+                        −
+                      </button>
                       <input
                         type="number"
                         min={1}
                         max={p.stockRemaining}
-                        value={getQuantity(p.key, p.stockRemaining)}
+                        value={qty}
                         onChange={(e) => setQuantity(p.key, parseInt(e.target.value, 10) || 1, p.stockRemaining)}
                       />
+                      <button
+                        type="button"
+                        onClick={() => setQuantity(p.key, qty + 1, p.stockRemaining)}
+                        disabled={qty >= p.stockRemaining}
+                      >
+                        +
+                      </button>
                     </div>
                   )}
                   <button
-                    className="btn btn-primary"
+                    className="btn btn-primary gamecp-card-buy"
                     disabled={loading || p.stockRemaining <= 0 || characters.length === 0}
-                    onClick={() => handlePurchase(p.key, getQuantity(p.key, p.stockRemaining))}
+                    onClick={() => handlePurchase(p.key, qty)}
                   >
-                    {p.stockRemaining <= 0 ? t.soldOut : t.buy}
+                    <span aria-hidden>🛒</span> {p.stockRemaining <= 0 ? t.soldOut : t.buy}
                   </button>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           {purchaseMessage && <p className="store-message">{purchaseMessage}</p>}
+          <div className="gamecp-trust-bar">
+            <span aria-hidden>🛡️</span> {t.trustBar}
+          </div>
         </div>
       )}
 
