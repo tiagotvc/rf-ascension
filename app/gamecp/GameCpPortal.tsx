@@ -30,18 +30,26 @@ const COPY = {
     confirmPass: "Confirmar senha",
     footNote: "Mesma conta usada no cliente do jogo.",
     loggedInAs: "Logado como",
-    gameCp: "GAME CP",
+    gameCp: "Game CP",
+    tabShop: "Loja",
+    tabTopup: "Recarregar",
+    tabChar: "Personagem",
+    topupTitle: "Recarregar Game CP",
+    topupHint: "Pagamento via Asaas (PIX, cartão, Mercado Pago). R$ 1 = 1.000 Game CP.",
     topupPlaceholder: "Valor em R$",
-    topup: "Recarregar",
-    character: "Personagem",
+    topup: "Gerar cobrança",
+    character: "Personagem selecionado",
     level: "nível",
     noChars: "Nenhum personagem encontrado nessa conta — entre no jogo pra criar o primeiro.",
+    charHint: "A compra de qualquer pacote cai neste personagem.",
     logout: "Sair",
     download: "Baixar cliente",
     inStock: "em estoque",
-    cash: "CASH",
+    cash: "Cash",
     soldOut: "Esgotado",
     buy: "Comprar",
+    shopTitle: "Pacotes disponíveis",
+    shopHint: "Entrega automática — item na bag (ou correio) + Cash real do jogo.",
     chooseCharFirst: "Escolha um personagem primeiro.",
     genericLoginError: "Erro ao entrar.",
     genericTopupError: "Erro ao criar cobrança.",
@@ -61,18 +69,26 @@ const COPY = {
     confirmPass: "Confirm password",
     footNote: "Same account used in the game client.",
     loggedInAs: "Logged in as",
-    gameCp: "GAME CP",
+    gameCp: "Game CP",
+    tabShop: "Shop",
+    tabTopup: "Top up",
+    tabChar: "Character",
+    topupTitle: "Top up Game CP",
+    topupHint: "Payment via Asaas (PIX, card, Mercado Pago). R$ 1 = 1,000 Game CP.",
     topupPlaceholder: "Amount in R$",
-    topup: "Top up",
-    character: "Character",
+    topup: "Generate charge",
+    character: "Selected character",
     level: "level",
     noChars: "No character found on this account — log in-game to create your first one.",
+    charHint: "Any package purchase is delivered to this character.",
     logout: "Log out",
     download: "Download client",
     inStock: "in stock",
-    cash: "CASH",
+    cash: "Cash",
     soldOut: "Sold out",
     buy: "Buy",
+    shopTitle: "Available packages",
+    shopHint: "Automatic delivery — item in the bag (or mail) + real in-game Cash.",
     chooseCharFirst: "Choose a character first.",
     genericLoginError: "Login error.",
     genericTopupError: "Error creating charge.",
@@ -96,6 +112,7 @@ export default function GameCpPortal({
   locale?: "pt" | "en";
 }) {
   const t = COPY[locale];
+  const numberLocale = locale === "en" ? "en-US" : "pt-BR";
   const [tab, setTab] = useState<"register" | "login">("register");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -106,6 +123,7 @@ export default function GameCpPortal({
   const [topupError, setTopupError] = useState<string | null>(null);
   const [selectedCharacter, setSelectedCharacter] = useState<number | "">(characters[0]?.serial ?? "");
   const [purchaseMessage, setPurchaseMessage] = useState<string | null>(null);
+  const [dashTab, setDashTab] = useState<"shop" | "topup" | "character">("shop");
 
   async function handleAuthSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -165,6 +183,7 @@ export default function GameCpPortal({
   async function handlePurchase(packageKey: string) {
     if (!selectedCharacter) {
       setPurchaseMessage(t.chooseCharFirst);
+      setDashTab("character");
       return;
     }
     setLoading(true);
@@ -239,91 +258,142 @@ export default function GameCpPortal({
     );
   }
 
+  const selected = characters.find((c) => c.serial === selectedCharacter) ?? null;
+
   return (
-    <div className="gamecp-shell">
-      <div className="gamecp-header">
-        <div className="gamecp-balance">
-          <span className="mini-label">{t.gameCp}</span>
-          <strong>{(walletBalance ?? 0).toLocaleString(locale === "en" ? "en-US" : "pt-BR")}</strong>
+    <div className="gamecp-dash">
+      <div className="gamecp-topbar">
+        <div className="gamecp-identity">
+          <span className="mini-label">{t.loggedInAs}</span>
+          <strong>{loggedInUsername}</strong>
         </div>
-        <div className="gamecp-user">
-          <p>
-            {t.loggedInAs} <strong>{loggedInUsername}</strong>
-          </p>
-          <div className="gamecp-user-actions">
-            <a className="btn btn-ghost" href={locale === "en" ? "/en#download" : "/#download"}>
-              {t.download}
-            </a>
-            <button className="forgot" onClick={handleLogout} disabled={loading} type="button">
-              {t.logout}
-            </button>
-          </div>
+        <div className="gamecp-balance-pill">
+          <b>◈</b>
+          <span>{(walletBalance ?? 0).toLocaleString(numberLocale)}</span>
+          <small>{t.gameCp}</small>
         </div>
-        <form onSubmit={handleTopup} className="store-topup-form">
-          <input
-            value={topupAmount}
-            onChange={(e) => setTopupAmount(e.target.value)}
-            placeholder={t.topupPlaceholder}
-            inputMode="decimal"
-          />
-          <button className="btn btn-ghost" disabled={loading}>
-            {t.topup}
+        <div className="gamecp-topbar-actions">
+          <a className="btn btn-ghost" href={locale === "en" ? "/en#download" : "/#download"}>
+            {t.download}
+          </a>
+          <button className="btn btn-ghost" onClick={handleLogout} disabled={loading} type="button">
+            {t.logout}
           </button>
-        </form>
-        {topupError && <p className="store-error">{topupError}</p>}
-        {characters.length > 0 ? (
-          <label className="store-character-select">
-            {t.character}
-            <select value={selectedCharacter} onChange={(e) => setSelectedCharacter(Number(e.target.value))}>
-              {characters.map((c) => (
-                <option key={c.serial} value={c.serial}>
-                  {c.name} ({t.level} {c.level})
-                </option>
-              ))}
-            </select>
-          </label>
-        ) : (
-          <p className="store-error">{t.noChars}</p>
-        )}
+        </div>
       </div>
 
-      <div className="gamecp-list">
-        {packages.map((p) => (
-          <div className="gamecp-row" key={p.key}>
-            <div className="gamecp-row-icon">◈</div>
-            <div className="gamecp-row-main">
-              <strong>{p.name}</strong>
-              <span className="gamecp-row-items">
-                {p.items.map((item) => (
-                  <em key={item.itemCode}>
-                    {ITEM_ICONS[item.itemCode] && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={ITEM_ICONS[item.itemCode]} alt="" className="gamecp-row-item-icon" />
-                    )}
-                    {item.label}
-                    {item.amount > 1 ? ` x${item.amount}` : ""}
-                  </em>
-                ))}
-              </span>
-              <small>
-                +{p.cashAmount.toLocaleString(locale === "en" ? "en-US" : "pt-BR")} {t.cash} · {p.stockRemaining}/
-                {p.stockTotal} {t.inStock}
-              </small>
-            </div>
-            <div className="gamecp-row-buy">
-              <span>R$ {(p.priceBrlCents / 100).toFixed(2).replace(".", locale === "en" ? "." : ",")}</span>
-              <button
-                className="btn btn-primary"
-                disabled={loading || p.stockRemaining <= 0 || characters.length === 0}
-                onClick={() => handlePurchase(p.key)}
-              >
-                {p.stockRemaining <= 0 ? t.soldOut : t.buy}
-              </button>
-            </div>
+      <nav className="gamecp-subnav">
+        <button className={dashTab === "shop" ? "active" : ""} onClick={() => setDashTab("shop")} type="button">
+          {t.tabShop}
+        </button>
+        <button className={dashTab === "topup" ? "active" : ""} onClick={() => setDashTab("topup")} type="button">
+          {t.tabTopup}
+        </button>
+        <button className={dashTab === "character" ? "active" : ""} onClick={() => setDashTab("character")} type="button">
+          {t.tabChar}
+        </button>
+      </nav>
+
+      {dashTab === "shop" && (
+        <div className="gamecp-panel">
+          <div className="gamecp-panel-head">
+            <h2>{t.shopTitle}</h2>
+            <p>{t.shopHint}</p>
           </div>
-        ))}
-      </div>
-      {purchaseMessage && <p className="store-message">{purchaseMessage}</p>}
+          <div className="gamecp-list">
+            {packages.map((p) => (
+              <div className="gamecp-row" key={p.key}>
+                <div className="gamecp-row-icon">◈</div>
+                <div className="gamecp-row-main">
+                  <strong>{p.name}</strong>
+                  <span className="gamecp-row-items">
+                    {p.items.map((item) => (
+                      <em key={item.itemCode}>
+                        {ITEM_ICONS[item.itemCode] && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={ITEM_ICONS[item.itemCode]} alt="" className="gamecp-row-item-icon" />
+                        )}
+                        {item.label}
+                        {item.amount > 1 ? ` x${item.amount}` : ""}
+                      </em>
+                    ))}
+                  </span>
+                  <small>
+                    +{p.cashAmount.toLocaleString(numberLocale)} {t.cash} · {p.stockRemaining}/{p.stockTotal} {t.inStock}
+                  </small>
+                </div>
+                <div className="gamecp-row-buy">
+                  <span>R$ {(p.priceBrlCents / 100).toFixed(2).replace(".", locale === "en" ? "." : ",")}</span>
+                  <button
+                    className="btn btn-primary"
+                    disabled={loading || p.stockRemaining <= 0 || characters.length === 0}
+                    onClick={() => handlePurchase(p.key)}
+                  >
+                    {p.stockRemaining <= 0 ? t.soldOut : t.buy}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          {purchaseMessage && <p className="store-message">{purchaseMessage}</p>}
+        </div>
+      )}
+
+      {dashTab === "topup" && (
+        <div className="gamecp-panel">
+          <div className="gamecp-panel-head">
+            <h2>{t.topupTitle}</h2>
+            <p>{t.topupHint}</p>
+          </div>
+          <form onSubmit={handleTopup} className="store-topup-form gamecp-topup-form">
+            <input
+              value={topupAmount}
+              onChange={(e) => setTopupAmount(e.target.value)}
+              placeholder={t.topupPlaceholder}
+              inputMode="decimal"
+            />
+            <button className="btn btn-primary" disabled={loading}>
+              {t.topup}
+            </button>
+          </form>
+          {topupError && <p className="store-error">{topupError}</p>}
+        </div>
+      )}
+
+      {dashTab === "character" && (
+        <div className="gamecp-panel">
+          <div className="gamecp-panel-head">
+            <h2>{t.character}</h2>
+            <p>{t.charHint}</p>
+          </div>
+          {characters.length > 0 ? (
+            <>
+              <div className="gamecp-char-grid">
+                {characters.map((c) => (
+                  <button
+                    key={c.serial}
+                    type="button"
+                    className={`gamecp-char-card${c.serial === selectedCharacter ? " active" : ""}`}
+                    onClick={() => setSelectedCharacter(c.serial)}
+                  >
+                    <strong>{c.name}</strong>
+                    <span>
+                      {t.level} {c.level}
+                    </span>
+                  </button>
+                ))}
+              </div>
+              {selected && (
+                <p className="gamecp-char-selected">
+                  {locale === "en" ? "Selected:" : "Selecionado:"} <b>{selected.name}</b>
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="store-error">{t.noChars}</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -21,51 +21,66 @@ export default async function EnglishGameCp() {
     ? await Promise.all([getWalletBalance(playerSession.username), listCharacters(playerSession.username)])
     : [null, []];
 
-  return (
-    <main className="account-page gamecp-page">
-      <header className="site-header forum-nav">
-        <a className="brand" href="/en">
-          <Brand />
+  const header = (
+    <header className="site-header forum-nav">
+      <a className="brand" href="/en">
+        <Brand />
+      </a>
+      <nav>
+        <a href="/en">Home</a>
+        <a href="/en#download">Download</a>
+        <a href="/en/forum">Forum</a>
+        <a className="active" href="/en/gamecp">
+          Game CP
         </a>
-        <nav>
-          <a href="/en">Home</a>
-          <a href="/en#download">Download</a>
-          <a href="/en/forum">Forum</a>
-          <a className="active" href="/en/gamecp">
-            Game CP
-          </a>
-        </nav>
-        <div className="header-tools">
-          <span className="lang-switch">
-            <a href="/gamecp">PT</a>
-            <b>EN</b>
-          </span>
-          <a className="header-cta" href="/en">
-            ← Back
-          </a>
-        </div>
-      </header>
-      <section className="account-shell gamecp-shell-wrap">
-        <div className="account-story">
-          <span className="kicker">PLAYER HUB</span>
-          <h1>
-            Your account.
-            <br />
-            <em>Your Game CP.</em>
-          </h1>
-          <p>Log in with your game account, top up your Game CP via Asaas and buy packages — automatic delivery to your character.</p>
-          <div className="account-perks">
-            <span>
-              <b>01</b> Quick signup
-            </span>
-            <span>
-              <b>02</b> Protected account
-            </span>
-            <span>
-              <b>03</b> Automatic delivery
-            </span>
+      </nav>
+      <div className="header-tools">
+        <span className="lang-switch">
+          <a href="/gamecp">PT</a>
+          <b>EN</b>
+        </span>
+        <a className="header-cta" href="/en">
+          ← Back
+        </a>
+      </div>
+    </header>
+  );
+
+  if (!playerSession) {
+    return (
+      <main className="account-page">
+        {header}
+        <section className="account-shell">
+          <div className="account-story">
+            <span className="kicker">PLAYER HUB</span>
+            <h1>
+              Your account.
+              <br />
+              <em>Your Game CP.</em>
+            </h1>
+            <p>Log in with your game account, top up your Game CP via Asaas and buy packages — automatic delivery to your character.</p>
+            <div className="account-perks">
+              <span>
+                <b>01</b> Quick signup
+              </span>
+              <span>
+                <b>02</b> Protected account
+              </span>
+              <span>
+                <b>03</b> Automatic delivery
+              </span>
+            </div>
           </div>
-        </div>
+          <GameCpPortal packages={[]} loggedInUsername={null} walletBalance={null} characters={[]} locale="en" />
+        </section>
+      </main>
+    );
+  }
+
+  return (
+    <main className="gamecp-page">
+      {header}
+      <section className="gamecp-wrap">
         <GameCpPortal
           packages={packages.map((p) => ({
             key: p.key,
@@ -76,7 +91,7 @@ export default async function EnglishGameCp() {
             stockTotal: p.stockTotal,
             items: p.items.map((i) => ({ itemCode: i.itemCode, amount: i.amount, label: i.label })),
           }))}
-          loggedInUsername={playerSession?.username ?? null}
+          loggedInUsername={playerSession.username}
           walletBalance={walletBalance}
           characters={characters.map((c) => ({ serial: c.serial, name: c.name, level: c.level }))}
           locale="en"
