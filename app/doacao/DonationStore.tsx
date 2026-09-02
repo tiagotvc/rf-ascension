@@ -17,17 +17,69 @@ const ITEM_ICONS: Record<string, string> = {
   iywml01: "/assets/donnate/watermelon.png",
 };
 
+const COPY = {
+  pt: {
+    loginTitle: "Entrar com a conta do jogo",
+    loginHint: "Use o mesmo usuário e senha do client — é a mesma conta.",
+    user: "Usuário",
+    pass: "Senha",
+    enter: "Entrar",
+    loggedInAs: "Logado como",
+    topupPlaceholder: "Valor em R$",
+    topup: "Recarregar saldo",
+    character: "Personagem",
+    level: "nível",
+    noChars: "Nenhum personagem encontrado nessa conta.",
+    inStock: "em estoque",
+    cash: "CASH",
+    soldOut: "Esgotado",
+    buy: "Comprar com saldo",
+    chooseCharFirst: "Escolha um personagem primeiro.",
+    genericLoginError: "Erro ao entrar.",
+    genericTopupError: "Erro ao criar cobrança.",
+    genericPurchaseError: "Erro na compra.",
+    delivered: "Compra entregue! Confira a bag (ou o correio in-game) do personagem escolhido.",
+    queued: "Compra registrada — o WorldServer não respondeu agora, vamos tentar de novo automaticamente em breve.",
+  },
+  en: {
+    loginTitle: "Log in with your game account",
+    loginHint: "Use the same username and password as the client — it's the same account.",
+    user: "Username",
+    pass: "Password",
+    enter: "Log in",
+    loggedInAs: "Logged in as",
+    topupPlaceholder: "Amount in R$",
+    topup: "Top up balance",
+    character: "Character",
+    level: "level",
+    noChars: "No character found on this account.",
+    inStock: "in stock",
+    cash: "CASH",
+    soldOut: "Sold out",
+    buy: "Buy with balance",
+    chooseCharFirst: "Choose a character first.",
+    genericLoginError: "Login error.",
+    genericTopupError: "Error creating charge.",
+    genericPurchaseError: "Purchase error.",
+    delivered: "Purchase delivered! Check the bag (or in-game mail) of the character you chose.",
+    queued: "Purchase registered — the WorldServer didn't respond right now, we'll retry automatically soon.",
+  },
+};
+
 export default function DonationStore({
   packages,
   loggedInUsername,
   walletBalance,
   characters,
+  locale = "pt",
 }: {
   packages: StorePackage[];
   loggedInUsername: string | null;
   walletBalance: number | null;
   characters: StoreCharacter[];
+  locale?: "pt" | "en";
 }) {
+  const t = COPY[locale];
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState<string | null>(null);
@@ -49,7 +101,7 @@ export default function DonationStore({
       });
       const data = await res.json();
       if (!res.ok) {
-        setLoginError(data.error ?? "Erro ao entrar.");
+        setLoginError(data.error ?? t.genericLoginError);
         return;
       }
       window.location.reload();
@@ -71,7 +123,7 @@ export default function DonationStore({
       });
       const data = await res.json();
       if (!res.ok) {
-        setTopupError(data.error ?? "Erro ao criar cobrança.");
+        setTopupError(data.error ?? t.genericTopupError);
         return;
       }
       window.location.href = data.checkoutUrl;
@@ -82,7 +134,7 @@ export default function DonationStore({
 
   async function handlePurchase(packageKey: string) {
     if (!selectedCharacter) {
-      setPurchaseMessage("Escolha um personagem primeiro.");
+      setPurchaseMessage(t.chooseCharFirst);
       return;
     }
     setLoading(true);
@@ -95,14 +147,10 @@ export default function DonationStore({
       });
       const data = await res.json();
       if (!res.ok) {
-        setPurchaseMessage(data.error ?? "Erro na compra.");
+        setPurchaseMessage(data.error ?? t.genericPurchaseError);
         return;
       }
-      setPurchaseMessage(
-        data.delivered
-          ? "Compra entregue! Confira a bag (ou o correio in-game) do personagem escolhido."
-          : "Compra registrada — o WorldServer não respondeu agora, vamos tentar de novo automaticamente em breve."
-      );
+      setPurchaseMessage(data.delivered ? t.delivered : t.queued);
       window.location.reload();
     } finally {
       setLoading(false);
@@ -113,14 +161,14 @@ export default function DonationStore({
     return (
       <div className="account-panel store-login">
         <form onSubmit={handleLogin}>
-          <h2>Entrar com a conta do jogo</h2>
-          <p>Use o mesmo usuário e senha do client — é a mesma conta.</p>
+          <h2>{t.loginTitle}</h2>
+          <p>{t.loginHint}</p>
           <label>
-            Usuário
+            {t.user}
             <input value={username} onChange={(e) => setUsername(e.target.value)} maxLength={12} required />
           </label>
           <label>
-            Senha
+            {t.pass}
             <input
               type="password"
               value={password}
@@ -131,7 +179,7 @@ export default function DonationStore({
           </label>
           {loginError && <p className="store-error">{loginError}</p>}
           <button className="btn btn-primary account-submit" disabled={loading}>
-            Entrar
+            {t.enter}
           </button>
         </form>
       </div>
@@ -142,33 +190,34 @@ export default function DonationStore({
     <div className="store-panel">
       <div className="account-panel store-wallet">
         <p>
-          Logado como <strong>{loggedInUsername}</strong> · Saldo: <strong>{(walletBalance ?? 0).toLocaleString("pt-BR")} CP</strong>
+          {t.loggedInAs} <strong>{loggedInUsername}</strong> · Game CP:{" "}
+          <strong>{(walletBalance ?? 0).toLocaleString("pt-BR")}</strong>
         </p>
         <form onSubmit={handleTopup} className="store-topup-form">
           <input
             value={topupAmount}
             onChange={(e) => setTopupAmount(e.target.value)}
-            placeholder="Valor em R$"
+            placeholder={t.topupPlaceholder}
             inputMode="decimal"
           />
           <button className="btn btn-ghost" disabled={loading}>
-            Recarregar saldo
+            {t.topup}
           </button>
         </form>
         {topupError && <p className="store-error">{topupError}</p>}
         {characters.length > 0 ? (
           <label className="store-character-select">
-            Personagem
+            {t.character}
             <select value={selectedCharacter} onChange={(e) => setSelectedCharacter(Number(e.target.value))}>
               {characters.map((c) => (
                 <option key={c.serial} value={c.serial}>
-                  {c.name} (nível {c.level})
+                  {c.name} ({t.level} {c.level})
                 </option>
               ))}
             </select>
           </label>
         ) : (
-          <p className="store-error">Nenhum personagem encontrado nessa conta.</p>
+          <p className="store-error">{t.noChars}</p>
         )}
       </div>
 
@@ -178,13 +227,13 @@ export default function DonationStore({
             <div className="pack-top">
               <span>{p.name}</span>
               <i>
-                {p.stockRemaining}/{p.stockTotal} em estoque
+                {p.stockRemaining}/{p.stockTotal} {t.inStock}
               </i>
             </div>
             <div className="cash-value">
               <b>◈</b>
               <strong>{p.cashAmount.toLocaleString("pt-BR")}</strong>
-              <small>CASH</small>
+              <small>{t.cash}</small>
             </div>
             <ul className="pack-benefits">
               {p.items.map((item) => (
@@ -204,7 +253,7 @@ export default function DonationStore({
               disabled={loading || p.stockRemaining <= 0 || characters.length === 0}
               onClick={() => handlePurchase(p.key)}
             >
-              {p.stockRemaining <= 0 ? "Esgotado" : "Comprar com saldo"}
+              {p.stockRemaining <= 0 ? t.soldOut : t.buy}
             </button>
           </div>
         ))}
