@@ -1,1 +1,1 @@
-export default function QuickDock(){return <nav className="quick-dock" aria-label="Ações rápidas"><a href="/#download"><i>↓</i><span>Baixar</span></a><a href="/forum"><i>◫</i><span>Fórum</span></a><a href="/doacao"><i>◈</i><span>Doar</span></a><a href="/conta"><i>♙</i><span>Conta</span></a></nav>}
+export default function QuickDock(){return <nav className="quick-dock" aria-label="Ações rápidas"><a href="/#download"><i>↓</i><span>Baixar</span></a><a href="/forum"><i>◫</i><span>Fórum</span></a><a href="/gamecp"><i>◈</i><span>Game CP</span></a></nav>}

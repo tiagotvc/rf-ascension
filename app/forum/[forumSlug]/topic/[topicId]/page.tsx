@@ -34,8 +34,8 @@ export default async function ForumTopic({
     <main className="forum-page thread-page">
       <header className="site-header forum-nav">
         <a className="brand" href="/"><span className="brand-mark">RF</span><span className="brand-copy"><strong>ECHELON</strong><small>PRIVATE SERVER</small></span></a>
-        <nav><a href="/">Início</a><a href="/#download">Download</a><a href="/doacao">Doação</a><a className="active" href="/forum">Fórum</a><a href="/conta">Minha conta</a></nav>
-        <div className="header-tools"><span className="lang-switch"><b>PT</b><a href="/en/forum">EN</a></span><a className="header-cta" href="/conta">Criar conta</a></div>
+        <nav><a href="/">Início</a><a href="/#download">Download</a><a className="active" href="/forum">Fórum</a><a href="/gamecp">Game CP</a></nav>
+        <div className="header-tools"><span className="lang-switch"><b>PT</b><a href="/en/forum">EN</a></span><a className="header-cta" href="/gamecp">Criar conta</a></div>
       </header>
       <section className="board-hero thread-hero">
         <div className="tutorial-crumb"><a href="/forum">FÓRUM</a><span>/</span><a href="/forum">{area.title.toUpperCase()}</a><span>/</span><a href={`/forum/${forumSlug}`}>{board.title.toUpperCase()}</a></div>

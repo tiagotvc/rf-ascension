@@ -22,8 +22,8 @@ export default async function ForumBoard({ params }: { params: Promise<{ forumSl
     <main className="forum-page board-page">
       <header className="site-header forum-nav">
         <a className="brand" href="/"><span className="brand-mark">RF</span><span className="brand-copy"><strong>ECHELON</strong><small>PRIVATE SERVER</small></span></a>
-        <nav><a href="/">Início</a><a href="/#download">Download</a><a href="/doacao">Doação</a><a className="active" href="/forum">Fórum</a><a href="/conta">Minha conta</a></nav>
-        <div className="header-tools"><span className="lang-switch"><b>PT</b><a href="/en/forum">EN</a></span><a className="header-cta" href="/conta">Criar conta</a></div>
+        <nav><a href="/">Início</a><a href="/#download">Download</a><a className="active" href="/forum">Fórum</a><a href="/gamecp">Game CP</a></nav>
+        <div className="header-tools"><span className="lang-switch"><b>PT</b><a href="/en/forum">EN</a></span><a className="header-cta" href="/gamecp">Criar conta</a></div>
       </header>
       <section className="board-hero">
         <div className="tutorial-crumb"><a href="/forum">FÓRUM</a><span>/</span><a href="/forum">{area.title.toUpperCase()}</a><span>/</span><b>{board.title.toUpperCase()}</b></div>
@@ -70,8 +70,7 @@ export default async function ForumBoard({ params }: { params: Promise<{ forumSl
         <aside className="board-sidebar">
           <div className="sidebar-card">
             <span className="sidebar-card-title">AÇÕES RÁPIDAS</span>
-            <a className="sidebar-link" href="/doacao"><i>◈</i><span>Cash Points & doação</span></a>
-            <a className="sidebar-link" href="/conta"><i>♙</i><span>Minha conta</span></a>
+            <a className="sidebar-link" href="/gamecp"><i>◈</i><span>Game CP</span></a>
           </div>
           <div className="sidebar-card">
             <span className="sidebar-card-title">TÓPICOS RECENTES</span>

@@ -648,3 +648,35 @@
 .store-character-select select{display:block;margin-top:8px;width:100%;height:44px;padding:0 14px;color:#fff;background:#090d12;border:1px solid #222c36;font:12px var(--font-geist-mono)}
 .store-error{color:#ff6b6b;font-size:11px;margin:10px 0 0}
 .store-message{max-width:640px;margin:24px auto 0;padding:16px 20px;border:1px solid rgba(255,173,82,.3);background:rgba(255,173,82,.06);color:#e9b960;font-size:12px;text-align:center}
+
+/* Game CP — página unificada (conta + doação), Fase 4 */
+.gamecp-shell-wrap{grid-template-columns:1fr!important;max-width:1100px;padding-top:150px}
+.gamecp-shell-wrap .account-story{text-align:center;max-width:700px;margin:0 auto 30px}
+.gamecp-shell-wrap .account-perks{justify-content:center}
+.gamecp-shell-wrap>.account-panel{max-width:460px;margin:0 auto}
+.gamecp-shell{max-width:1000px;margin:0 auto}
+.gamecp-header{display:grid;grid-template-columns:auto 1fr;gap:24px 34px;align-items:start;padding:28px 32px;background:linear-gradient(145deg,rgba(17,23,31,.98),rgba(9,13,18,.98));border:1px solid #25313b;border-radius:34px 10px 34px 10px;margin-bottom:26px}
+.gamecp-balance{grid-row:1/3;display:grid;justify-items:center;align-content:center;padding:20px 30px;background:rgba(92,225,230,.06);border:1px solid rgba(92,225,230,.3);border-radius:22px 8px}
+.gamecp-balance .mini-label{color:var(--cyan);margin-bottom:8px}
+.gamecp-balance strong{font-size:40px;font-family:var(--font-geist-mono);color:#fff;text-shadow:0 0 20px rgba(92,225,230,.35)}
+.gamecp-user{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.gamecp-user>p{margin:0;color:#c8ced5;font-size:13px}
+.gamecp-user strong{color:var(--gold)}
+.gamecp-user-actions{display:flex;gap:10px}
+.gamecp-user-actions .forgot{color:#8a939e;background:none;border:1px solid #222c36;padding:0 16px;height:38px;border-radius:999px}
+.gamecp-header>.store-topup-form{grid-column:2}
+.gamecp-header>.store-character-select{grid-column:2}
+.gamecp-header>.store-error{grid-column:2}
+.gamecp-list{display:grid;gap:10px}
+.gamecp-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:20px;padding:20px 24px;background:#0d1117;border:1px solid #1c222b;border-radius:22px 8px;transition:.2s}
+.gamecp-row:hover{border-color:#3c5860;transform:translateX(3px)}
+.gamecp-row-icon{width:48px;height:48px;display:grid;place-items:center;border:1px solid rgba(92,225,230,.4);border-radius:50%;color:var(--cyan);font-size:20px}
+.gamecp-row-main{display:grid;gap:6px}
+.gamecp-row-main>strong{font-size:16px}
+.gamecp-row-items{display:flex;flex-wrap:wrap;gap:6px 14px}
+.gamecp-row-items em{display:inline-flex;align-items:center;gap:6px;color:#9aa4af;font-style:normal;font-size:11px}
+.gamecp-row-item-icon{width:16px;height:16px;object-fit:contain}
+.gamecp-row-main>small{color:#5c6670;font:8px var(--font-geist-mono);letter-spacing:.08em}
+.gamecp-row-buy{display:grid;justify-items:end;gap:8px}
+.gamecp-row-buy>span{color:var(--gold);font:700 13px var(--font-geist-mono)}
+@media(max-width:760px){.gamecp-header{grid-template-columns:1fr}.gamecp-balance{grid-row:auto}.gamecp-header>.store-topup-form,.gamecp-header>.store-character-select,.gamecp-header>.store-error{grid-column:1}.gamecp-row{grid-template-columns:auto 1fr;grid-template-areas:"icon main" "buy buy"}.gamecp-row-icon{grid-area:icon}.gamecp-row-main{grid-area:main}.gamecp-row-buy{grid-area:buy;justify-items:stretch;margin-top:10px}.gamecp-row-buy>button{width:100%}}

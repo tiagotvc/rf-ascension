@@ -1,11 +1,20 @@
 import { cookies } from "next/headers";
 import { createGameAccount } from "../../../lib/game-account";
 import { createPlayerSessionCookieValue, PLAYER_SESSION_COOKIE_NAME, PLAYER_SESSION_TTL_MS } from "../../../lib/player-auth";
+import { checkRateLimit } from "../../../lib/rate-limit";
 
 // Cadastro real de conta de jogo — POST /v1/accounts na AccountBridge (cria
 // direto em tbl_rfaccount). Sucesso já loga (mesmo cookie de sessão do
 // login), pra não pedir username/senha duas vezes seguidas.
 export async function POST(request: Request) {
+  const limited = checkRateLimit(request, "conta:registrar", 5, 10 * 60_000);
+  if (!limited.ok) {
+    return Response.json(
+      { error: "Muitas tentativas de cadastro. Tente de novo em alguns minutos." },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } }
+    );
+  }
+
   let payload: { username?: string; password?: string; confirmPassword?: string };
   try {
     payload = await request.json();

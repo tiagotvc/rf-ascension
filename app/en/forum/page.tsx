@@ -57,8 +57,8 @@ export default async function EnglishForum() {
     <main className="forum-page">
       <header className="site-header forum-nav">
         <a className="brand" href="/en"><span className="brand-mark">RF</span><span className="brand-copy"><strong>ECHELON</strong><small>PRIVATE SERVER</small></span></a>
-        <nav><a href="/en">Home</a><a href="/en#download">Download</a><a href="/en/donate">Donate</a><a className="active" href="/en/forum">Forum</a><a href="/en/account">My account</a></nav>
-        <div className="header-tools"><span className="lang-switch"><a href="/forum">PT</a><b>EN</b></span><a className="header-cta" href="/en/account">Create account</a></div>
+        <nav><a href="/en">Home</a><a href="/en#download">Download</a><a className="active" href="/en/forum">Forum</a><a href="/en/gamecp">Game CP</a></nav>
+        <div className="header-tools"><span className="lang-switch"><a href="/forum">PT</a><b>EN</b></span><a className="header-cta" href="/en/gamecp">Create account</a></div>
       </header>
       <section className="forum-hero compact">
         <span className="kicker">RF ECHELON COMMUNITY</span>

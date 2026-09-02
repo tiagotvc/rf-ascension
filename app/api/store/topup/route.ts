@@ -2,11 +2,20 @@ import { headers } from "next/headers";
 import { getPlayerSession } from "../../../lib/player-auth";
 import { createTopupOrder, setOrderAsaasReference } from "../../../../db/store";
 import { createTopupCheckout } from "../../../lib/asaas";
+import { checkRateLimit } from "../../../lib/rate-limit";
 
 const MIN_BRL_CENTS = 1000; // R$10
 const MAX_BRL_CENTS = 100000; // R$1000
 
 export async function POST(request: Request) {
+  const limited = checkRateLimit(request, "store:topup", 10, 10 * 60_000);
+  if (!limited.ok) {
+    return Response.json(
+      { error: "Muitas tentativas de recarga. Tente de novo em alguns minutos." },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } }
+    );
+  }
+
   const session = await getPlayerSession();
   if (!session) {
     return Response.json({ error: "Você precisa estar logado." }, { status: 401 });

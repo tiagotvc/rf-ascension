@@ -1,8 +1,20 @@
 import { cookies } from "next/headers";
 import { verifyGameAccount } from "../../../lib/game-account";
 import { createPlayerSessionCookieValue, PLAYER_SESSION_COOKIE_NAME, PLAYER_SESSION_TTL_MS } from "../../../lib/player-auth";
+import { checkRateLimit } from "../../../lib/rate-limit";
 
+// Rate limit por IP antes de qualquer coisa — essa é a defesa real contra
+// brute-force de senha (a AccountBridge só vê o IP do Vercel, não do
+// visitante, então o limiter dela sozinho não protege login).
 export async function POST(request: Request) {
+  const limited = checkRateLimit(request, "store:login", 10, 5 * 60_000);
+  if (!limited.ok) {
+    return Response.json(
+      { error: "Muitas tentativas de login. Tente de novo em alguns minutos." },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } }
+    );
+  }
+
   let payload: { username?: string; password?: string };
   try {
     payload = await request.json();

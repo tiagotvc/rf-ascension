@@ -3,8 +3,17 @@ import { getSessionUser } from "../../../lib/auth";
 import { isStaffEmail } from "../../../../db/forum";
 import { listCharacters, deliverPackage } from "../../../lib/game-account";
 import { purchasePackage, recordDeliveryAttempt } from "../../../../db/store";
+import { checkRateLimit } from "../../../lib/rate-limit";
 
 export async function POST(request: Request) {
+  const limited = checkRateLimit(request, "store:purchase", 20, 10 * 60_000);
+  if (!limited.ok) {
+    return Response.json(
+      { error: "Muitas tentativas de compra. Tente de novo em alguns minutos." },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } }
+    );
+  }
+
   const session = await getPlayerSession();
   if (!session) {
     return Response.json({ error: "Você precisa estar logado." }, { status: 401 });
@@ -31,8 +40,9 @@ export async function POST(request: Request) {
     return Response.json({ error: "Personagem não encontrado nessa conta." }, { status: 400 });
   }
 
-  // Pacotes ainda não são visíveis pra jogador comum — só libera a compra
-  // se também houver sessão de equipe ativa no mesmo navegador.
+  // Loja é pública (visibleToPlayers=true nos 3 pacotes reais) — allowHidden
+  // só importa se algum pacote for marcado invisível no futuro (ex.: teste
+  // interno da equipe antes de divulgar), permitindo staff comprar mesmo assim.
   const staffUser = await getSessionUser();
   const allowHidden = staffUser !== null && isStaffEmail(staffUser.email);
 
