@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // Indicador de sessão de jogador no header — aparece em todas as telas do
 // site (não só /gamecp). Client component porque a maioria dos headers do
@@ -8,6 +8,8 @@ import { useEffect, useState } from "react";
 // efeito colateral, só lê o cookie assinado).
 export default function HeaderAuth({ locale = "pt" }: { locale?: "pt" | "en" }) {
   const [username, setUsername] = useState<string | null | undefined>(undefined);
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
   const gamecpHref = locale === "en" ? "/en/gamecp" : "/gamecp";
 
   useEffect(() => {
@@ -25,6 +27,15 @@ export default function HeaderAuth({ locale = "pt" }: { locale?: "pt" | "en" }) 
     };
   }, []);
 
+  useEffect(() => {
+    if (!open) return;
+    function onClickOutside(e: MouseEvent) {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, [open]);
+
   async function handleLogout() {
     await fetch("/api/store/logout", { method: "POST" });
     window.location.href = locale === "en" ? "/en" : "/";
@@ -32,13 +43,19 @@ export default function HeaderAuth({ locale = "pt" }: { locale?: "pt" | "en" }) 
 
   if (username) {
     return (
-      <div className="header-auth">
-        <a href={gamecpHref} className="header-avatar" title={username}>
+      <div className="header-auth" ref={rootRef}>
+        <button className="header-avatar" onClick={() => setOpen((o) => !o)} type="button" aria-expanded={open}>
           {username.charAt(0).toUpperCase()}
-        </a>
-        <button className="header-logout" onClick={handleLogout} type="button">
-          {locale === "en" ? "Log out" : "Sair"}
         </button>
+        {open && (
+          <div className="header-auth-menu">
+            <span className="header-auth-menu-name">{username}</span>
+            <a href={gamecpHref}>Game CP</a>
+            <button onClick={handleLogout} type="button">
+              {locale === "en" ? "Log out" : "Sair"}
+            </button>
+          </div>
+        )}
       </div>
     );
   }

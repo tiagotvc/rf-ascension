@@ -69,8 +69,6 @@ const COPY = {
     mostPopular: "Mais popular",
     bestValue: "Melhor valor",
     trustBar: "Compra 100% segura. Entrega automática diretamente na sua bag (ou correio) e adição de Cash real do jogo.",
-    download: "Baixar cliente",
-    logout: "Sair",
     chooseCharFirst: "Escolha um personagem primeiro.",
     genericLoginError: "Erro ao entrar.",
     genericTopupError: "Erro ao criar cobrança.",
@@ -113,8 +111,6 @@ const COPY = {
     mostPopular: "Most popular",
     bestValue: "Best value",
     trustBar: "100% secure purchase. Automatic delivery straight to your bag (or mail) and real in-game Cash added.",
-    download: "Download client",
-    logout: "Log out",
     chooseCharFirst: "Choose a character first.",
     genericLoginError: "Login error.",
     genericTopupError: "Error creating charge.",
@@ -179,16 +175,6 @@ export default function GameCpPortal({
         setFormError(data.error ?? t.genericLoginError);
         return;
       }
-      window.location.reload();
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleLogout() {
-    setLoading(true);
-    try {
-      await fetch("/api/store/logout", { method: "POST" });
       window.location.reload();
     } finally {
       setLoading(false);
@@ -309,14 +295,6 @@ export default function GameCpPortal({
           <span>{(walletBalance ?? 0).toLocaleString(numberLocale)}</span>
           <small>{t.gameCp}</small>
         </div>
-        <div className="gamecp-topbar-actions">
-          <a className="btn btn-ghost" href={locale === "en" ? "/en#download" : "/#download"}>
-            <span aria-hidden>⬇</span> {t.download}
-          </a>
-          <button className="btn btn-ghost" onClick={handleLogout} disabled={loading} type="button">
-            <span aria-hidden>⇥</span> {t.logout}
-          </button>
-        </div>
       </div>
 
       <nav className="gamecp-subnav">
@@ -384,23 +362,25 @@ export default function GameCpPortal({
                   {p.stockRemaining > 0 && (
                     <div className="gamecp-qty">
                       <label>{t.qty}</label>
-                      <button type="button" onClick={() => setQuantity(p.key, qty - 1, p.stockRemaining)} disabled={qty <= 1}>
-                        −
-                      </button>
-                      <input
-                        type="number"
-                        min={1}
-                        max={p.stockRemaining}
-                        value={qty}
-                        onChange={(e) => setQuantity(p.key, parseInt(e.target.value, 10) || 1, p.stockRemaining)}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setQuantity(p.key, qty + 1, p.stockRemaining)}
-                        disabled={qty >= p.stockRemaining}
-                      >
-                        +
-                      </button>
+                      <div className="gamecp-qty-controls">
+                        <button type="button" onClick={() => setQuantity(p.key, qty - 1, p.stockRemaining)} disabled={qty <= 1}>
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          min={1}
+                          max={p.stockRemaining}
+                          value={qty}
+                          onChange={(e) => setQuantity(p.key, parseInt(e.target.value, 10) || 1, p.stockRemaining)}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setQuantity(p.key, qty + 1, p.stockRemaining)}
+                          disabled={qty >= p.stockRemaining}
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
                   )}
                   <button
