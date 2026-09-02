@@ -1,4 +1,5 @@
 import GameCpPortal from "../../gamecp/GameCpPortal";
+import HeaderAuth from "../../HeaderAuth";
 import { getPlayerSession } from "../../lib/player-auth";
 import { listCharacters } from "../../lib/game-account";
 import { listDonationPackages, getWalletBalance } from "../../../db/store";
@@ -39,9 +40,7 @@ export default async function EnglishGameCp() {
           <a href="/gamecp">PT</a>
           <b>EN</b>
         </span>
-        <a className="header-cta" href="/en">
-          ← Back
-        </a>
+        <HeaderAuth locale="en" />
       </div>
     </header>
   );

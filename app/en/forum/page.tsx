@@ -1,5 +1,6 @@
 import { forumAreas } from "../../config/forum";
 import { getForumIndexStats } from "../../../db/forum";
+import HeaderAuth from "../../HeaderAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -58,7 +59,7 @@ export default async function EnglishForum() {
       <header className="site-header forum-nav">
         <a className="brand" href="/en"><span className="brand-mark">RF</span><span className="brand-copy"><strong>ECHELON</strong><small>PRIVATE SERVER</small></span></a>
         <nav><a href="/en">Home</a><a href="/en#download">Download</a><a className="active" href="/en/forum">Forum</a><a href="/en/gamecp">Game CP</a></nav>
-        <div className="header-tools"><span className="lang-switch"><a href="/forum">PT</a><b>EN</b></span><a className="header-cta" href="/en/gamecp">Create account</a></div>
+        <div className="header-tools"><span className="lang-switch"><a href="/forum">PT</a><b>EN</b></span><HeaderAuth locale="en" /></div>
       </header>
       <section className="forum-hero compact">
         <span className="kicker">RF ECHELON COMMUNITY</span>

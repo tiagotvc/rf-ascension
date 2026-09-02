@@ -1,4 +1,5 @@
 import GameCpPortal from "./GameCpPortal";
+import HeaderAuth from "../HeaderAuth";
 import { getPlayerSession } from "../lib/player-auth";
 import { listCharacters } from "../lib/game-account";
 import { listDonationPackages, getWalletBalance } from "../../db/store";
@@ -39,9 +40,7 @@ export default async function GameCp() {
           <b>PT</b>
           <a href="/en/gamecp">EN</a>
         </span>
-        <a className="header-cta" href="/">
-          ← Voltar
-        </a>
+        <HeaderAuth />
       </div>
     </header>
   );

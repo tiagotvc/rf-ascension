@@ -3,6 +3,7 @@ import { findForumBoard, formatForumDate, forumInitials } from "../../config/for
 import { listForumTopics, getRecentTopics, isStaffEmail } from "../../../db/forum";
 import { getSessionUser, adminSignInPath } from "../../lib/auth";
 import NewTopicForm from "../NewTopicForm";
+import HeaderAuth from "../../HeaderAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +24,7 @@ export default async function ForumBoard({ params }: { params: Promise<{ forumSl
       <header className="site-header forum-nav">
         <a className="brand" href="/"><span className="brand-mark">RF</span><span className="brand-copy"><strong>ECHELON</strong><small>PRIVATE SERVER</small></span></a>
         <nav><a href="/">Início</a><a href="/#download">Download</a><a className="active" href="/forum">Fórum</a><a href="/gamecp">Game CP</a></nav>
-        <div className="header-tools"><span className="lang-switch"><b>PT</b><a href="/en/forum">EN</a></span><a className="header-cta" href="/gamecp">Criar conta</a></div>
+        <div className="header-tools"><span className="lang-switch"><b>PT</b><a href="/en/forum">EN</a></span><HeaderAuth /></div>
       </header>
       <section className="board-hero">
         <div className="tutorial-crumb"><a href="/forum">FÓRUM</a><span>/</span><a href="/forum">{area.title.toUpperCase()}</a><span>/</span><b>{board.title.toUpperCase()}</b></div>

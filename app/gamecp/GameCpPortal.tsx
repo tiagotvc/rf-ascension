@@ -42,8 +42,6 @@ const COPY = {
     level: "nível",
     noChars: "Nenhum personagem encontrado nessa conta — entre no jogo pra criar o primeiro.",
     charHint: "A compra de qualquer pacote cai neste personagem.",
-    logout: "Sair",
-    download: "Baixar cliente",
     inStock: "em estoque",
     cash: "Cash",
     soldOut: "Esgotado",
@@ -83,8 +81,6 @@ const COPY = {
     level: "level",
     noChars: "No character found on this account — log in-game to create your first one.",
     charHint: "Any package purchase is delivered to this character.",
-    logout: "Log out",
-    download: "Download client",
     inStock: "in stock",
     cash: "Cash",
     soldOut: "Sold out",
@@ -157,16 +153,6 @@ export default function GameCpPortal({
         setFormError(data.error ?? t.genericLoginError);
         return;
       }
-      window.location.reload();
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleLogout() {
-    setLoading(true);
-    try {
-      await fetch("/api/store/logout", { method: "POST" });
       window.location.reload();
     } finally {
       setLoading(false);
@@ -286,14 +272,6 @@ export default function GameCpPortal({
           <b>◈</b>
           <span>{(walletBalance ?? 0).toLocaleString(numberLocale)}</span>
           <small>{t.gameCp}</small>
-        </div>
-        <div className="gamecp-topbar-actions">
-          <a className="btn btn-ghost" href={locale === "en" ? "/en#download" : "/#download"}>
-            {t.download}
-          </a>
-          <button className="btn btn-ghost" onClick={handleLogout} disabled={loading} type="button">
-            {t.logout}
-          </button>
         </div>
       </div>
 
