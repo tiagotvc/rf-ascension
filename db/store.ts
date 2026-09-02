@@ -27,6 +27,10 @@ async function ensureStoreSchema(db: Db) {
     created_at TEXT NOT NULL
   )`);
   await db.execute(sql`ALTER TABLE donation_packages ADD COLUMN IF NOT EXISTS item_code TEXT NOT NULL DEFAULT 'iwswb55'`);
+  // gp_price = quanto é debitado da carteira GP pra comprar (conversão reta,
+  // sem bônus) — DISTINTO de cash_amount (Cash real entregue no jogo, com
+  // bônus). Nunca usar cash_amount como preço — bug real já corrigido aqui.
+  await db.execute(sql`ALTER TABLE donation_packages ADD COLUMN IF NOT EXISTS gp_price INTEGER NOT NULL DEFAULT 0`);
   await db.execute(sql`CREATE TABLE IF NOT EXISTS donation_package_items (
     id SERIAL PRIMARY KEY,
     package_id INTEGER NOT NULL REFERENCES donation_packages(id) ON DELETE CASCADE,
@@ -95,8 +99,9 @@ async function ensureStoreSchema(db: Db) {
 const PACKAGE_SEED = [
   {
     key: "pack_50",
-    name: "Pacote 50",
+    name: "Pacote Season Setembro 01",
     priceBrlCents: 5000,
+    gpPrice: 50000,
     cashAmount: 55000,
     items: [
       { itemCode: "irgn0029", amount: 1, label: "Jade Premium (30 Dias)" },
@@ -108,8 +113,9 @@ const PACKAGE_SEED = [
   },
   {
     key: "pack_150",
-    name: "Pacote 150",
+    name: "Pacote Season Setembro 02",
     priceBrlCents: 15000,
+    gpPrice: 150000,
     cashAmount: 170000,
     items: [
       { itemCode: "irgn0029", amount: 1, label: "Jade Premium (30 Dias)" },
@@ -123,8 +129,9 @@ const PACKAGE_SEED = [
   },
   {
     key: "pack_250",
-    name: "Pacote 250",
+    name: "Pacote Season Setembro 03",
     priceBrlCents: 25000,
+    gpPrice: 250000,
     cashAmount: 320000,
     items: [
       { itemCode: "irgn0029", amount: 1, label: "Jade Premium (30 Dias)" },
@@ -156,7 +163,14 @@ async function seedPackages(db: Db) {
     existing.length === PACKAGE_SEED.length &&
     PACKAGE_SEED.every((p) => {
       const row = existing.find((r) => r.key === p.key);
-      if (!row || row.visibleToPlayers !== true) return false;
+      if (
+        !row ||
+        row.visibleToPlayers !== true ||
+        row.name !== p.name ||
+        row.gpPrice !== p.gpPrice ||
+        row.cashAmount !== p.cashAmount
+      )
+        return false;
       const rowItems = existingItems.filter((i) => i.packageId === row.id);
       if (rowItems.length !== p.items.length) return false;
       return p.items.every((expected) =>
@@ -195,6 +209,7 @@ async function seedPackages(db: Db) {
               key: p.key,
               name: p.name,
               priceBrlCents: p.priceBrlCents,
+              gpPrice: p.gpPrice,
               cashAmount: p.cashAmount,
               itemCode,
               stockTotal: 100,
@@ -210,6 +225,7 @@ async function seedPackages(db: Db) {
         .set({
           name: p.name,
           priceBrlCents: p.priceBrlCents,
+          gpPrice: p.gpPrice,
           cashAmount: p.cashAmount,
           itemCode,
           visibleToPlayers: true,
@@ -345,23 +361,35 @@ export type PurchaseResult =
     }
   | { ok: false; error: string };
 
+const MAX_PURCHASE_QUANTITY = 20;
+
 // Gasta saldo (GP) já existente na carteira — não fala com a Asaas nessa
-// etapa. `allowHidden` só deve vir true quando o chamador já confirmou
+// etapa. Cobra `gpPrice * quantity` (preço real em GP, conversão reta sem
+// bônus — NUNCA cashAmount, que é a recompensa em Cash com bônus, não o
+// custo). `allowHidden` só deve vir true quando o chamador já confirmou
 // sessão de equipe (pacote ainda não visível pra jogador comum).
 export async function purchasePackage(
   accountUsername: string,
   characterSerial: number,
   characterName: string,
   packageKey: string,
+  quantity: number,
   allowHidden: boolean
 ): Promise<PurchaseResult> {
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > MAX_PURCHASE_QUANTITY) {
+    return { ok: false, error: `Quantidade inválida (1 a ${MAX_PURCHASE_QUANTITY}).` };
+  }
+
   const db = await getDb();
   await ensureStoreSchema(db);
   return db.transaction(async (tx) => {
     const [pkg] = await tx.select().from(donationPackages).where(eq(donationPackages.key, packageKey)).for("update");
     if (!pkg) return { ok: false, error: "Pacote não encontrado." };
     if (!pkg.visibleToPlayers && !allowHidden) return { ok: false, error: "Pacote não disponível." };
-    if (pkg.stockRemaining <= 0) return { ok: false, error: "Sem estoque desse pacote." };
+    if (pkg.stockRemaining < quantity) return { ok: false, error: "Sem estoque suficiente desse pacote." };
+
+    const totalGpCost = pkg.gpPrice * quantity;
+    const totalCashReward = pkg.cashAmount * quantity;
 
     const [wallet] = await tx
       .select()
@@ -369,23 +397,23 @@ export async function purchasePackage(
       .where(eq(walletBalances.accountUsername, accountUsername))
       .for("update");
     const balance = wallet?.balanceCash ?? 0;
-    if (balance < pkg.cashAmount) return { ok: false, error: "Saldo insuficiente." };
+    if (balance < totalGpCost) return { ok: false, error: "Saldo insuficiente." };
 
     const items = await tx.select().from(donationPackageItems).where(eq(donationPackageItems.packageId, pkg.id));
 
     await tx
       .update(donationPackages)
-      .set({ stockRemaining: pkg.stockRemaining - 1 })
+      .set({ stockRemaining: pkg.stockRemaining - quantity })
       .where(eq(donationPackages.id, pkg.id));
     await tx.insert(walletLedger).values({
       accountUsername,
-      deltaCash: -pkg.cashAmount,
+      deltaCash: -totalGpCost,
       reason: "purchase",
       referenceId: null,
     });
     await tx
       .update(walletBalances)
-      .set({ balanceCash: sql`${walletBalances.balanceCash} - ${pkg.cashAmount}`, updatedAt: new Date().toISOString() })
+      .set({ balanceCash: sql`${walletBalances.balanceCash} - ${totalGpCost}`, updatedAt: new Date().toISOString() })
       .where(eq(walletBalances.accountUsername, accountUsername));
 
     const [order] = await tx
@@ -411,7 +439,7 @@ export async function purchasePackage(
         // Legado da Fase 2 (1 item só) — coluna NOT NULL sem uso real agora, os itens de verdade
         // vêm de donation_package_items via packageId (ver listQueuedDeliveries).
         itemCode: "iwswb55",
-        cashAmount: pkg.cashAmount,
+        cashAmount: totalCashReward,
         status: "queued",
       })
       .returning({ id: deliveries.id });
@@ -421,8 +449,8 @@ export async function purchasePackage(
       deliveryId: delivery.id,
       characterSerial,
       accountUsername,
-      cashAmount: pkg.cashAmount,
-      items: items.map((i) => ({ itemCode: i.itemCode, amount: i.amount })),
+      cashAmount: totalCashReward,
+      items: items.map((i) => ({ itemCode: i.itemCode, amount: i.amount * quantity })),
     };
   });
 }

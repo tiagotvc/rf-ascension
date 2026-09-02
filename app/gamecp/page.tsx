@@ -85,7 +85,7 @@ export default async function GameCp() {
           packages={packages.map((p) => ({
             key: p.key,
             name: p.name,
-            priceBrlCents: p.priceBrlCents,
+            gpPrice: p.gpPrice,
             cashAmount: p.cashAmount,
             stockRemaining: p.stockRemaining,
             stockTotal: p.stockTotal,

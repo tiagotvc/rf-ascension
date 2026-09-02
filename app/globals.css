@@ -681,12 +681,19 @@
 .gamecp-row-icon{width:48px;height:48px;display:grid;place-items:center;border:1px solid rgba(92,225,230,.4);border-radius:50%;color:var(--cyan);font-size:20px}
 .gamecp-row-main{display:grid;gap:6px}
 .gamecp-row-main>strong{font-size:16px}
-.gamecp-row-items{display:flex;flex-wrap:wrap;gap:6px 14px}
-.gamecp-row-items em{display:inline-flex;align-items:center;gap:6px;color:#9aa4af;font-style:normal;font-size:11px}
-.gamecp-row-item-icon{width:16px;height:16px;object-fit:contain}
+.gamecp-row-items{display:flex;flex-wrap:wrap;gap:8px}
+.gamecp-item-badge{position:relative;width:32px;height:32px;display:grid;place-items:center;border:1px solid rgba(92,225,230,.3);border-radius:9px 4px;background:rgba(92,225,230,.05);cursor:default}
+.gamecp-item-badge img{width:20px;height:20px;object-fit:contain}
+.gamecp-item-fallback{color:var(--cyan);font:700 12px var(--font-geist-mono)}
+.gamecp-item-tooltip{position:absolute;bottom:calc(100% + 9px);left:50%;transform:translateX(-50%);white-space:nowrap;padding:7px 11px;background:#0b0f14;border:1px solid #25313b;border-radius:8px 3px;color:#e8ecef;font-size:10px;font-family:var(--font-geist);opacity:0;visibility:hidden;transition:opacity .15s;z-index:5;pointer-events:none}
+.gamecp-item-tooltip:after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#25313b}
+.gamecp-item-badge:hover .gamecp-item-tooltip{opacity:1;visibility:visible}
 .gamecp-row-main>small{color:#5c6670;font:8px var(--font-geist-mono);letter-spacing:.08em}
 .gamecp-row-buy{display:grid;justify-items:end;gap:8px}
 .gamecp-row-buy>span{color:var(--gold);font:700 13px var(--font-geist-mono)}
+.gamecp-qty{display:flex;align-items:center;gap:8px}
+.gamecp-qty label{color:#6c7681;font:7px var(--font-geist-mono);letter-spacing:.08em;text-transform:uppercase}
+.gamecp-qty input{width:56px;height:30px;padding:0 8px;color:#fff;background:#090d12;border:1px solid #222c36;border-radius:6px;font:11px var(--font-geist-mono);text-align:center}
 
 .gamecp-topup-form{max-width:420px}
 .gamecp-char-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}

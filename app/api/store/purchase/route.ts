@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "Você precisa estar logado." }, { status: 401 });
   }
 
-  let payload: { packageKey?: string; characterSerial?: number };
+  let payload: { packageKey?: string; characterSerial?: number; quantity?: number };
   try {
     payload = await request.json();
   } catch {
@@ -28,6 +28,7 @@ export async function POST(request: Request) {
 
   const packageKey = payload.packageKey;
   const characterSerial = payload.characterSerial;
+  const quantity = Number.isInteger(payload.quantity) && (payload.quantity as number) > 0 ? (payload.quantity as number) : 1;
   if (!packageKey || !Number.isInteger(characterSerial)) {
     return Response.json({ error: "Escolha um pacote e um personagem." }, { status: 400 });
   }
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
   const staffUser = await getSessionUser();
   const allowHidden = staffUser !== null && isStaffEmail(staffUser.email);
 
-  const result = await purchasePackage(session.username, character.serial, character.name, packageKey, allowHidden);
+  const result = await purchasePackage(session.username, character.serial, character.name, packageKey, quantity, allowHidden);
   if (!result.ok) {
     return Response.json({ error: result.error }, { status: 400 });
   }

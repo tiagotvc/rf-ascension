@@ -45,17 +45,21 @@ export const forumPosts = pgTable(
 );
 
 // Loja de doações — preços sempre em centavos (nunca float). `cashAmount`
-// agora é Cash REAL do jogo (loja nativa RF Online, tbl_UserStatus.Cash na
-// base BILLING — Fase 3), creditado via CStoreDeliveryChannel opcode 3/4,
-// não a carteira GP do site (essa continua em wallet_balances, sistema
-// separado, usado só pra "comprar" o pacote). `visibleToPlayers` é o único
-// controle de visibilidade: enquanto false, só quem tem sessão de equipe vê
-// o pacote em /doacao.
+// é Cash REAL do jogo (loja nativa RF Online, tbl_UserStatus.Cash na base
+// BILLING — Fase 3), creditado via CStoreDeliveryChannel opcode 3/4 — é
+// RECOMPENSA, não custo. `gpPrice` é o que de fato é debitado da carteira
+// GP do site (wallet_balances) pra comprar o pacote — conversão reta de
+// priceBrlCents (cashPerReal, sem o bônus que cashAmount carrega). Nunca
+// usar cashAmount como preço de novo — bug real corrigido nesta sessão:
+// comprar chegou a debitar exatamente o mesmo tanto de Cash que o pacote
+// devolvia. `visibleToPlayers` é o único controle de visibilidade: enquanto
+// false, só quem tem sessão de equipe vê o pacote em /gamecp.
 export const donationPackages = pgTable("donation_packages", {
   id: serial("id").primaryKey(),
   key: text("key").notNull().unique(),
   name: text("name").notNull(),
   priceBrlCents: integer("price_brl_cents").notNull(),
+  gpPrice: integer("gp_price").notNull().default(0),
   cashAmount: integer("cash_amount").notNull(),
   // Legado da Fase 2 (1 item só por pacote) — mantido só pra não quebrar a
   // coluna NOT NULL existente; a entrega real agora usa donation_package_items

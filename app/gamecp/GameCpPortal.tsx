@@ -4,7 +4,7 @@ import { useState } from "react";
 export type StorePackage = {
   key: string;
   name: string;
-  priceBrlCents: number;
+  gpPrice: number;
   cashAmount: number;
   stockRemaining: number;
   stockTotal: number;
@@ -48,6 +48,8 @@ const COPY = {
     cash: "Cash",
     soldOut: "Esgotado",
     buy: "Comprar",
+    gp: "GP",
+    qty: "Qtd.",
     shopTitle: "Pacotes disponíveis",
     shopHint: "Entrega automática — item na bag (ou correio) + Cash real do jogo.",
     chooseCharFirst: "Escolha um personagem primeiro.",
@@ -87,6 +89,8 @@ const COPY = {
     cash: "Cash",
     soldOut: "Sold out",
     buy: "Buy",
+    gp: "GP",
+    qty: "Qty.",
     shopTitle: "Available packages",
     shopHint: "Automatic delivery — item in the bag (or mail) + real in-game Cash.",
     chooseCharFirst: "Choose a character first.",
@@ -124,6 +128,17 @@ export default function GameCpPortal({
   const [selectedCharacter, setSelectedCharacter] = useState<number | "">(characters[0]?.serial ?? "");
   const [purchaseMessage, setPurchaseMessage] = useState<string | null>(null);
   const [dashTab, setDashTab] = useState<"shop" | "topup" | "character">("shop");
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
+
+  function getQuantity(packageKey: string, stockRemaining: number): number {
+    const raw = quantities[packageKey] ?? 1;
+    return Math.min(Math.max(1, raw), Math.max(1, stockRemaining));
+  }
+
+  function setQuantity(packageKey: string, value: number, stockRemaining: number) {
+    const clamped = Math.min(Math.max(1, value), Math.max(1, stockRemaining));
+    setQuantities((prev) => ({ ...prev, [packageKey]: clamped }));
+  }
 
   async function handleAuthSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -180,7 +195,7 @@ export default function GameCpPortal({
     }
   }
 
-  async function handlePurchase(packageKey: string) {
+  async function handlePurchase(packageKey: string, quantity: number) {
     if (!selectedCharacter) {
       setPurchaseMessage(t.chooseCharFirst);
       setDashTab("character");
@@ -192,7 +207,7 @@ export default function GameCpPortal({
       const res = await fetch("/api/store/purchase", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ packageKey, characterSerial: selectedCharacter }),
+        body: JSON.stringify({ packageKey, characterSerial: selectedCharacter, quantity }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -308,14 +323,18 @@ export default function GameCpPortal({
                   <strong>{p.name}</strong>
                   <span className="gamecp-row-items">
                     {p.items.map((item) => (
-                      <em key={item.itemCode}>
-                        {ITEM_ICONS[item.itemCode] && (
+                      <span className="gamecp-item-badge" key={item.itemCode}>
+                        {ITEM_ICONS[item.itemCode] ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={ITEM_ICONS[item.itemCode]} alt="" className="gamecp-row-item-icon" />
+                          <img src={ITEM_ICONS[item.itemCode]} alt="" />
+                        ) : (
+                          <span className="gamecp-item-fallback">{item.label.charAt(0)}</span>
                         )}
-                        {item.label}
-                        {item.amount > 1 ? ` x${item.amount}` : ""}
-                      </em>
+                        <span className="gamecp-item-tooltip">
+                          {item.label}
+                          {item.amount > 1 ? ` x${item.amount}` : ""}
+                        </span>
+                      </span>
                     ))}
                   </span>
                   <small>
@@ -323,11 +342,25 @@ export default function GameCpPortal({
                   </small>
                 </div>
                 <div className="gamecp-row-buy">
-                  <span>R$ {(p.priceBrlCents / 100).toFixed(2).replace(".", locale === "en" ? "." : ",")}</span>
+                  <span>
+                    {(p.gpPrice * getQuantity(p.key, p.stockRemaining)).toLocaleString(numberLocale)} {t.gp}
+                  </span>
+                  {p.stockRemaining > 0 && (
+                    <div className="gamecp-qty">
+                      <label>{t.qty}</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={p.stockRemaining}
+                        value={getQuantity(p.key, p.stockRemaining)}
+                        onChange={(e) => setQuantity(p.key, parseInt(e.target.value, 10) || 1, p.stockRemaining)}
+                      />
+                    </div>
+                  )}
                   <button
                     className="btn btn-primary"
                     disabled={loading || p.stockRemaining <= 0 || characters.length === 0}
-                    onClick={() => handlePurchase(p.key)}
+                    onClick={() => handlePurchase(p.key, getQuantity(p.key, p.stockRemaining))}
                   >
                     {p.stockRemaining <= 0 ? t.soldOut : t.buy}
                   </button>
