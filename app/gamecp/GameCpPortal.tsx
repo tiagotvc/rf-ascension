@@ -17,7 +17,7 @@ const EXCHANGE_RATES = { cash: 1, dalant: 1_000_000, goldpoint: 25 } as const;
 type ExchangeCurrencyKey = keyof typeof EXCHANGE_RATES;
 
 const ITEM_ICONS: Record<string, string> = {
-  iywml01: "/assets/donnate/watermelon.png",
+  iywml01: "/assets/donnate/watermelon/watermelon.png",
 };
 
 // Sem arte real extraída do cliente pra maioria dos itens ainda — emoji
@@ -418,9 +418,11 @@ export default function GameCpPortal({
                   <p className="gamecp-card-cash">
                     <b>◈</b> +{p.cashAmount.toLocaleString(numberLocale)} {t.cash}
                   </p>
-                  <p className="gamecp-card-stock">
-                    <span aria-hidden>📦</span> {p.stockRemaining}/{p.stockTotal} {t.inStock}
-                  </p>
+                  {p.stockTotal < 1000 && (
+                    <p className="gamecp-card-stock">
+                      <span aria-hidden>📦</span> {p.stockRemaining}/{p.stockTotal} {t.inStock}
+                    </p>
+                  )}
                   <div className="gamecp-card-divider" />
                   <p className="gamecp-card-price">
                     {(p.gpPrice * qty).toLocaleString(numberLocale)} <small>{t.gp}</small>
