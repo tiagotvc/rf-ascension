@@ -18,6 +18,14 @@ type ExchangeCurrencyKey = keyof typeof EXCHANGE_RATES;
 
 const ITEM_ICONS: Record<string, string> = {
   iywml01: "/assets/donnate/watermelon/watermelon.png",
+  irgn0045: "/assets/donnate/thorns/icon.png",
+};
+
+// Print real do tooltip nativo do jogo (recortado por item, ver
+// public/assets/donnate/<item>/tooltip.png) — quando existe, substitui o
+// tooltip de texto genérico abaixo pelo print real (specs/efeito exatos).
+const ITEM_TOOLTIP_IMAGES: Record<string, string> = {
+  irgn0045: "/assets/donnate/thorns/tooltip.png",
 };
 
 // Sem arte real extraída do cliente pra maioria dos itens ainda — emoji
@@ -407,10 +415,18 @@ export default function GameCpPortal({
                         ) : (
                           <span className="gamecp-item-fallback">{ITEM_EMOJI[item.itemCode] ?? item.label.charAt(0)}</span>
                         )}
-                        <span className="gamecp-item-tooltip">
-                          {item.label}
-                          {item.amount > 1 ? ` x${item.amount}` : ""}
-                        </span>
+                        {ITEM_TOOLTIP_IMAGES[item.itemCode] ? (
+                          <span className="gamecp-item-tooltip gamecp-item-tooltip-image">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={ITEM_TOOLTIP_IMAGES[item.itemCode]} alt={item.label} />
+                            {item.amount > 1 && <b>x{item.amount}</b>}
+                          </span>
+                        ) : (
+                          <span className="gamecp-item-tooltip">
+                            {item.label}
+                            {item.amount > 1 ? ` x${item.amount}` : ""}
+                          </span>
+                        )}
                       </span>
                     ))}
                   </div>

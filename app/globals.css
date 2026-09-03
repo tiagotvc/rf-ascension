@@ -689,6 +689,9 @@
 .gamecp-item-tooltip{position:absolute;bottom:calc(100% + 9px);left:50%;transform:translateX(-50%);white-space:nowrap;padding:7px 11px;background:#0b0f14;border:1px solid #25313b;border-radius:8px 3px;color:#e8ecef;font-size:10px;font-family:var(--font-geist);opacity:0;visibility:hidden;transition:opacity .15s;z-index:5;pointer-events:none}
 .gamecp-item-tooltip:after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#25313b}
 .gamecp-item-badge:hover .gamecp-item-tooltip{opacity:1;visibility:visible}
+.gamecp-item-tooltip-image{padding:0;background:transparent;border:none}
+.gamecp-item-tooltip-image img{display:block;width:230px;height:auto;border-radius:10px 4px;box-shadow:0 10px 30px rgba(0,0,0,.55)}
+.gamecp-item-tooltip-image b{position:absolute;top:10px;right:16px;color:var(--gold);font:700 11px var(--font-geist-mono);text-shadow:0 1px 3px #000}
 
 .gamecp-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
 .gamecp-card{position:relative;display:grid;gap:12px;padding:24px;background:rgba(13,17,23,.5);border:1px solid rgba(255,255,255,.06);border-radius:24px 8px 24px 8px}

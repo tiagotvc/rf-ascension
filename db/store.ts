@@ -93,11 +93,11 @@ async function ensureStoreSchema(db: Db) {
 }
 
 // Pacotes reais (Fase 3) — item_code de donation_packages fica legado
-// (não lido). Sem itens: o pacote só credita Cash de verdade do jogo — os
-// itens em si o jogador compra no Cash Shop nativo do RF Online com esse
-// Cash, não aqui no site. gpPrice segue a mesma taxa do top-up (R$1 = 1.000
-// GP), sem bônus; cashAmount é o valor de Cash entregue, com o bônus
-// crescente nas faixas maiores.
+// (não lido); a entrega real usa PACKAGE_SEED[].items abaixo, uma linha por
+// item real em donation_package_items. Cash é Cash de verdade do jogo
+// (loja nativa RF Online), não a carteira GP do site. Alguns itens (ex.:
+// Thorns Generator) não dá pra vender no Cash Shop nativo — por isso o
+// pacote continua carregando item além do Cash.
 type PackageSeedItem = { itemCode: string; amount: number; label: string };
 const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice: number; cashAmount: number; items: PackageSeedItem[] }[] = [
   {
@@ -105,48 +105,49 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
     name: "Pacote Season Setembro 01",
     priceBrlCents: 5000,
     gpPrice: 50000,
-    cashAmount: 50000,
-    items: [],
-  },
-  {
-    key: "pack_100",
-    name: "Pacote Season Setembro 02",
-    priceBrlCents: 10000,
-    gpPrice: 100000,
-    cashAmount: 105000,
-    items: [],
+    cashAmount: 55000,
+    items: [
+      { itemCode: "irgn0029", amount: 1, label: "Jade Premium (30 Dias)" },
+      { itemCode: "irchm01", amount: 1, label: "Wrapping Charm" },
+      { itemCode: "ipupr01", amount: 1, label: "Upgrade Protection Potion" },
+      { itemCode: "iwspu10", amount: 1, label: "Speed Knife Tier 1" },
+      { itemCode: "iywml01", amount: 2, label: "Watermelon" },
+      { itemCode: "irgn0045", amount: 1, label: "Thorns Generator [8%]" },
+    ],
   },
   {
     key: "pack_150",
-    name: "Pacote Season Setembro 03",
+    name: "Pacote Season Setembro 02",
     priceBrlCents: 15000,
     gpPrice: 150000,
-    cashAmount: 160000,
-    items: [],
+    cashAmount: 170000,
+    items: [
+      { itemCode: "irgn0029", amount: 1, label: "Jade Premium (30 Dias)" },
+      { itemCode: "irchm02", amount: 1, label: "Trading Charm" },
+      { itemCode: "iwspu11", amount: 1, label: "Speed Knife Tier 2" },
+      { itemCode: "ipupr01", amount: 3, label: "Upgrade Protection Potion" },
+      { itemCode: "irunv04", amount: 255, label: "Evolution Stone [Highest]" },
+      { itemCode: "irrc02", amount: 2, label: "Superior Recipe" },
+      { itemCode: "iywml01", amount: 3, label: "Watermelon" },
+      { itemCode: "irgn0045", amount: 2, label: "Thorns Generator [8%]" },
+    ],
   },
   {
-    key: "pack_300",
-    name: "Pacote Season Setembro 04",
-    priceBrlCents: 30000,
-    gpPrice: 300000,
-    cashAmount: 345000,
-    items: [],
-  },
-  {
-    key: "pack_500",
-    name: "Pacote Season Setembro 05",
-    priceBrlCents: 50000,
-    gpPrice: 500000,
-    cashAmount: 600000,
-    items: [],
-  },
-  {
-    key: "pack_1000",
-    name: "Pacote Season Setembro 06",
-    priceBrlCents: 100000,
-    gpPrice: 1000000,
-    cashAmount: 1500000,
-    items: [],
+    key: "pack_250",
+    name: "Pacote Season Setembro 03",
+    priceBrlCents: 25000,
+    gpPrice: 250000,
+    cashAmount: 320000,
+    items: [
+      { itemCode: "irgn0029", amount: 1, label: "Jade Premium (30 Dias)" },
+      { itemCode: "iwspu12", amount: 1, label: "Speed Knife Tier 3" },
+      { itemCode: "irchm63", amount: 1, label: "All in One Charm" },
+      { itemCode: "ipupr01", amount: 5, label: "Upgrade Protection Potion" },
+      { itemCode: "irunv04", amount: 765, label: "Evolution Stone [Highest]" },
+      { itemCode: "irrc02", amount: 4, label: "Superior Recipe" },
+      { itemCode: "iywml01", amount: 5, label: "Watermelon" },
+      { itemCode: "irgn0045", amount: 3, label: "Thorns Generator [8%]" },
+    ],
   },
 ];
 
@@ -217,8 +218,8 @@ async function seedPackages(db: Db) {
               gpPrice: p.gpPrice,
               cashAmount: p.cashAmount,
               itemCode,
-              stockTotal: 999999,
-              stockRemaining: 999999,
+              stockTotal: 100,
+              stockRemaining: 100,
               visibleToPlayers: true,
             })
             .returning({ id: donationPackages.id })
