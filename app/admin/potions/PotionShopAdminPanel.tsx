@@ -94,7 +94,7 @@ export default function PotionShopAdminPanel({
                 <input type="checkbox" checked={enabled} onChange={() => toggle(p.code)} />
                 {p.icon ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={`/game-data/potions/icons/${p.icon}`} alt="" />
+                  <img src={`/game-data/${p.icon}`} alt="" />
                 ) : (
                   <span className="potion-shop-admin-noicon">?</span>
                 )}

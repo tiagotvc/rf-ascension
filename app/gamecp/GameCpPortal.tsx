@@ -387,7 +387,7 @@ export default function GameCpPortal({
                       <div className="gamecp-potion-row" key={p.code}>
                         {p.icon ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img className="gamecp-potion-icon" src={`/game-data/potions/icons/${p.icon}`} alt="" />
+                          <img className="gamecp-potion-icon" src={`/game-data/${p.icon}`} alt="" />
                         ) : (
                           <span className="gamecp-potion-icon gamecp-potion-icon-fallback">?</span>
                         )}
