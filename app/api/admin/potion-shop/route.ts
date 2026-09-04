@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "Entre com a conta da equipe pra editar a loja." }, { status: 401 });
   }
 
-  let payload: { selections?: { itemCode?: string; gpPrice?: number }[] };
+  let payload: { selections?: { itemCode?: string; gpPrice?: number; category?: string | null }[] };
   try {
     payload = await request.json();
   } catch {
@@ -20,14 +20,15 @@ export async function POST(request: Request) {
     return Response.json({ error: "selections deve ser uma lista." }, { status: 400 });
   }
 
-  const selections: { itemCode: string; gpPrice: number }[] = [];
+  const selections: { itemCode: string; gpPrice: number; category: string | null }[] = [];
   for (const entry of payload.selections) {
     const itemCode = entry.itemCode?.trim();
     const gpPrice = entry.gpPrice;
     if (!itemCode || !Number.isInteger(gpPrice) || (gpPrice as number) < 0 || (gpPrice as number) > MAX_GP_PRICE) {
       return Response.json({ error: `Preço inválido pro item ${itemCode ?? "?"}.` }, { status: 400 });
     }
-    selections.push({ itemCode, gpPrice: gpPrice as number });
+    const category = typeof entry.category === "string" ? entry.category.trim().slice(0, 60) || null : null;
+    selections.push({ itemCode, gpPrice: gpPrice as number, category });
   }
 
   await savePotionShopSelections(selections);

@@ -17,24 +17,26 @@ async function ensurePotionShopSchema(db: Db) {
     gp_price INTEGER NOT NULL,
     updated_at TEXT NOT NULL
   )`);
+  await db.execute(sql`ALTER TABLE potion_shop_items ADD COLUMN IF NOT EXISTS category TEXT`);
   bootstrapped = true;
 }
 
-export type PotionShopSelection = { itemCode: string; gpPrice: number };
+export type PotionShopSelection = { itemCode: string; gpPrice: number; category: string | null };
+export type PotionShopSelectionInfo = { gpPrice: number; category: string | null };
 
-// Todas as poções que o admin já habilitou pra venda, com o preço em GP —
+// Todas as poções que o admin já habilitou pra venda, com preço + categoria —
 // chave é o código, pra casar fácil com public/game-data/potions/catalog.json
 // (nome/ícone) no lado do cliente.
-export async function getPotionShopSelections(): Promise<Record<string, number>> {
+export async function getPotionShopSelections(): Promise<Record<string, PotionShopSelectionInfo>> {
   const db = await getDb();
   await ensurePotionShopSchema(db);
   const rows = await db.select().from(potionShopItems);
-  return Object.fromEntries(rows.map((r) => [r.itemCode, r.gpPrice]));
+  return Object.fromEntries(rows.map((r) => [r.itemCode, { gpPrice: r.gpPrice, category: r.category }]));
 }
 
 // Substitui de vez a lista de poções habilitadas pelo conjunto passado —
 // mais simples que diff incremental, e o admin sempre manda o estado
-// completo da tela (checkbox + preço de cada item) numa vez só.
+// completo da tela (checkbox + preço + categoria de cada item) numa vez só.
 export async function savePotionShopSelections(selections: PotionShopSelection[]): Promise<void> {
   const db = await getDb();
   await ensurePotionShopSchema(db);
@@ -47,19 +49,19 @@ export async function savePotionShopSelections(selections: PotionShopSelection[]
       await tx.delete(potionShopItems);
     }
 
-    for (const { itemCode, gpPrice } of selections) {
+    for (const { itemCode, gpPrice, category } of selections) {
       await tx
         .insert(potionShopItems)
-        .values({ itemCode, gpPrice, updatedAt: new Date().toISOString() })
+        .values({ itemCode, gpPrice, category, updatedAt: new Date().toISOString() })
         .onConflictDoUpdate({
           target: potionShopItems.itemCode,
-          set: { gpPrice, updatedAt: new Date().toISOString() },
+          set: { gpPrice, category, updatedAt: new Date().toISOString() },
         });
     }
   });
 }
 
-export type PublicPotion = { code: string; name: string; icon: string | null; gpPrice: number };
+export type PublicPotion = { code: string; name: string; icon: string | null; gpPrice: number; category: string | null };
 
 // Loja pública (/gamecp) — só as poções que o admin habilitou, com nome/ícone
 // vindo do catálogo estático (public/game-data/potions/catalog.json).
@@ -68,12 +70,12 @@ export async function getPublicPotionCatalog(): Promise<PublicPotion[]> {
   const byCode = new Map<string, PotionCatalogEntry>(catalog.map((p) => [p.code, p]));
 
   const result: PublicPotion[] = [];
-  for (const [code, gpPrice] of Object.entries(selections)) {
+  for (const [code, { gpPrice, category }] of Object.entries(selections)) {
     const entry = byCode.get(code);
     if (!entry) continue; // item saiu do catálogo (Item.edf mudou) - ignora silenciosamente
-    result.push({ code, name: entry.name, icon: entry.icon, gpPrice });
+    result.push({ code, name: entry.name, icon: entry.icon, gpPrice, category });
   }
-  return result.sort((a, b) => a.gpPrice - b.gpPrice);
+  return result.sort((a, b) => (a.category ?? "").localeCompare(b.category ?? "") || a.gpPrice - b.gpPrice);
 }
 
 // Debita o GP da compra (mesmo lock transacional de spendGp/purchasePackage) — a entrega de verdade
@@ -89,16 +91,15 @@ export async function purchasePotion(
   }
 
   const selections = await getPotionShopSelections();
-  const gpPrice = selections[itemCode];
-  if (gpPrice === undefined) {
+  const info = selections[itemCode];
+  if (info === undefined) {
     return { ok: false, error: "Essa poção não está à venda." };
   }
 
-  const totalGpCost = gpPrice * quantity;
+  const totalGpCost = info.gpPrice * quantity;
   const debit = await spendGp(accountUsername, totalGpCost, `potion:${itemCode}`);
   if (!debit.ok) {
     return { ok: false, error: debit.error };
   }
   return { ok: true, totalGpCost };
 }
-

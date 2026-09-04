@@ -170,5 +170,6 @@ export const deliveries = pgTable(
 export const potionShopItems = pgTable("potion_shop_items", {
   itemCode: text("item_code").primaryKey(),
   gpPrice: integer("gp_price").notNull(),
+  category: text("category"), // livre, definida pelo admin ao marcar o item pra venda
   updatedAt: updatedAtTimestamp(),
 });

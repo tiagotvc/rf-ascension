@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 
-export type PublicPotion = { code: string; name: string; icon: string | null; gpPrice: number };
+export type PublicPotion = { code: string; name: string; icon: string | null; gpPrice: number; category: string | null };
 
 export type StoreCharacter = { serial: number; name: string; level: number; dalant: number; goldPoint: number };
 
@@ -42,6 +42,7 @@ const COPY = {
     shopTitle: "Poções disponíveis",
     shopHint: "Entrega automática — item direto na bag (ou correio) do personagem.",
     noPotions: "Nenhuma poção à venda no momento.",
+    uncategorized: "Outros",
     trustBar: "Compra 100% segura. Entrega automática diretamente na sua bag (ou correio).",
     chooseCharFirst: "Escolha um personagem primeiro.",
     genericLoginError: "Erro ao entrar.",
@@ -93,6 +94,7 @@ const COPY = {
     shopTitle: "Available potions",
     shopHint: "Automatic delivery — item straight to the character's bag (or mail).",
     noPotions: "No potion for sale right now.",
+    uncategorized: "Other",
     trustBar: "100% secure purchase. Automatic delivery straight to your bag (or mail).",
     chooseCharFirst: "Choose a character first.",
     genericLoginError: "Login error.",
@@ -152,6 +154,14 @@ export default function GameCpPortal({
   const [exchangeLoading, setExchangeLoading] = useState<ExchangeCurrencyKey | null>(null);
   const [exchangeMessage, setExchangeMessage] = useState<string | null>(null);
 
+  const potionGroups: { category: string; items: PublicPotion[] }[] = [];
+  for (const p of potions) {
+    const category = p.category ?? t.uncategorized;
+    const group = potionGroups.find((g) => g.category === category);
+    if (group) group.items.push(p);
+    else potionGroups.push({ category, items: [p] });
+  }
+
   function getQuantity(itemCode: string): number {
     const raw = quantities[itemCode] ?? 1;
     return Math.min(Math.max(1, raw), MAX_PURCHASE_QUANTITY);
@@ -210,7 +220,6 @@ export default function GameCpPortal({
   async function handleBuyPotion(itemCode: string, quantity: number) {
     if (!selectedCharacter) {
       setPurchaseMessage(t.chooseCharFirst);
-      setDashTab("character");
       return;
     }
     setLoading(true);
@@ -236,7 +245,6 @@ export default function GameCpPortal({
   async function handleExchange(currency: ExchangeCurrencyKey) {
     if (!selectedCharacter) {
       setExchangeMessage(t.chooseCharFirst);
-      setDashTab("character");
       return;
     }
     const gpAmount = parseInt(exchangeAmounts[currency], 10);
@@ -328,6 +336,18 @@ export default function GameCpPortal({
           <span className="mini-label">{t.loggedInAs}</span>
           <strong>{loggedInUsername}</strong>
         </div>
+        {characters.length > 0 && (
+          <label className="gamecp-char-select">
+            <span className="mini-label">{t.character}</span>
+            <select value={selectedCharacter} onChange={(e) => setSelectedCharacter(Number(e.target.value))}>
+              {characters.map((c) => (
+                <option key={c.serial} value={c.serial}>
+                  {c.name} ({t.level} {c.level})
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <div className="gamecp-balance-pill">
           <b>◈</b>
           <span>{(walletBalance ?? 0).toLocaleString(numberLocale)}</span>
@@ -353,53 +373,59 @@ export default function GameCpPortal({
             <h2>{t.shopTitle}</h2>
             <p>{t.shopHint}</p>
           </div>
+          {characters.length === 0 && <p className="store-error">{t.noChars}</p>}
           {potions.length === 0 ? (
             <p className="store-error">{t.noPotions}</p>
           ) : (
-            <div className="gamecp-potion-list">
-              {potions.map((p) => {
-                const qty = getQuantity(p.code);
-                return (
-                  <div className="gamecp-potion-row" key={p.code}>
-                    {p.icon ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img className="gamecp-potion-icon" src={`/game-data/potions/icons/${p.icon}`} alt="" />
-                    ) : (
-                      <span className="gamecp-potion-icon gamecp-potion-icon-fallback">?</span>
-                    )}
-                    <strong className="gamecp-potion-name">{p.name}</strong>
-                    <span className="gamecp-potion-price">
-                      {(p.gpPrice * qty).toLocaleString(numberLocale)} <small>{t.gp}</small>
-                    </span>
-                    <div className="gamecp-qty">
-                      <label>{t.qty}</label>
-                      <div className="gamecp-qty-controls">
-                        <button type="button" onClick={() => setQuantity(p.code, qty - 1)} disabled={qty <= 1}>
-                          −
-                        </button>
-                        <input
-                          type="number"
-                          min={1}
-                          max={MAX_PURCHASE_QUANTITY}
-                          value={qty}
-                          onChange={(e) => setQuantity(p.code, parseInt(e.target.value, 10) || 1)}
-                        />
-                        <button type="button" onClick={() => setQuantity(p.code, qty + 1)} disabled={qty >= MAX_PURCHASE_QUANTITY}>
-                          +
+            potionGroups.map((group) => (
+              <div className="gamecp-potion-group" key={group.category}>
+                {potionGroups.length > 1 && <h3 className="gamecp-potion-category">{group.category}</h3>}
+                <div className="gamecp-potion-list">
+                  {group.items.map((p) => {
+                    const qty = getQuantity(p.code);
+                    return (
+                      <div className="gamecp-potion-row" key={p.code}>
+                        {p.icon ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img className="gamecp-potion-icon" src={`/game-data/potions/icons/${p.icon}`} alt="" />
+                        ) : (
+                          <span className="gamecp-potion-icon gamecp-potion-icon-fallback">?</span>
+                        )}
+                        <strong className="gamecp-potion-name">{p.name}</strong>
+                        <span className="gamecp-potion-price">
+                          {(p.gpPrice * qty).toLocaleString(numberLocale)} <small>{t.gp}</small>
+                        </span>
+                        <div className="gamecp-qty">
+                          <label>{t.qty}</label>
+                          <div className="gamecp-qty-controls">
+                            <button type="button" onClick={() => setQuantity(p.code, qty - 1)} disabled={qty <= 1}>
+                              −
+                            </button>
+                            <input
+                              type="number"
+                              min={1}
+                              max={MAX_PURCHASE_QUANTITY}
+                              value={qty}
+                              onChange={(e) => setQuantity(p.code, parseInt(e.target.value, 10) || 1)}
+                            />
+                            <button type="button" onClick={() => setQuantity(p.code, qty + 1)} disabled={qty >= MAX_PURCHASE_QUANTITY}>
+                              +
+                            </button>
+                          </div>
+                        </div>
+                        <button
+                          className="gamecp-potion-buy"
+                          disabled={loading || characters.length === 0}
+                          onClick={() => handleBuyPotion(p.code, qty)}
+                        >
+                          <span aria-hidden>🛒</span> {t.buy}
                         </button>
                       </div>
-                    </div>
-                    <button
-                      className="btn btn-primary gamecp-potion-buy"
-                      disabled={loading || characters.length === 0}
-                      onClick={() => handleBuyPotion(p.code, qty)}
-                    >
-                      <span aria-hidden>🛒</span> {t.buy}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))
           )}
           {purchaseMessage && <p className="store-message">{purchaseMessage}</p>}
           <div className="gamecp-trust-bar">

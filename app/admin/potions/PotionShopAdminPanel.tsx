@@ -2,14 +2,16 @@
 import { useMemo, useState } from "react";
 import type { PotionCatalogEntry } from "../../lib/potion-catalog";
 
+type Selection = { gpPrice: number; category: string | null };
+
 export default function PotionShopAdminPanel({
   catalog,
   initialSelections,
 }: {
   catalog: PotionCatalogEntry[];
-  initialSelections: Record<string, number>;
+  initialSelections: Record<string, Selection>;
 }) {
-  const [selections, setSelections] = useState<Record<string, number>>(initialSelections);
+  const [selections, setSelections] = useState<Record<string, Selection>>(initialSelections);
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -26,21 +28,27 @@ export default function PotionShopAdminPanel({
       if (code in next) {
         delete next[code];
       } else {
-        next[code] = 100;
+        next[code] = { gpPrice: 100, category: null };
       }
       return next;
     });
   }
 
   function setPrice(code: string, value: number) {
-    setSelections((prev) => (code in prev ? { ...prev, [code]: Math.max(0, value) } : prev));
+    setSelections((prev) => (code in prev ? { ...prev, [code]: { ...prev[code], gpPrice: Math.max(0, value) } } : prev));
+  }
+
+  function setCategory(code: string, value: string) {
+    setSelections((prev) => (code in prev ? { ...prev, [code]: { ...prev[code], category: value || null } } : prev));
   }
 
   async function handleSave() {
     setSaving(true);
     setMessage(null);
     try {
-      const body = { selections: Object.entries(selections).map(([itemCode, gpPrice]) => ({ itemCode, gpPrice })) };
+      const body = {
+        selections: Object.entries(selections).map(([itemCode, { gpPrice, category }]) => ({ itemCode, gpPrice, category })),
+      };
       const res = await fetch("/api/admin/potion-shop", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -78,7 +86,8 @@ export default function PotionShopAdminPanel({
       {message && <p className="store-message">{message}</p>}
       <div className="potion-shop-admin-grid">
         {filtered.map((p) => {
-          const enabled = p.code in selections;
+          const selection = selections[p.code];
+          const enabled = selection !== undefined;
           return (
             <div key={p.code} className={`potion-shop-admin-row${enabled ? " enabled" : ""}`}>
               <label className="potion-shop-admin-check">
@@ -95,11 +104,19 @@ export default function PotionShopAdminPanel({
                 <small>{p.code}</small>
               </div>
               <input
+                className="potion-shop-admin-category"
+                type="text"
+                disabled={!enabled}
+                value={selection?.category ?? ""}
+                onChange={(e) => setCategory(p.code, e.target.value)}
+                placeholder="Categoria"
+              />
+              <input
                 className="potion-shop-admin-price"
                 type="number"
                 min={0}
                 disabled={!enabled}
-                value={selections[p.code] ?? ""}
+                value={selection?.gpPrice ?? ""}
                 onChange={(e) => setPrice(p.code, parseInt(e.target.value, 10) || 0)}
                 placeholder="GP"
               />
