@@ -1,8 +1,7 @@
-import fs from "node:fs";
-import path from "node:path";
 import { requireSessionUser } from "../../lib/auth";
+import { loadPotionCatalog } from "../../lib/potion-catalog";
 import { getPotionShopSelections } from "../../../db/potion-shop";
-import PotionShopAdminPanel, { type PotionCatalogEntry } from "./PotionShopAdminPanel";
+import PotionShopAdminPanel from "./PotionShopAdminPanel";
 import AdminLogoutButton from "../AdminLogoutButton";
 
 export const dynamic = "force-dynamic";
@@ -17,19 +16,10 @@ const Brand = () => (
   </span>
 );
 
-function loadCatalog(): PotionCatalogEntry[] {
-  const filePath = path.join(process.cwd(), "public", "game-data", "potions", "catalog.json");
-  try {
-    const raw = fs.readFileSync(filePath, "utf8");
-    return JSON.parse(raw) as PotionCatalogEntry[];
-  } catch {
-    return [];
-  }
-}
-
 export default async function AdminPotions() {
   const user = await requireSessionUser("/admin/potions");
-  const [catalog, selections] = await Promise.all([Promise.resolve(loadCatalog()), getPotionShopSelections()]);
+  const catalog = loadPotionCatalog();
+  const selections = await getPotionShopSelections();
 
   return (
     <main className="admin-page">

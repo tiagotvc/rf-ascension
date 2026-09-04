@@ -2,7 +2,8 @@ import GameCpPortal from "../../gamecp/GameCpPortal";
 import HeaderAuth from "../../HeaderAuth";
 import { getPlayerSession } from "../../lib/player-auth";
 import { listCharacters, getGameCash } from "../../lib/game-account";
-import { listDonationPackages, getWalletBalance } from "../../../db/store";
+import { getWalletBalance } from "../../../db/store";
+import { getPublicPotionCatalog } from "../../../db/potion-shop";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,7 @@ const Brand = () => (
 );
 
 export default async function EnglishGameCp() {
-  const [packages, playerSession] = await Promise.all([listDonationPackages(false), getPlayerSession()]);
+  const [potions, playerSession] = await Promise.all([getPublicPotionCatalog(), getPlayerSession()]);
   const [walletBalance, characters, gameCash] = playerSession
     ? await Promise.all([getWalletBalance(playerSession.username), listCharacters(playerSession.username), getGameCash(playerSession.username)])
     : [null, [], null];
@@ -57,7 +58,7 @@ export default async function EnglishGameCp() {
               <br />
               <em>Your Game CP.</em>
             </h1>
-            <p>Log in with your game account, top up your Game CP via Asaas and buy packages — automatic delivery to your character.</p>
+            <p>Log in with your game account, top up your Game CP via Asaas and buy potions — automatic delivery to your character.</p>
             <div className="account-perks">
               <span>
                 <b>01</b> Quick signup
@@ -70,7 +71,7 @@ export default async function EnglishGameCp() {
               </span>
             </div>
           </div>
-          <GameCpPortal packages={[]} loggedInUsername={null} walletBalance={null} characters={[]} locale="en" />
+          <GameCpPortal potions={[]} loggedInUsername={null} walletBalance={null} characters={[]} locale="en" />
         </section>
       </main>
     );
@@ -81,15 +82,7 @@ export default async function EnglishGameCp() {
       {header}
       <section className="gamecp-wrap">
         <GameCpPortal
-          packages={packages.map((p) => ({
-            key: p.key,
-            name: p.name,
-            gpPrice: p.gpPrice,
-            cashAmount: p.cashAmount,
-            stockRemaining: p.stockRemaining,
-            stockTotal: p.stockTotal,
-            items: p.items.map((i) => ({ itemCode: i.itemCode, amount: i.amount, label: i.label })),
-          }))}
+          potions={potions}
           loggedInUsername={playerSession.username}
           walletBalance={walletBalance}
           characters={characters.map((c) => ({ serial: c.serial, name: c.name, level: c.level, dalant: c.dalant, goldPoint: c.goldPoint }))}

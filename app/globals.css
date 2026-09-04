@@ -683,29 +683,14 @@
 .gamecp-panel-head h2{font-size:24px;margin:0 0 8px}
 .gamecp-panel-head p{margin:0;color:#707b87;font-size:12px}
 
-.gamecp-item-badge{position:relative;width:34px;height:34px;display:grid;place-items:center;border:1px solid rgba(92,225,230,.25);border-radius:9px 4px;background:rgba(92,225,230,.05);cursor:default;font-size:15px}
-.gamecp-item-badge img{width:22px;height:22px;object-fit:contain}
-.gamecp-item-fallback{color:var(--cyan);font:700 13px var(--font-geist-mono)}
-.gamecp-item-tooltip{position:absolute;bottom:calc(100% + 9px);left:50%;transform:translateX(-50%);white-space:nowrap;padding:7px 11px;background:#0b0f14;border:1px solid #25313b;border-radius:8px 3px;color:#e8ecef;font-size:10px;font-family:var(--font-geist);opacity:0;visibility:hidden;transition:opacity .15s;z-index:5;pointer-events:none}
-.gamecp-item-tooltip:after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#25313b}
-.gamecp-item-badge:hover .gamecp-item-tooltip{opacity:1;visibility:visible}
-.gamecp-item-tooltip-image{padding:0;background:transparent;border:none}
-.gamecp-item-tooltip-image img{display:block;width:230px;height:auto;border-radius:10px 4px;box-shadow:0 10px 30px rgba(0,0,0,.55)}
-.gamecp-item-tooltip-image b{position:absolute;top:10px;right:16px;color:var(--gold);font:700 11px var(--font-geist-mono);text-shadow:0 1px 3px #000}
-
-.gamecp-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
-.gamecp-card{position:relative;display:grid;gap:12px;padding:24px;background:rgba(13,17,23,.5);border:1px solid rgba(255,255,255,.06);border-radius:24px 8px 24px 8px}
-.gamecp-card.featured{border-color:rgba(233,185,96,.35);background:rgba(233,185,96,.03)}
-.gamecp-card-badge{position:absolute;top:-13px;left:24px;display:flex;align-items:center;gap:6px;padding:5px 12px;background:#0b0f14;border:1px solid rgba(233,185,96,.4);border-radius:999px;color:var(--gold);font:700 8px var(--font-geist-mono);letter-spacing:.08em;text-transform:uppercase}
-.gamecp-card-icons{display:flex;flex-wrap:wrap;gap:8px}
-.gamecp-card-name{font-size:17px}
-.gamecp-card-cash{margin:0;display:flex;align-items:center;gap:8px;color:var(--cyan);font:700 12px var(--font-geist-mono)}
-.gamecp-card-cash>b{font-size:14px}
-.gamecp-card-stock{margin:0;color:#6c7681;font-size:11px}
-.gamecp-card-divider{height:1px;background:rgba(255,255,255,.06)}
-.gamecp-card-price{margin:0;text-align:center;color:var(--gold);font:700 24px var(--font-geist-mono)}
-.gamecp-card-price>small{font-size:10px;letter-spacing:.06em}
-.gamecp-card-buy{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.gamecp-potion-list{display:grid;gap:8px}
+.gamecp-potion-row{display:grid;grid-template-columns:44px 1fr auto auto auto;align-items:center;gap:16px;padding:12px 16px;background:rgba(13,17,23,.5);border:1px solid rgba(255,255,255,.06);border-radius:12px 4px}
+.gamecp-potion-icon{width:36px;height:36px;object-fit:contain;border:1px solid rgba(92,225,230,.2);border-radius:8px 3px;background:rgba(92,225,230,.05)}
+.gamecp-potion-icon-fallback{display:grid;place-items:center;color:var(--cyan);font:700 13px var(--font-geist-mono)}
+.gamecp-potion-name{font-size:13px;color:#e8ecef}
+.gamecp-potion-price{color:var(--gold);font:700 15px var(--font-geist-mono);white-space:nowrap}
+.gamecp-potion-price>small{font-size:9px;letter-spacing:.06em}
+.gamecp-potion-buy{display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
 .gamecp-qty{display:grid;justify-items:center;gap:6px}
 .gamecp-qty label{color:#6c7681;font:7px var(--font-geist-mono);letter-spacing:.08em;text-transform:uppercase}
 .gamecp-qty-controls{display:flex;align-items:center;justify-content:center;gap:10px}
@@ -746,7 +731,7 @@
 .gamecp-balances-row.gamecp-balances-head span{color:inherit;font:inherit}
 
 @media(max-width:900px){.gamecp-topbar{grid-template-columns:1fr;justify-items:start}.gamecp-topbar-actions{justify-self:start}.gamecp-subnav{width:100%}.gamecp-subnav button{flex:1}}
-@media(max-width:640px){.gamecp-row{grid-template-columns:auto 1fr;grid-template-areas:"icon main" "buy buy"}.gamecp-row-icon{grid-area:icon}.gamecp-row-main{grid-area:main}.gamecp-row-buy{grid-area:buy;justify-items:stretch;margin-top:10px}.gamecp-row-buy>button{width:100%}.gamecp-panel{padding:22px 18px}}
+@media(max-width:640px){.gamecp-potion-row{grid-template-columns:36px 1fr;row-gap:8px}.gamecp-potion-price{grid-column:2}.gamecp-qty{grid-column:1/-1;justify-self:start}.gamecp-potion-buy{grid-column:1/-1;width:100%}.gamecp-panel{padding:22px 18px}}
 
 /* Admin — catálogo de poções (loja) */
 .potion-shop-admin{margin-top:28px;display:grid;gap:14px}

@@ -2,7 +2,8 @@ import GameCpPortal from "./GameCpPortal";
 import HeaderAuth from "../HeaderAuth";
 import { getPlayerSession } from "../lib/player-auth";
 import { listCharacters, getGameCash } from "../lib/game-account";
-import { listDonationPackages, getWalletBalance } from "../../db/store";
+import { getWalletBalance } from "../../db/store";
+import { getPublicPotionCatalog } from "../../db/potion-shop";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,7 @@ const Brand = () => (
 );
 
 export default async function GameCp() {
-  const [packages, playerSession] = await Promise.all([listDonationPackages(false), getPlayerSession()]);
+  const [potions, playerSession] = await Promise.all([getPublicPotionCatalog(), getPlayerSession()]);
   const [walletBalance, characters, gameCash] = playerSession
     ? await Promise.all([getWalletBalance(playerSession.username), listCharacters(playerSession.username), getGameCash(playerSession.username)])
     : [null, [], null];
@@ -57,7 +58,7 @@ export default async function GameCp() {
               <br />
               <em>Seu Game CP.</em>
             </h1>
-            <p>Entre com a conta do jogo, recarregue seu Game CP via Asaas e compre pacotes — entrega automática no personagem.</p>
+            <p>Entre com a conta do jogo, recarregue seu Game CP via Asaas e compre poções — entrega automática no personagem.</p>
             <div className="account-perks">
               <span>
                 <b>01</b> Cadastro rápido
@@ -70,7 +71,7 @@ export default async function GameCp() {
               </span>
             </div>
           </div>
-          <GameCpPortal packages={[]} loggedInUsername={null} walletBalance={null} characters={[]} />
+          <GameCpPortal potions={[]} loggedInUsername={null} walletBalance={null} characters={[]} />
         </section>
       </main>
     );
@@ -81,15 +82,7 @@ export default async function GameCp() {
       {header}
       <section className="gamecp-wrap">
         <GameCpPortal
-          packages={packages.map((p) => ({
-            key: p.key,
-            name: p.name,
-            gpPrice: p.gpPrice,
-            cashAmount: p.cashAmount,
-            stockRemaining: p.stockRemaining,
-            stockTotal: p.stockTotal,
-            items: p.items.map((i) => ({ itemCode: i.itemCode, amount: i.amount, label: i.label })),
-          }))}
+          potions={potions}
           loggedInUsername={playerSession.username}
           walletBalance={walletBalance}
           characters={characters.map((c) => ({ serial: c.serial, name: c.name, level: c.level, dalant: c.dalant, goldPoint: c.goldPoint }))}

@@ -1,48 +1,14 @@
 "use client";
 import { useState } from "react";
 
-export type StorePackage = {
-  key: string;
-  name: string;
-  gpPrice: number;
-  cashAmount: number;
-  stockRemaining: number;
-  stockTotal: number;
-  items: { itemCode: string; amount: number; label: string }[];
-};
+export type PublicPotion = { code: string; name: string; icon: string | null; gpPrice: number };
 
 export type StoreCharacter = { serial: number; name: string; level: number; dalant: number; goldPoint: number };
 
 const EXCHANGE_RATES = { cash: 1, dalant: 1_000_000, goldpoint: 25 } as const;
 type ExchangeCurrencyKey = keyof typeof EXCHANGE_RATES;
 
-const ITEM_ICONS: Record<string, string> = {
-  iywml01: "/assets/donnate/watermelon/watermelon.png",
-  irgn0045: "/assets/donnate/thorns/icon.png",
-};
-
-// Print real do tooltip nativo do jogo (recortado por item, ver
-// public/assets/donnate/<item>/tooltip.png) — quando existe, substitui o
-// tooltip de texto genérico abaixo pelo print real (specs/efeito exatos).
-const ITEM_TOOLTIP_IMAGES: Record<string, string> = {
-  irgn0045: "/assets/donnate/thorns/tooltip.png",
-};
-
-// Sem arte real extraída do cliente pra maioria dos itens ainda — emoji
-// temático por código, só pra o grid de ícones não ficar todo com a mesma
-// letra. Troca por ícone real assim que tivermos os assets.
-const ITEM_EMOJI: Record<string, string> = {
-  irgn0029: "💎",
-  irchm01: "🎁",
-  irchm02: "💰",
-  irchm63: "⭐",
-  ipupr01: "🧪",
-  iwspu10: "🗡️",
-  iwspu11: "🗡️",
-  iwspu12: "🗡️",
-  irunv04: "🔮",
-  irrc02: "📜",
-};
+const MAX_PURCHASE_QUANTITY = 20;
 
 const COPY = {
   pt: {
@@ -68,24 +34,20 @@ const COPY = {
     character: "Personagem selecionado",
     level: "nível",
     noChars: "Nenhum personagem encontrado nessa conta — entre no jogo pra criar o primeiro.",
-    charHint: "A compra de qualquer pacote cai neste personagem.",
-    inStock: "em estoque",
+    charHint: "A compra de qualquer poção cai neste personagem.",
     cash: "Cash",
-    soldOut: "Esgotado",
     buy: "Comprar",
     gp: "GP",
     qty: "Qtd.",
-    shopTitle: "Pacotes disponíveis",
-    shopHint: "Entrega automática — item na bag (ou correio) + Cash real do jogo.",
-    mostPopular: "Mais popular",
-    bestValue: "Melhor valor",
-    trustBar: "Compra 100% segura. Entrega automática diretamente na sua bag (ou correio) e adição de Cash real do jogo.",
+    shopTitle: "Poções disponíveis",
+    shopHint: "Entrega automática — item direto na bag (ou correio) do personagem.",
+    noPotions: "Nenhuma poção à venda no momento.",
+    trustBar: "Compra 100% segura. Entrega automática diretamente na sua bag (ou correio).",
     chooseCharFirst: "Escolha um personagem primeiro.",
     genericLoginError: "Erro ao entrar.",
     genericTopupError: "Erro ao criar cobrança.",
     genericPurchaseError: "Erro na compra.",
     delivered: "Compra entregue! Confira a bag (ou o correio in-game) do personagem escolhido.",
-    queued: "Compra registrada — o WorldServer não respondeu agora, vamos tentar de novo automaticamente em breve.",
     exchangeTitle: "Trocar Game CP por moeda do jogo",
     exchangeHint: "Troque o GP que você já tem por Cash, Dalant ou Gold Point, direto no personagem selecionado.",
     exchangeCash: "Cash",
@@ -123,24 +85,20 @@ const COPY = {
     character: "Selected character",
     level: "level",
     noChars: "No character found on this account — log in-game to create your first one.",
-    charHint: "Any package purchase is delivered to this character.",
-    inStock: "in stock",
+    charHint: "Any potion purchase is delivered to this character.",
     cash: "Cash",
-    soldOut: "Sold out",
     buy: "Buy",
     gp: "GP",
     qty: "Qty.",
-    shopTitle: "Available packages",
-    shopHint: "Automatic delivery — item in the bag (or mail) + real in-game Cash.",
-    mostPopular: "Most popular",
-    bestValue: "Best value",
-    trustBar: "100% secure purchase. Automatic delivery straight to your bag (or mail) and real in-game Cash added.",
+    shopTitle: "Available potions",
+    shopHint: "Automatic delivery — item straight to the character's bag (or mail).",
+    noPotions: "No potion for sale right now.",
+    trustBar: "100% secure purchase. Automatic delivery straight to your bag (or mail).",
     chooseCharFirst: "Choose a character first.",
     genericLoginError: "Login error.",
     genericTopupError: "Error creating charge.",
     genericPurchaseError: "Purchase error.",
     delivered: "Purchase delivered! Check the bag (or in-game mail) of the character you chose.",
-    queued: "Purchase registered — the WorldServer didn't respond right now, we'll retry automatically soon.",
     exchangeTitle: "Exchange Game CP for in-game currency",
     exchangeHint: "Trade the GP you already have for Cash, Dalant or Gold Point, straight to the selected character.",
     exchangeCash: "Cash",
@@ -158,14 +116,14 @@ const COPY = {
 };
 
 export default function GameCpPortal({
-  packages,
+  potions,
   loggedInUsername,
   walletBalance,
   characters,
   gameCash = null,
   locale = "pt",
 }: {
-  packages: StorePackage[];
+  potions: PublicPotion[];
   loggedInUsername: string | null;
   walletBalance: number | null;
   characters: StoreCharacter[];
@@ -194,14 +152,14 @@ export default function GameCpPortal({
   const [exchangeLoading, setExchangeLoading] = useState<ExchangeCurrencyKey | null>(null);
   const [exchangeMessage, setExchangeMessage] = useState<string | null>(null);
 
-  function getQuantity(packageKey: string, stockRemaining: number): number {
-    const raw = quantities[packageKey] ?? 1;
-    return Math.min(Math.max(1, raw), Math.max(1, stockRemaining));
+  function getQuantity(itemCode: string): number {
+    const raw = quantities[itemCode] ?? 1;
+    return Math.min(Math.max(1, raw), MAX_PURCHASE_QUANTITY);
   }
 
-  function setQuantity(packageKey: string, value: number, stockRemaining: number) {
-    const clamped = Math.min(Math.max(1, value), Math.max(1, stockRemaining));
-    setQuantities((prev) => ({ ...prev, [packageKey]: clamped }));
+  function setQuantity(itemCode: string, value: number) {
+    const clamped = Math.min(Math.max(1, value), MAX_PURCHASE_QUANTITY);
+    setQuantities((prev) => ({ ...prev, [itemCode]: clamped }));
   }
 
   async function handleAuthSubmit(e: React.FormEvent) {
@@ -249,7 +207,7 @@ export default function GameCpPortal({
     }
   }
 
-  async function handlePurchase(packageKey: string, quantity: number) {
+  async function handleBuyPotion(itemCode: string, quantity: number) {
     if (!selectedCharacter) {
       setPurchaseMessage(t.chooseCharFirst);
       setDashTab("character");
@@ -258,17 +216,17 @@ export default function GameCpPortal({
     setLoading(true);
     setPurchaseMessage(null);
     try {
-      const res = await fetch("/api/store/purchase", {
+      const res = await fetch("/api/store/buy-potion", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ packageKey, characterSerial: selectedCharacter, quantity }),
+        body: JSON.stringify({ itemCode, characterSerial: selectedCharacter, quantity }),
       });
       const data = await res.json();
       if (!res.ok) {
         setPurchaseMessage(data.error ?? t.genericPurchaseError);
         return;
       }
-      setPurchaseMessage(data.delivered ? t.delivered : t.queued);
+      setPurchaseMessage(t.delivered);
       window.location.reload();
     } finally {
       setLoading(false);
@@ -395,95 +353,54 @@ export default function GameCpPortal({
             <h2>{t.shopTitle}</h2>
             <p>{t.shopHint}</p>
           </div>
-          <div className="gamecp-cards">
-            {packages.map((p, i) => {
-              const badge = i === 1 ? t.mostPopular : i === 2 ? t.bestValue : null;
-              const qty = getQuantity(p.key, p.stockRemaining);
-              return (
-                <div className={`gamecp-card${badge ? " featured" : ""}`} key={p.key}>
-                  {badge && (
-                    <span className="gamecp-card-badge">
-                      {i === 1 ? "★" : "◆"} {badge}
+          {potions.length === 0 ? (
+            <p className="store-error">{t.noPotions}</p>
+          ) : (
+            <div className="gamecp-potion-list">
+              {potions.map((p) => {
+                const qty = getQuantity(p.code);
+                return (
+                  <div className="gamecp-potion-row" key={p.code}>
+                    {p.icon ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img className="gamecp-potion-icon" src={`/game-data/potions/icons/${p.icon}`} alt="" />
+                    ) : (
+                      <span className="gamecp-potion-icon gamecp-potion-icon-fallback">?</span>
+                    )}
+                    <strong className="gamecp-potion-name">{p.name}</strong>
+                    <span className="gamecp-potion-price">
+                      {(p.gpPrice * qty).toLocaleString(numberLocale)} <small>{t.gp}</small>
                     </span>
-                  )}
-                  <div className="gamecp-card-icons">
-                    <span className="gamecp-item-badge">
-                      <span className="gamecp-item-fallback">◈</span>
-                      <span className="gamecp-item-tooltip">
-                        {p.cashAmount.toLocaleString(numberLocale)} {t.cash}
-                      </span>
-                    </span>
-                    {p.items.map((item) => (
-                      <span className="gamecp-item-badge" key={item.itemCode}>
-                        {ITEM_ICONS[item.itemCode] ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={ITEM_ICONS[item.itemCode]} alt="" />
-                        ) : (
-                          <span className="gamecp-item-fallback">{ITEM_EMOJI[item.itemCode] ?? item.label.charAt(0)}</span>
-                        )}
-                        {ITEM_TOOLTIP_IMAGES[item.itemCode] ? (
-                          <span className="gamecp-item-tooltip gamecp-item-tooltip-image">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={ITEM_TOOLTIP_IMAGES[item.itemCode]} alt={item.label} />
-                            {item.amount > 1 && <b>x{item.amount}</b>}
-                          </span>
-                        ) : (
-                          <span className="gamecp-item-tooltip">
-                            {item.label}
-                            {item.amount > 1 ? ` x${item.amount}` : ""}
-                          </span>
-                        )}
-                      </span>
-                    ))}
-                  </div>
-                  <strong className="gamecp-card-name">{p.name}</strong>
-                  <p className="gamecp-card-cash">
-                    <b>◈</b> +{p.cashAmount.toLocaleString(numberLocale)} {t.cash}
-                  </p>
-                  {p.stockTotal < 1000 && (
-                    <p className="gamecp-card-stock">
-                      <span aria-hidden>📦</span> {p.stockRemaining}/{p.stockTotal} {t.inStock}
-                    </p>
-                  )}
-                  <div className="gamecp-card-divider" />
-                  <p className="gamecp-card-price">
-                    {(p.gpPrice * qty).toLocaleString(numberLocale)} <small>{t.gp}</small>
-                  </p>
-                  {p.stockRemaining > 0 && (
                     <div className="gamecp-qty">
                       <label>{t.qty}</label>
                       <div className="gamecp-qty-controls">
-                        <button type="button" onClick={() => setQuantity(p.key, qty - 1, p.stockRemaining)} disabled={qty <= 1}>
+                        <button type="button" onClick={() => setQuantity(p.code, qty - 1)} disabled={qty <= 1}>
                           −
                         </button>
                         <input
                           type="number"
                           min={1}
-                          max={p.stockRemaining}
+                          max={MAX_PURCHASE_QUANTITY}
                           value={qty}
-                          onChange={(e) => setQuantity(p.key, parseInt(e.target.value, 10) || 1, p.stockRemaining)}
+                          onChange={(e) => setQuantity(p.code, parseInt(e.target.value, 10) || 1)}
                         />
-                        <button
-                          type="button"
-                          onClick={() => setQuantity(p.key, qty + 1, p.stockRemaining)}
-                          disabled={qty >= p.stockRemaining}
-                        >
+                        <button type="button" onClick={() => setQuantity(p.code, qty + 1)} disabled={qty >= MAX_PURCHASE_QUANTITY}>
                           +
                         </button>
                       </div>
                     </div>
-                  )}
-                  <button
-                    className="btn btn-primary gamecp-card-buy"
-                    disabled={loading || p.stockRemaining <= 0 || characters.length === 0}
-                    onClick={() => handlePurchase(p.key, qty)}
-                  >
-                    <span aria-hidden>🛒</span> {p.stockRemaining <= 0 ? t.soldOut : t.buy}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+                    <button
+                      className="btn btn-primary gamecp-potion-buy"
+                      disabled={loading || characters.length === 0}
+                      onClick={() => handleBuyPotion(p.code, qty)}
+                    >
+                      <span aria-hidden>🛒</span> {t.buy}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
           {purchaseMessage && <p className="store-message">{purchaseMessage}</p>}
           <div className="gamecp-trust-bar">
             <span aria-hidden>🛡️</span> {t.trustBar}

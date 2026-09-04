@@ -1,7 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-
-export type PotionCatalogEntry = { code: string; name: string; icon: string | null; level: number | null };
+import type { PotionCatalogEntry } from "../../lib/potion-catalog";
 
 export default function PotionShopAdminPanel({
   catalog,
