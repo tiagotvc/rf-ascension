@@ -319,7 +319,13 @@ export default function GameCpPortal({
           <p>{tab === "register" ? t.createHint : t.loginHint}</p>
           <label>
             {t.user}
-            <input value={username} onChange={(e) => setUsername(e.target.value)} minLength={4} maxLength={12} required />
+            <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              minLength={tab === "register" ? 4 : undefined}
+              maxLength={12}
+              required
+            />
           </label>
           {tab === "register" ? (
             <div className="field-row">
