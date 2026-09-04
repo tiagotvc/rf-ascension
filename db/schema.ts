@@ -161,3 +161,14 @@ export const deliveries = pgTable(
     statusIdx: index("deliveries_status_idx").on(table.status),
   })
 );
+
+// Curadoria do admin sobre o catálogo completo de poções (exportado do
+// Item.edf real via MapEditor, ver public/game-data/potions/catalog.json —
+// nome/ícone vêm de lá, não daqui). Esta tabela só guarda QUAIS o admin
+// decidiu vender e por qual preço em GP — uma linha só existe pra item
+// habilitado.
+export const potionShopItems = pgTable("potion_shop_items", {
+  itemCode: text("item_code").primaryKey(),
+  gpPrice: integer("gp_price").notNull(),
+  updatedAt: updatedAtTimestamp(),
+});

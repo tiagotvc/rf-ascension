@@ -747,3 +747,21 @@
 
 @media(max-width:900px){.gamecp-topbar{grid-template-columns:1fr;justify-items:start}.gamecp-topbar-actions{justify-self:start}.gamecp-subnav{width:100%}.gamecp-subnav button{flex:1}}
 @media(max-width:640px){.gamecp-row{grid-template-columns:auto 1fr;grid-template-areas:"icon main" "buy buy"}.gamecp-row-icon{grid-area:icon}.gamecp-row-main{grid-area:main}.gamecp-row-buy{grid-area:buy;justify-items:stretch;margin-top:10px}.gamecp-row-buy>button{width:100%}.gamecp-panel{padding:22px 18px}}
+
+/* Admin — catálogo de poções (loja) */
+.potion-shop-admin{margin-top:28px;display:grid;gap:14px}
+.potion-shop-admin-toolbar{display:flex;align-items:center;gap:14px;padding:16px 18px;border:1px solid #202a34;background:rgba(12,17,23,.8)}
+.potion-shop-admin-search{flex:1;height:40px;padding:0 14px;border:1px solid #27323c;background:#080c11;color:#fff;font:10px var(--font-geist-mono)}
+.potion-shop-admin-count{color:#8e99a4;font:7px var(--font-geist-mono);white-space:nowrap}
+.potion-shop-admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px;max-height:70vh;overflow-y:auto;padding-right:4px}
+.potion-shop-admin-row{display:grid;grid-template-columns:auto 1fr 80px;align-items:center;gap:12px;padding:10px 12px;border:1px solid #1d2730;background:rgba(10,14,19,.55)}
+.potion-shop-admin-row.enabled{border-color:rgba(92,225,230,.35);background:rgba(92,225,230,.05)}
+.potion-shop-admin-check{display:flex;align-items:center;gap:8px;cursor:pointer}
+.potion-shop-admin-check input{width:15px;height:15px;accent-color:var(--cyan)}
+.potion-shop-admin-check img{width:32px;height:32px;object-fit:contain}
+.potion-shop-admin-noicon{width:32px;height:32px;display:grid;place-items:center;border:1px solid #27323c;color:#4f5a65;font:700 11px var(--font-geist-mono)}
+.potion-shop-admin-info{display:grid;gap:2px;min-width:0}
+.potion-shop-admin-info strong{font-size:10px;color:#e8ecef;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.potion-shop-admin-info small{color:#596571;font:7px var(--font-geist-mono)}
+.potion-shop-admin-price{width:70px;height:32px;padding:0 8px;border:1px solid #27323c;background:#080c11;color:#fff;font:10px var(--font-geist-mono)}
+.potion-shop-admin-price:disabled{opacity:.35}
