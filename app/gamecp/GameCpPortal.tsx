@@ -19,13 +19,43 @@ const TOPUP_TIERS = [
   { amountBrl: 400, name: "Ultimate", color: "#ff5c5c" },
 ] as const;
 
-// Ícone + print real do tooltip nativo (recortado do jogo, ver public/assets/donnate/<item>/) pros
-// itens de bônus da Recarregar — mesma convenção já usada pro Thorns Generator.
+// Ícone real (recortado do jogo, ver public/assets/donnate/<item>/) pros itens de bônus da
+// Recarregar — mesma convenção já usada pro Thorns Generator.
 const DONATE_ITEM_ICONS: Record<string, string> = {
   ipupr01: "/assets/donnate/upgrade-potion/icon.png",
 };
-const DONATE_ITEM_TOOLTIP_IMAGES: Record<string, string> = {
-  ipupr01: "/assets/donnate/upgrade-potion/tooltip.png",
+
+type DonateItemTooltip = {
+  name: string;
+  type: string;
+  race: string;
+  target: string;
+  quantity: number;
+  castDelay: string;
+  specialEffects: string[];
+  market: string;
+  drop: string;
+  useStatus: string;
+  description: string;
+};
+
+// Tooltip nativo do site (texto real do item, não print) — dados conferidos direto na fonte do
+// item no MapEditor (MapEditor/Formats/PotionItemAppendUpgradeProtection.cs), não em screenshot.
+const DONATE_ITEM_TOOLTIPS: Record<string, DonateItemTooltip> = {
+  ipupr01: {
+    name: "Upgrade Protection Potion",
+    type: "Adrenaline",
+    race: "All races",
+    target: "Self",
+    quantity: 99,
+    castDelay: "0.0secs",
+    specialEffects: ["Prevents item destruction on failed upgrade"],
+    market: "Possibility",
+    drop: "Possibility",
+    useStatus: "Always",
+    description:
+      "For 120 seconds after drinking this, every Item Upgrade attempt (Alter Durability Point / talic) you make is protected from total destruction. The talic can still fail, and a failed attempt can still reset the item's upgrade sockets back to empty - but the item itself will never be destroyed while the protection is active. Consumed on use, one use = one 120s window.",
+  },
 };
 
 const COPY = {
@@ -475,27 +505,59 @@ export default function GameCpPortal({
                   </div>
                   {items.length > 0 && (
                     <ul className="gamecp-topup-card-items">
-                      {items.map((item) => (
-                        <li key={item.itemCode} className="gamecp-topup-card-item">
-                          <span className="gamecp-topup-card-item-icon">
-                            {DONATE_ITEM_ICONS[item.itemCode] ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img src={DONATE_ITEM_ICONS[item.itemCode]} alt="" />
-                            ) : (
-                              <span className="gamecp-topup-card-item-fallback">{item.label.charAt(0)}</span>
-                            )}
-                          </span>
-                          <span>
-                            {item.amount}x {item.label}
-                          </span>
-                          {DONATE_ITEM_TOOLTIP_IMAGES[item.itemCode] && (
-                            <span className="gamecp-item-tooltip gamecp-item-tooltip-image">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={DONATE_ITEM_TOOLTIP_IMAGES[item.itemCode]} alt={item.label} />
+                      {items.map((item) => {
+                        const tooltip = DONATE_ITEM_TOOLTIPS[item.itemCode];
+                        return (
+                          <li key={item.itemCode} className="gamecp-topup-card-item">
+                            <span className="gamecp-topup-card-item-icon">
+                              {DONATE_ITEM_ICONS[item.itemCode] ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={DONATE_ITEM_ICONS[item.itemCode]} alt="" />
+                              ) : (
+                                <span className="gamecp-topup-card-item-fallback">{item.label.charAt(0)}</span>
+                              )}
                             </span>
-                          )}
-                        </li>
-                      ))}
+                            <span>
+                              {item.amount}x {item.label}
+                            </span>
+                            {tooltip && (
+                              <div className="gamecp-item-tooltip gamecp-native-tooltip">
+                                <strong className="gamecp-native-tooltip-title">[{tooltip.name}]</strong>
+                                <dl className="gamecp-native-tooltip-fields">
+                                  <dt>Type</dt>
+                                  <dd>{tooltip.type}</dd>
+                                  <dt>Race</dt>
+                                  <dd>{tooltip.race}</dd>
+                                  <dt>Target</dt>
+                                  <dd>{tooltip.target}</dd>
+                                  <dt>Quantity</dt>
+                                  <dd>{tooltip.quantity}</dd>
+                                  <dt>Cast Delay</dt>
+                                  <dd>{tooltip.castDelay}</dd>
+                                  {tooltip.specialEffects.length > 0 && (
+                                    <>
+                                      <dt>Special Effects</dt>
+                                      <dd className="gamecp-native-tooltip-gold">
+                                        {tooltip.specialEffects.map((effect) => (
+                                          <span key={effect}>{effect}</span>
+                                        ))}
+                                      </dd>
+                                    </>
+                                  )}
+                                  <dt>Market</dt>
+                                  <dd className="gamecp-native-tooltip-green">{tooltip.market}</dd>
+                                  <dt>Drop</dt>
+                                  <dd className="gamecp-native-tooltip-green">{tooltip.drop}</dd>
+                                  <dt>Use Status</dt>
+                                  <dd>{tooltip.useStatus}</dd>
+                                </dl>
+                                <p className="gamecp-native-tooltip-desc-label">[Description]</p>
+                                <p className="gamecp-native-tooltip-desc">{tooltip.description}</p>
+                              </div>
+                            )}
+                          </li>
+                        );
+                      })}
                     </ul>
                   )}
                   <div className="gamecp-topup-card-foot">

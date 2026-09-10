@@ -727,8 +727,15 @@
 .gamecp-item-tooltip{position:absolute;bottom:calc(100% + 9px);left:0;white-space:nowrap;padding:7px 11px;background:#0b0f14;border:1px solid #25313b;border-radius:0;color:#e8ecef;font-size:10px;font-family:var(--font-geist);opacity:0;visibility:hidden;transition:opacity .15s;z-index:20;pointer-events:none}
 .gamecp-item-tooltip:after{content:"";position:absolute;top:100%;left:20px;border:5px solid transparent;border-top-color:#25313b}
 .gamecp-topup-card-item:hover .gamecp-item-tooltip{opacity:1;visibility:visible}
-.gamecp-item-tooltip-image{padding:0;background:transparent;border:none}
-.gamecp-item-tooltip-image img{display:block;width:420px;max-width:80vw;height:auto;border-radius:0;box-shadow:0 10px 30px rgba(0,0,0,.55)}
+.gamecp-native-tooltip{white-space:normal;width:360px;max-width:min(360px,82vw);padding:16px 18px;background:#0b0f16;border:1px solid rgba(92,225,230,.25);box-shadow:0 16px 40px rgba(0,0,0,.6)}
+.gamecp-native-tooltip-title{display:block;text-align:center;margin-bottom:10px;color:var(--gold);font:700 12px var(--font-geist-mono);letter-spacing:.02em}
+.gamecp-native-tooltip-fields{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;margin:0}
+.gamecp-native-tooltip-fields dt{color:var(--cyan);font-size:10px;text-align:right}
+.gamecp-native-tooltip-fields dd{margin:0;color:#c8ced5;font-size:10px}
+.gamecp-native-tooltip-gold{display:grid;gap:2px;color:#e9b960}
+.gamecp-native-tooltip-green{color:#59e7a4}
+.gamecp-native-tooltip-desc-label{margin:12px 0 6px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08);color:var(--cyan);font-size:10px}
+.gamecp-native-tooltip-desc{margin:0;color:#a3abb4;font-size:10px;line-height:1.6}
 .gamecp-char-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
 .gamecp-char-card{display:grid;gap:6px;padding:18px;background:rgba(13,17,23,.5);border:1px solid rgba(255,255,255,.05);border-radius:0;color:#c8ced5;text-align:left;cursor:pointer;transition:.2s}
 .gamecp-char-card:hover{border-color:#3c5860}
