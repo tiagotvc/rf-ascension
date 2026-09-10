@@ -2,8 +2,9 @@ import GameCpPortal from "../../gamecp/GameCpPortal";
 import HeaderAuth from "../../HeaderAuth";
 import { getPlayerSession } from "../../lib/player-auth";
 import { listCharacters, getGameCash } from "../../lib/game-account";
-import { getWalletBalance } from "../../../db/store";
+import { getWalletBalance, listDonationPackages } from "../../../db/store";
 import { getPublicPotionCatalog } from "../../../db/potion-shop";
+import { extractTopupBonusItems } from "../../lib/topup-bonus";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,12 @@ const Brand = () => (
 );
 
 export default async function EnglishGameCp() {
-  const [potions, playerSession] = await Promise.all([getPublicPotionCatalog(), getPlayerSession()]);
+  const [potions, allPackages, playerSession] = await Promise.all([
+    getPublicPotionCatalog(),
+    listDonationPackages(true),
+    getPlayerSession(),
+  ]);
+  const topupBonusItems = extractTopupBonusItems(allPackages);
   const [walletBalance, characters, gameCash] = playerSession
     ? await Promise.all([getWalletBalance(playerSession.username), listCharacters(playerSession.username), getGameCash(playerSession.username)])
     : [null, [], null];
@@ -71,7 +77,7 @@ export default async function EnglishGameCp() {
               </span>
             </div>
           </div>
-          <GameCpPortal potions={[]} loggedInUsername={null} walletBalance={null} characters={[]} locale="en" />
+          <GameCpPortal potions={[]} loggedInUsername={null} walletBalance={null} characters={[]} topupBonusItems={{}} locale="en" />
         </section>
       </main>
     );
@@ -87,6 +93,7 @@ export default async function EnglishGameCp() {
           walletBalance={walletBalance}
           characters={characters.map((c) => ({ serial: c.serial, name: c.name, level: c.level, dalant: c.dalant, goldPoint: c.goldPoint }))}
           gameCash={gameCash}
+          topupBonusItems={topupBonusItems}
           locale="en"
         />
       </section>

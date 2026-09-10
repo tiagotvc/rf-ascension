@@ -5,12 +5,23 @@ export type PublicPotion = { code: string; name: string; icon: string | null; gp
 
 export type StoreCharacter = { serial: number; name: string; level: number; dalant: number; goldPoint: number };
 
+export type TopupBonusItem = { itemCode: string; amount: number; label: string };
+
 const EXCHANGE_RATES = { cash: 1, dalant: 1_000_000, goldpoint: 25 } as const;
 type ExchangeCurrencyKey = keyof typeof EXCHANGE_RATES;
 
 const MAX_PURCHASE_QUANTITY = 20;
 const TOPUP_PACKAGES_BRL = [50, 120, 250, 400];
 const GP_PER_REAL = 1000;
+
+// Ícone + print real do tooltip nativo (recortado do jogo, ver public/assets/donnate/<item>/) pros
+// itens de bônus da Recarregar — mesma convenção já usada pro Thorns Generator.
+const DONATE_ITEM_ICONS: Record<string, string> = {
+  ipupr01: "/assets/donnate/upgrade-potion/icon.png",
+};
+const DONATE_ITEM_TOOLTIP_IMAGES: Record<string, string> = {
+  ipupr01: "/assets/donnate/upgrade-potion/tooltip.png",
+};
 
 const COPY = {
   pt: {
@@ -121,6 +132,7 @@ export default function GameCpPortal({
   walletBalance,
   characters,
   gameCash = null,
+  topupBonusItems = {},
   locale = "pt",
 }: {
   potions: PublicPotion[];
@@ -128,6 +140,7 @@ export default function GameCpPortal({
   walletBalance: number | null;
   characters: StoreCharacter[];
   gameCash?: number | null;
+  topupBonusItems?: Record<number, TopupBonusItem[]>;
   locale?: "pt" | "en";
 }) {
   const t = COPY[locale];
@@ -193,6 +206,10 @@ export default function GameCpPortal({
   }
 
   async function handleTopup(amountBrl: number) {
+    if (!selectedCharacter) {
+      setTopupError(t.chooseCharFirst);
+      return;
+    }
     setLoading(true);
     setTopupError(null);
     try {
@@ -200,7 +217,7 @@ export default function GameCpPortal({
       const res = await fetch("/api/store/topup", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ amountBrlCents }),
+        body: JSON.stringify({ amountBrlCents, characterSerial: selectedCharacter }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -437,20 +454,53 @@ export default function GameCpPortal({
             <p>{t.topupHint}</p>
           </div>
           <div className="gamecp-topup-packages">
-            {TOPUP_PACKAGES_BRL.map((amountBrl) => (
-              <button
-                key={amountBrl}
-                type="button"
-                className="gamecp-topup-package"
-                disabled={loading}
-                onClick={() => handleTopup(amountBrl)}
-              >
-                <strong>R$ {amountBrl}</strong>
-                <span>
-                  {(amountBrl * GP_PER_REAL).toLocaleString(numberLocale)} {t.gp}
-                </span>
-              </button>
-            ))}
+            {TOPUP_PACKAGES_BRL.map((amountBrl) => {
+              const items = topupBonusItems[amountBrl] ?? [];
+              return (
+                <div className="gamecp-topup-card" key={amountBrl}>
+                  <div className="gamecp-topup-card-head">
+                    <span aria-hidden>📦</span>
+                    <strong>R$ {amountBrl}</strong>
+                  </div>
+                  <p className="gamecp-topup-card-gp">
+                    <b>◈</b> {(amountBrl * GP_PER_REAL).toLocaleString(numberLocale)} {t.gp}
+                  </p>
+                  {items.length > 0 && (
+                    <ul className="gamecp-topup-card-items">
+                      {items.map((item) => (
+                        <li key={item.itemCode}>
+                          <span className="gamecp-topup-card-item-icon">
+                            {DONATE_ITEM_ICONS[item.itemCode] ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={DONATE_ITEM_ICONS[item.itemCode]} alt="" />
+                            ) : (
+                              <span className="gamecp-topup-card-item-fallback">{item.label.charAt(0)}</span>
+                            )}
+                            {DONATE_ITEM_TOOLTIP_IMAGES[item.itemCode] && (
+                              <span className="gamecp-item-tooltip gamecp-item-tooltip-image">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={DONATE_ITEM_TOOLTIP_IMAGES[item.itemCode]} alt={item.label} />
+                              </span>
+                            )}
+                          </span>
+                          <span>
+                            {item.amount}x {item.label}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <button
+                    type="button"
+                    className="gamecp-topup-card-buy"
+                    disabled={loading}
+                    onClick={() => handleTopup(amountBrl)}
+                  >
+                    {t.buy}
+                  </button>
+                </div>
+              );
+            })}
           </div>
           {topupError && <p className="store-error">{topupError}</p>}
 

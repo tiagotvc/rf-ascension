@@ -149,6 +149,42 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
       { itemCode: "irgn0045", amount: 3, label: "Thorns Generator [8%]" },
     ],
   },
+  // Bônus de item da Recarregar (Fase 6) — nunca comprados via purchasePackage (preço/GP/Cash
+  // zerados, "compra" de verdade é o topup real via Asaas). Servem só de molde pra
+  // queueTopupBonusDelivery (itens via donation_package_items, mesmo motor de fila/retry das
+  // compras normais) e pra exibir os itens do pacote na Recarregar (listDonationPackages(true)).
+  {
+    key: "topup_bonus_50",
+    name: "Bônus Recarga R$50",
+    priceBrlCents: 0,
+    gpPrice: 0,
+    cashAmount: 0,
+    items: [{ itemCode: "ipupr01", amount: 1, label: "Upgrade Protection Potion" }],
+  },
+  {
+    key: "topup_bonus_120",
+    name: "Bônus Recarga R$120",
+    priceBrlCents: 0,
+    gpPrice: 0,
+    cashAmount: 0,
+    items: [{ itemCode: "ipupr01", amount: 2, label: "Upgrade Protection Potion" }],
+  },
+  {
+    key: "topup_bonus_250",
+    name: "Bônus Recarga R$250",
+    priceBrlCents: 0,
+    gpPrice: 0,
+    cashAmount: 0,
+    items: [{ itemCode: "ipupr01", amount: 3, label: "Upgrade Protection Potion" }],
+  },
+  {
+    key: "topup_bonus_400",
+    name: "Bônus Recarga R$400",
+    priceBrlCents: 0,
+    gpPrice: 0,
+    cashAmount: 0,
+    items: [{ itemCode: "ipupr01", amount: 5, label: "Upgrade Protection Potion" }],
+  },
 ];
 
 async function seedPackages(db: Db) {
@@ -287,15 +323,29 @@ export async function getWalletBalance(accountUsername: string): Promise<number>
   return row?.balance ?? 0;
 }
 
-export async function createTopupOrder(accountUsername: string, amountBrlCents: number): Promise<number> {
+export async function createTopupOrder(
+  accountUsername: string,
+  amountBrlCents: number,
+  characterSerial: number | null,
+  characterName: string | null
+): Promise<number> {
   const db = await getDb();
   await ensureStoreSchema(db);
   const [order] = await db
     .insert(orders)
-    .values({ kind: "topup", accountUsername, amountBrlCents, status: "pending" })
+    .values({ kind: "topup", accountUsername, amountBrlCents, characterSerial, characterName, status: "pending" })
     .returning({ id: orders.id });
   return order.id;
 }
+
+// R$ da faixa de recarga -> chave do pacote-molde (só itens, ver PACKAGE_SEED acima) que define o
+// bônus daquela faixa — usado por confirmTopupPayment pra enfileirar a entrega.
+const TOPUP_BONUS_PACKAGE_BY_AMOUNT: Record<number, string> = {
+  5000: "topup_bonus_50",
+  12000: "topup_bonus_120",
+  25000: "topup_bonus_250",
+  40000: "topup_bonus_400",
+};
 
 export async function setOrderAsaasReference(orderId: number, asaasPaymentId: string): Promise<void> {
   const db = await getDb();
@@ -351,6 +401,26 @@ export async function confirmTopupPayment(
         target: walletBalances.accountUsername,
         set: { balanceCash: sql`${walletBalances.balanceCash} + ${cashAmount}`, updatedAt: new Date().toISOString() },
       });
+
+    // Bônus de item da faixa (ver TOPUP_BONUS_PACKAGE_BY_AMOUNT) — só enfileira se a order já tinha
+    // um personagem escolhido (rota /api/store/topup exige isso). Nunca bloqueia o crédito de GP: se
+    // o pacote-molde não existir por algum motivo, o pagamento ainda é confirmado normalmente.
+    const bonusPackageKey = TOPUP_BONUS_PACKAGE_BY_AMOUNT[order.amountBrlCents];
+    if (bonusPackageKey && order.characterSerial && order.characterName) {
+      const [bonusPkg] = await tx.select().from(donationPackages).where(eq(donationPackages.key, bonusPackageKey));
+      if (bonusPkg) {
+        await tx.insert(deliveries).values({
+          orderId,
+          accountUsername: order.accountUsername,
+          characterSerial: order.characterSerial,
+          characterName: order.characterName,
+          packageId: bonusPkg.id,
+          itemCode: "iwswb55", // legado, sem uso real (mesmo padrão de purchasePackage)
+          cashAmount: bonusPkg.cashAmount,
+          status: "queued",
+        });
+      }
+    }
 
     return { credited: true };
   });
