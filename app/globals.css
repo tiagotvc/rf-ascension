@@ -649,8 +649,6 @@
 .store-wallet{max-width:640px;margin:0 auto 30px;padding:24px 28px}
 .store-wallet>p{margin:0;color:#c8ced5;font-size:13px}
 .store-wallet strong{color:var(--gold)}
-.store-topup-form{display:flex;gap:10px;margin-top:16px}
-.store-topup-form input{flex:1;height:44px;padding:0 14px;color:#fff;background:#090d12;border:1px solid #222c36;font:12px var(--font-geist-mono)}
 .store-character-select{display:block;margin-top:16px;color:#9ba5b1;font:600 9px var(--font-geist-mono);text-transform:uppercase;letter-spacing:.1em}
 .store-character-select select{display:block;margin-top:8px;width:100%;height:44px;padding:0 14px;color:#fff;background:#090d12;border:1px solid #222c36;font:12px var(--font-geist-mono)}
 .store-error{color:#ff6b6b;font-size:11px;margin:10px 0 0}
@@ -707,7 +705,12 @@
 .gamecp-qty input{width:44px;height:26px;padding:0;color:#fff;background:#090d12;border:1px solid #222c36;border-radius:6px;font:11px var(--font-geist-mono);text-align:center}
 .gamecp-trust-bar{display:flex;align-items:center;gap:10px;margin-top:22px;padding:14px 18px;background:rgba(84,239,158,.04);border:1px solid rgba(84,239,158,.15);border-radius:14px 5px;color:#8a9aa0;font-size:11px}
 
-.gamecp-topup-form{max-width:420px}
+.gamecp-topup-packages{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;max-width:680px}
+.gamecp-topup-package{display:grid;justify-items:center;gap:6px;padding:18px 12px;color:#e8ecef;background:rgba(13,17,23,.5);border:1px solid rgba(255,255,255,.08);border-radius:12px 4px;cursor:pointer;transition:border-color .15s,transform .15s}
+.gamecp-topup-package:hover:not(:disabled){border-color:var(--cyan);transform:translateY(-2px)}
+.gamecp-topup-package:disabled{opacity:.4;cursor:not-allowed}
+.gamecp-topup-package strong{font-size:18px;color:var(--gold);font-family:var(--font-geist-mono)}
+.gamecp-topup-package span{color:var(--cyan);font:11px var(--font-geist-mono)}
 .gamecp-char-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
 .gamecp-char-card{display:grid;gap:6px;padding:18px;background:rgba(13,17,23,.5);border:1px solid rgba(255,255,255,.05);border-radius:18px 6px;color:#c8ced5;text-align:left;cursor:pointer;transition:.2s}
 .gamecp-char-card:hover{border-color:#3c5860}

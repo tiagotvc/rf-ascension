@@ -9,6 +9,8 @@ const EXCHANGE_RATES = { cash: 1, dalant: 1_000_000, goldpoint: 25 } as const;
 type ExchangeCurrencyKey = keyof typeof EXCHANGE_RATES;
 
 const MAX_PURCHASE_QUANTITY = 20;
+const TOPUP_PACKAGES_BRL = [50, 120, 250, 400];
+const GP_PER_REAL = 1000;
 
 const COPY = {
   pt: {
@@ -29,8 +31,6 @@ const COPY = {
     tabChar: "Personagem",
     topupTitle: "Recarregar Game CP",
     topupHint: "Pagamento via Asaas (PIX, cartão, Mercado Pago). R$ 1 = 1.000 Game CP.",
-    topupPlaceholder: "Valor em R$",
-    topup: "Gerar cobrança",
     character: "Personagem selecionado",
     level: "nível",
     noChars: "Nenhum personagem encontrado nessa conta — entre no jogo pra criar o primeiro.",
@@ -81,8 +81,6 @@ const COPY = {
     tabChar: "Character",
     topupTitle: "Top up Game CP",
     topupHint: "Payment via Asaas (PIX, card, Mercado Pago). R$ 1 = 1,000 Game CP.",
-    topupPlaceholder: "Amount in R$",
-    topup: "Generate charge",
     character: "Selected character",
     level: "level",
     noChars: "No character found on this account — log in-game to create your first one.",
@@ -140,7 +138,6 @@ export default function GameCpPortal({
   const [confirmPassword, setConfirmPassword] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [topupAmount, setTopupAmount] = useState("50");
   const [topupError, setTopupError] = useState<string | null>(null);
   const [selectedCharacter, setSelectedCharacter] = useState<number | "">(characters[0]?.serial ?? "");
   const [purchaseMessage, setPurchaseMessage] = useState<string | null>(null);
@@ -195,12 +192,11 @@ export default function GameCpPortal({
     }
   }
 
-  async function handleTopup(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleTopup(amountBrl: number) {
     setLoading(true);
     setTopupError(null);
     try {
-      const amountBrlCents = Math.round(parseFloat(topupAmount.replace(",", ".")) * 100);
+      const amountBrlCents = Math.round(amountBrl * 100);
       const res = await fetch("/api/store/topup", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -440,17 +436,22 @@ export default function GameCpPortal({
             <h2>{t.topupTitle}</h2>
             <p>{t.topupHint}</p>
           </div>
-          <form onSubmit={handleTopup} className="store-topup-form gamecp-topup-form">
-            <input
-              value={topupAmount}
-              onChange={(e) => setTopupAmount(e.target.value)}
-              placeholder={t.topupPlaceholder}
-              inputMode="decimal"
-            />
-            <button className="btn btn-primary" disabled={loading}>
-              {t.topup}
-            </button>
-          </form>
+          <div className="gamecp-topup-packages">
+            {TOPUP_PACKAGES_BRL.map((amountBrl) => (
+              <button
+                key={amountBrl}
+                type="button"
+                className="gamecp-topup-package"
+                disabled={loading}
+                onClick={() => handleTopup(amountBrl)}
+              >
+                <strong>R$ {amountBrl}</strong>
+                <span>
+                  {(amountBrl * GP_PER_REAL).toLocaleString(numberLocale)} {t.gp}
+                </span>
+              </button>
+            ))}
+          </div>
           {topupError && <p className="store-error">{topupError}</p>}
 
           <div className="gamecp-exchange">
