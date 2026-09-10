@@ -467,17 +467,12 @@ export default function GameCpPortal({
             {TOPUP_TIERS.map(({ amountBrl, name, color }) => {
               const items = topupBonusItems[amountBrl] ?? [];
               return (
-                <div className="gamecp-topup-card" key={amountBrl} style={{ borderTopColor: color }}>
+                <div className="gamecp-topup-card" key={amountBrl} style={{ ["--tier-color" as string]: color }}>
+                  <div className="gamecp-topup-card-badge">📦</div>
                   <div className="gamecp-topup-card-head">
-                    <span aria-hidden style={{ color }}>
-                      📦
-                    </span>
-                    <strong style={{ color }}>{name}</strong>
+                    <strong>{name}</strong>
+                    <span className="gamecp-topup-card-underline" />
                   </div>
-                  <p className="gamecp-topup-card-price">R$ {amountBrl}</p>
-                  <p className="gamecp-topup-card-gp">
-                    <b>◈</b> {(amountBrl * GP_PER_REAL).toLocaleString(numberLocale)} {t.gp}
-                  </p>
                   {items.length > 0 && (
                     <ul className="gamecp-topup-card-items">
                       {items.map((item) => (
@@ -503,14 +498,20 @@ export default function GameCpPortal({
                       ))}
                     </ul>
                   )}
-                  <button
-                    type="button"
-                    className="gamecp-topup-card-buy"
-                    disabled={loading}
-                    onClick={() => handleTopup(amountBrl)}
-                  >
-                    {t.buy}
-                  </button>
+                  <div className="gamecp-topup-card-foot">
+                    <p className="gamecp-topup-card-gp">
+                      <b>◈</b> {(amountBrl * GP_PER_REAL).toLocaleString(numberLocale)} {t.gp}
+                    </p>
+                    <p className="gamecp-topup-card-price">R$ {amountBrl}</p>
+                    <button
+                      type="button"
+                      className="gamecp-topup-card-buy"
+                      disabled={loading}
+                      onClick={() => handleTopup(amountBrl)}
+                    >
+                      {t.buy}
+                    </button>
+                  </div>
                 </div>
               );
             })}
