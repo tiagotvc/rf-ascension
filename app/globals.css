@@ -728,7 +728,7 @@
 .gamecp-item-tooltip:after{content:"";position:absolute;top:100%;left:20px;border:5px solid transparent;border-top-color:#25313b}
 .gamecp-topup-card-item:hover .gamecp-item-tooltip{opacity:1;visibility:visible}
 .gamecp-item-tooltip-image{padding:0;background:transparent;border:none}
-.gamecp-item-tooltip-image img{display:block;width:230px;height:auto;border-radius:10px 4px;box-shadow:0 10px 30px rgba(0,0,0,.55)}
+.gamecp-item-tooltip-image img{display:block;width:420px;max-width:80vw;height:auto;border-radius:10px 4px;box-shadow:0 10px 30px rgba(0,0,0,.55)}
 .gamecp-char-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
 .gamecp-char-card{display:grid;gap:6px;padding:18px;background:rgba(13,17,23,.5);border:1px solid rgba(255,255,255,.05);border-radius:18px 6px;color:#c8ced5;text-align:left;cursor:pointer;transition:.2s}
 .gamecp-char-card:hover{border-color:#3c5860}
