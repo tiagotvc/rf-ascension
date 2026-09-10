@@ -11,8 +11,13 @@ const EXCHANGE_RATES = { cash: 1, dalant: 1_000_000, goldpoint: 25 } as const;
 type ExchangeCurrencyKey = keyof typeof EXCHANGE_RATES;
 
 const MAX_PURCHASE_QUANTITY = 20;
-const TOPUP_PACKAGES_BRL = [50, 120, 250, 400];
 const GP_PER_REAL = 1000;
+const TOPUP_TIERS = [
+  { amountBrl: 50, name: "Silver", color: "#c8ced5" },
+  { amountBrl: 120, name: "Gold", color: "var(--gold)" },
+  { amountBrl: 250, name: "Diamond", color: "var(--cyan)" },
+  { amountBrl: 400, name: "Ultimate", color: "#ff5c5c" },
+] as const;
 
 // Ícone + print real do tooltip nativo (recortado do jogo, ver public/assets/donnate/<item>/) pros
 // itens de bônus da Recarregar — mesma convenção já usada pro Thorns Generator.
@@ -39,6 +44,7 @@ const COPY = {
     gameCp: "Game CP",
     tabShop: "Loja",
     tabTopup: "Recarregar",
+    tabPackages: "Pacotes",
     tabChar: "Personagem",
     topupTitle: "Recarregar Game CP",
     topupHint: "Pagamento via Asaas (PIX, cartão, Mercado Pago). R$ 1 = 1.000 Game CP.",
@@ -89,6 +95,7 @@ const COPY = {
     gameCp: "Game CP",
     tabShop: "Shop",
     tabTopup: "Top up",
+    tabPackages: "Packages",
     tabChar: "Character",
     topupTitle: "Top up Game CP",
     topupHint: "Payment via Asaas (PIX, card, Mercado Pago). R$ 1 = 1,000 Game CP.",
@@ -154,7 +161,7 @@ export default function GameCpPortal({
   const [topupError, setTopupError] = useState<string | null>(null);
   const [selectedCharacter, setSelectedCharacter] = useState<number | "">(characters[0]?.serial ?? "");
   const [purchaseMessage, setPurchaseMessage] = useState<string | null>(null);
-  const [dashTab, setDashTab] = useState<"shop" | "topup" | "character">("shop");
+  const [dashTab, setDashTab] = useState<"shop" | "topup" | "packages" | "character">("shop");
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [exchangeAmounts, setExchangeAmounts] = useState<Record<ExchangeCurrencyKey, string>>({
     cash: "1000",
@@ -375,6 +382,9 @@ export default function GameCpPortal({
         <button className={dashTab === "topup" ? "active" : ""} onClick={() => setDashTab("topup")} type="button">
           {t.tabTopup}
         </button>
+        <button className={dashTab === "packages" ? "active" : ""} onClick={() => setDashTab("packages")} type="button">
+          {t.tabPackages}
+        </button>
         <button className={dashTab === "character" ? "active" : ""} onClick={() => setDashTab("character")} type="button">
           {t.tabChar}
         </button>
@@ -447,28 +457,31 @@ export default function GameCpPortal({
         </div>
       )}
 
-      {dashTab === "topup" && (
+      {dashTab === "packages" && (
         <div className="gamecp-panel">
           <div className="gamecp-panel-head">
-            <h2>{t.topupTitle}</h2>
+            <h2>{t.tabPackages}</h2>
             <p>{t.topupHint}</p>
           </div>
           <div className="gamecp-topup-packages">
-            {TOPUP_PACKAGES_BRL.map((amountBrl) => {
+            {TOPUP_TIERS.map(({ amountBrl, name, color }) => {
               const items = topupBonusItems[amountBrl] ?? [];
               return (
-                <div className="gamecp-topup-card" key={amountBrl}>
+                <div className="gamecp-topup-card" key={amountBrl} style={{ borderTopColor: color }}>
                   <div className="gamecp-topup-card-head">
-                    <span aria-hidden>📦</span>
-                    <strong>R$ {amountBrl}</strong>
+                    <span aria-hidden style={{ color }}>
+                      📦
+                    </span>
+                    <strong style={{ color }}>{name}</strong>
                   </div>
+                  <p className="gamecp-topup-card-price">R$ {amountBrl}</p>
                   <p className="gamecp-topup-card-gp">
                     <b>◈</b> {(amountBrl * GP_PER_REAL).toLocaleString(numberLocale)} {t.gp}
                   </p>
                   {items.length > 0 && (
                     <ul className="gamecp-topup-card-items">
                       {items.map((item) => (
-                        <li key={item.itemCode}>
+                        <li key={item.itemCode} className="gamecp-topup-card-item">
                           <span className="gamecp-topup-card-item-icon">
                             {DONATE_ITEM_ICONS[item.itemCode] ? (
                               // eslint-disable-next-line @next/next/no-img-element
@@ -476,16 +489,16 @@ export default function GameCpPortal({
                             ) : (
                               <span className="gamecp-topup-card-item-fallback">{item.label.charAt(0)}</span>
                             )}
-                            {DONATE_ITEM_TOOLTIP_IMAGES[item.itemCode] && (
-                              <span className="gamecp-item-tooltip gamecp-item-tooltip-image">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={DONATE_ITEM_TOOLTIP_IMAGES[item.itemCode]} alt={item.label} />
-                              </span>
-                            )}
                           </span>
                           <span>
                             {item.amount}x {item.label}
                           </span>
+                          {DONATE_ITEM_TOOLTIP_IMAGES[item.itemCode] && (
+                            <span className="gamecp-item-tooltip gamecp-item-tooltip-image">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={DONATE_ITEM_TOOLTIP_IMAGES[item.itemCode]} alt={item.label} />
+                            </span>
+                          )}
                         </li>
                       ))}
                     </ul>
@@ -503,6 +516,15 @@ export default function GameCpPortal({
             })}
           </div>
           {topupError && <p className="store-error">{topupError}</p>}
+        </div>
+      )}
+
+      {dashTab === "topup" && (
+        <div className="gamecp-panel">
+          <div className="gamecp-panel-head">
+            <h2>{t.topupTitle}</h2>
+            <p>{t.topupHint}</p>
+          </div>
 
           <div className="gamecp-exchange">
             <div className="gamecp-panel-head">
