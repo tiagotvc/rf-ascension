@@ -797,9 +797,7 @@ export default function GameCpPortal({
           <p className="gamecp-topup-premium-note">{t.packagesPremiumNote}</p>
           <div className="gamecp-topup-packages">
             {TOPUP_TIERS.map(({ amountBrl, name, color }) => {
-              // irgn0029 (Premium 30 Dias) é entregue igual aos outros itens, mas não aparece na
-              // lista do card — já é coberto pelo aviso em packagesPremiumNote acima.
-              const items = (topupBonusItems[amountBrl] ?? []).filter((item) => item.itemCode !== "irgn0029");
+              const items = topupBonusItems[amountBrl] ?? [];
               return (
                 <div className="gamecp-topup-card" key={amountBrl} style={{ ["--tier-color" as string]: color }}>
                   <div className="gamecp-topup-card-badge">📦</div>
