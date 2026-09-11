@@ -1,8 +1,17 @@
 import { getPlayerSession } from "../../../lib/player-auth";
-import { listCharacters, deliverItem } from "../../../lib/game-account";
+import { listCharacters, deliverItem, deliverPackage, exchangeCurrency } from "../../../lib/game-account";
 import { purchasePotion } from "../../../../db/potion-shop";
 import { refundGp } from "../../../../db/store";
 import { checkRateLimit } from "../../../lib/rate-limit";
+
+// Cash Potion 10.000 e Gold Capsule+10000 viraram crédito direto (Cash/Gold Point) em vez de entrega
+// de item — a poção em si foi reportada com bug pelo usuário 2026-09-11. Cash usa o mesmo
+// TryCreditCash/g_RFAcc.CreditBalance de sempre (base BILLING, sem relação com o checksum de
+// tbl_NpcData que travava Dalant); Gold Point usa o mesmo exchangeCurrency já usado na Recarregar.
+const CURRENCY_POTIONS: Record<string, { currency: "cash" | "goldpoint"; amountPerUnit: number }> = {
+  ipcsh05: { currency: "cash", amountPerUnit: 10000 },
+  ipgld38: { currency: "goldpoint", amountPerUnit: 10000 },
+};
 
 export async function POST(request: Request) {
   const limited = checkRateLimit(request, "store:buy-potion", 20, 10 * 60_000);
@@ -43,6 +52,20 @@ export async function POST(request: Request) {
   const debit = await purchasePotion(session.username, itemCode, quantity);
   if (!debit.ok) {
     return Response.json({ error: debit.error }, { status: 400 });
+  }
+
+  const currencyPotion = CURRENCY_POTIONS[itemCode];
+  if (currencyPotion) {
+    const amount = currencyPotion.amountPerUnit * quantity;
+    const result =
+      currencyPotion.currency === "cash"
+        ? (await deliverPackage(character.serial, session.username, amount, [])).ok
+        : (await exchangeCurrency(character.serial, session.username, "goldpoint", amount)).ok;
+    if (!result) {
+      await refundGp(session.username, debit.totalGpCost, `potion_refund:${itemCode}`);
+      return Response.json({ error: "Não foi possível entregar agora. Seu GP foi devolvido — tente de novo em instantes." }, { status: 502 });
+    }
+    return Response.json({ ok: true, method: "bag" });
   }
 
   const delivery = await deliverItem(character.serial, itemCode, quantity);
