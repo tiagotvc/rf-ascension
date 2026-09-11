@@ -39,6 +39,14 @@ const TOPUP_GP_TIERS = [
   { amountBrl: 1000, bonusPercent: 50 },
 ] as const;
 
+// Itens do pacote Beginner [Free] (ver PACKAGE_SEED["beginner_free"] em db/store.ts — mesma lista,
+// só pra exibir com ícone/tooltip aqui; a entrega de verdade vem do backend, não daqui).
+const BEGINNER_PACKAGE_ITEMS = [
+  { itemCode: "ipglp01", amount: 4, label: "Gold Point Pill" },
+  { itemCode: "ipcsh04", amount: 1, label: "Cash Potion 5.000" },
+  { itemCode: "irgn0027", amount: 1, label: "Premium (7 Dias)" },
+] as const;
+
 // Ícone real pros itens de bônus da Recarregar. ipupr01 é custom (recorte manual, ver
 // public/assets/donnate/); ipcal01/ipwhp01 já são poções nativas já exportadas pro catálogo da
 // Loja (public/game-data/potions/icons/) — reaproveita direto, sem duplicar arquivo.
@@ -62,6 +70,9 @@ const DONATE_ITEM_ICONS: Record<string, string> = {
   ircco37: "/game-data/resources/icons/ircco37.png",
   ipcsh05: "/game-data/potions/icons/ipcsh05.png",
   ipgld38: "/game-data/potions/icons/ipgld38.png",
+  ipglp01: "/game-data/potions/icons/ipglp01.png",
+  ipcsh04: "/game-data/potions/icons/ipcsh04.png",
+  irgn0027: "/game-data/resources/icons/irgn0027.png",
 };
 
 type DonateItemTooltip = {
@@ -308,6 +319,52 @@ const DONATE_ITEM_TOOLTIPS: Record<string, DonateItemTooltip> = {
     useStatus: "Always",
     description: "Capsule from cutting cold. transfer to gold point when used.",
   },
+  ipglp01: {
+    name: "Gold Point Pill",
+    type: "Adrenaline",
+    race: "All races",
+    target: "Self",
+    quantity: 99,
+    castDelay: "0.0secs",
+    specialEffects: ["Grants 500 Gold Point"],
+    market: "Impossibility",
+    drop: "Impossibility",
+    useStatus: "Always",
+    description: "Adds 500 Gold Point when used.",
+  },
+  ipcsh04: {
+    name: "Cash Potion 5.000",
+    type: "Adrenaline",
+    race: "All races",
+    target: "Self",
+    quantity: 99,
+    castDelay: "0.0secs",
+    specialEffects: ["Grants 5.000 Cash"],
+    market: "Impossibility",
+    drop: "Impossibility",
+    useStatus: "Always",
+    description: "Adds 5.000 Cash Points when used.",
+  },
+  irgn0027: {
+    name: "Premium (7 Dias)",
+    type: "Resource",
+    race: "All races",
+    target: "Self",
+    quantity: 99,
+    castDelay: "0.0secs",
+    specialEffects: [
+      "PvE Attack Bonus (normal monsters) +25%",
+      "PvE Defense Bonus (normal monsters) +25%",
+      "Experience Gain Rate +50%",
+      "Move Speed +50%",
+      "Mastery Gain +50%, Drop Luck +30, Auto Loot enabled",
+    ],
+    market: "Impossibility",
+    drop: "Impossibility",
+    useStatus: "Always",
+    description:
+      "Grants +25% PvE attack and +25% PvE defense against normal monsters, +50% Experience Gain Rate, +50% Move Speed, +50% Mastery Gain, +30 Drop Luck and Auto Loot, active for 7 days.",
+  },
 };
 
 const COPY = {
@@ -335,7 +392,7 @@ const COPY = {
     packagesPremiumNote:
       "Todos os pacotes dão Premium por 30 dias (não acumula — comprar mais de um pacote no mês não estende a duração). Vantagens: 2x mais XP, 2x mais Drop, 2x mais Mastery, Auto Loot.",
     beginnerTitle: "Beginner [Free]",
-    beginnerHint: "Pacote de boas-vindas grátis — 20kk de Dalant, 4x Gold Point Pill, 1x Cash Potion 5.000 e 1x Premium (7 Dias). Só pode resgatar uma vez por conta.",
+    beginnerHint: "Pacote de boas-vindas grátis — só pode resgatar uma vez por conta.",
     beginnerClaim: "Resgatar",
     character: "Personagem selecionado",
     level: "nível",
@@ -393,7 +450,7 @@ const COPY = {
     packagesPremiumNote:
       "Every package grants Premium for 30 days (non-stacking — buying more than one package in a month does not extend the duration). Benefits: 2x XP, 2x Drop, 2x Mastery, Auto Loot.",
     beginnerTitle: "Beginner [Free]",
-    beginnerHint: "Free welcome package — 20M Dalant, 4x Gold Point Pill, 1x Cash Potion 5,000 and 1x Premium (7 Days). Claimable once per account.",
+    beginnerHint: "Free welcome package — claimable once per account.",
     beginnerClaim: "Claim",
     character: "Selected character",
     level: "level",
@@ -801,9 +858,68 @@ export default function GameCpPortal({
           )}
           {topupError && <p className="store-error">{topupError}</p>}
           <div className="gamecp-beginner-banner">
-            <div>
+            <div className="gamecp-beginner-banner-info">
               <strong>{t.beginnerTitle}</strong>
               <p>{t.beginnerHint}</p>
+              <ul className="gamecp-topup-card-items gamecp-beginner-banner-items">
+                <li className="gamecp-topup-card-item">
+                  <span className="gamecp-topup-card-item-icon gamecp-beginner-banner-dalant">◈</span>
+                  <span>20.000.000 Dalant</span>
+                </li>
+                {BEGINNER_PACKAGE_ITEMS.map((item) => {
+                  const tooltip = DONATE_ITEM_TOOLTIPS[item.itemCode];
+                  return (
+                    <li key={item.itemCode} className="gamecp-topup-card-item">
+                      <span className="gamecp-topup-card-item-icon">
+                        {DONATE_ITEM_ICONS[item.itemCode] ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={DONATE_ITEM_ICONS[item.itemCode]} alt="" />
+                        ) : (
+                          <span className="gamecp-topup-card-item-fallback">{item.label.charAt(0)}</span>
+                        )}
+                      </span>
+                      <span>
+                        {item.amount}x {item.label}
+                      </span>
+                      {tooltip && (
+                        <div className="gamecp-item-tooltip gamecp-native-tooltip">
+                          <strong className="gamecp-native-tooltip-title">[{tooltip.name}]</strong>
+                          <dl className="gamecp-native-tooltip-fields">
+                            <dt>Type</dt>
+                            <dd>{tooltip.type}</dd>
+                            <dt>Race</dt>
+                            <dd>{tooltip.race}</dd>
+                            <dt>Target</dt>
+                            <dd>{tooltip.target}</dd>
+                            <dt>Quantity</dt>
+                            <dd>{tooltip.quantity}</dd>
+                            <dt>Cast Delay</dt>
+                            <dd>{tooltip.castDelay}</dd>
+                            {tooltip.specialEffects.length > 0 && (
+                              <>
+                                <dt>Special Effects</dt>
+                                <dd className="gamecp-native-tooltip-gold">
+                                  {tooltip.specialEffects.map((effect) => (
+                                    <span key={effect}>{effect}</span>
+                                  ))}
+                                </dd>
+                              </>
+                            )}
+                            <dt>Market</dt>
+                            <dd className="gamecp-native-tooltip-green">{tooltip.market}</dd>
+                            <dt>Drop</dt>
+                            <dd className="gamecp-native-tooltip-green">{tooltip.drop}</dd>
+                            <dt>Use Status</dt>
+                            <dd>{tooltip.useStatus}</dd>
+                          </dl>
+                          <p className="gamecp-native-tooltip-desc-label">[Description]</p>
+                          <p className="gamecp-native-tooltip-desc">{tooltip.description}</p>
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
             <button
               type="button"
