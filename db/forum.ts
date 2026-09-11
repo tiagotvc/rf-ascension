@@ -2,7 +2,7 @@ import { and, count, desc, eq, inArray } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 import { getDb } from "./index";
 import { forumPosts, forumTopics } from "./schema";
-import { SERVER_INFO_SLUG, DROPS_SLUG, findForumBoard } from "../app/config/forum";
+import { SERVER_INFO_SLUG, DROPS_SLUG, COMBOS_SLUG, findForumBoard } from "../app/config/forum";
 
 type Db = Awaited<ReturnType<typeof getDb>>;
 
@@ -370,6 +370,7 @@ async function ensureForumSchema(db: Db) {
   await rewriteMasterTopicBody(db);
   await seedServerInfo(db);
   await seedMonsterDrops(db);
+  await seedItemCombos(db);
   bootstrapped = true;
 }
 
@@ -592,6 +593,100 @@ Só rola item de arma/armadura se o drop sortear raridade Rara ou melhor, e isso
 Ou seja: bosses valem muito mais a pena caçar se você quer item raro — um monstro comum praticamente nunca dropa arma ou armadura.
 
 Veja os outros tópicos desta área pra saber o que bosses específicos derrubam. E fique à vontade pra postar o que você mesmo encontrou — essa área é aberta pra comunidade.`,
+    true
+  );
+}
+
+const COMBOS_MASTER_TITLE = "Catálogo de Combinações (Combine Ex) — todas as receitas por atributo";
+
+// Extraído direto dos hooks Lua reais (RF_Bin/luaScript/ItemCombine/Hooks/*.lua) - nome/ícone dos
+// materiais com código fixo vêm do MapEditor (GenericItemIconExportTask.cs, ItemCatalog+
+// ItemIconCatalog). 4 códigos (iygaf75, iyset30, iyscr75, iyset33) não têm ícone resolvido - não
+// existem no item_db.txt exportado pro cliente (não é cache velho, já regenerado - simplesmente não
+// têm registro de ícone válido nessa tabela) - ficam só com nome/texto.
+async function seedItemCombos(db: Db) {
+  const [master] = await db
+    .select({ id: forumTopics.id })
+    .from(forumTopics)
+    .where(and(eq(forumTopics.forumSlug, COMBOS_SLUG), eq(forumTopics.title, COMBOS_MASTER_TITLE)));
+  if (master) return;
+
+  await db.execute(
+    sql`DELETE FROM forum_posts WHERE topic_id IN (SELECT id FROM forum_topics WHERE forum_slug = ${COMBOS_SLUG} AND author_email = ${STAFF_EMAIL})`
+  );
+  await db.execute(sql`DELETE FROM forum_topics WHERE forum_slug = ${COMBOS_SLUG} AND author_email = ${STAFF_EMAIL}`);
+
+  async function createStaffTopic(title: string, body: string, pinned = false): Promise<number> {
+    const [topic] = await db
+      .insert(forumTopics)
+      .values({ forumSlug: COMBOS_SLUG, title, authorName: STAFF_NAME, authorEmail: STAFF_EMAIL, pinned })
+      .returning();
+    await db.insert(forumPosts).values({ topicId: topic.id, body, authorName: STAFF_NAME, authorEmail: STAFF_EMAIL });
+    return topic.id;
+  }
+
+  const icon = (code: string, label: string) => `!icon[${label}](/game-data/combine/icons/${code}.png)`;
+
+  await createStaffTopic(
+    COMBOS_MASTER_TITLE,
+    `Catálogo completo de todas as combinações do Combine Ex — os hooks reais que rodam no servidor. Pra uma explicação passo a passo de Combine Superior e Rank Up com print de tooltip real, veja os tópicos fixados em {cyan:Informações do servidor}. Aqui é o catálogo por atributo, o que cada uma das variantes faz e pede.
+
+{gold:Superior de Arma — por atributo}
+Pega uma {white:Arma Intense} + uma {violet:Arma Roxa} (doadora, qualquer uma, destruída) e promove a Intense pro tier {orange:Superior} de verdade, herdando o valor do atributo da doadora + um bônus fixo. Rebaixamento de level sorteado (0-10) sempre que dá certo.
+
+| Atributo | Efeito final (doadora + bônus) | Materiais extras | Chance | Custo |
+|---|---|---|---|---|
+| Strong (PvP) | PvP Attack: doadora +5% | 20x Catalisador Superior + 1x Superior Weapon Recipe | 50% | 20kk Dalant |
+| Vampiric | Lifesteal: doadora +3% (teto 8%) | 20x Catalisador Superior + 1x Superior Weapon Recipe | 50% | 20kk Dalant |
+| Advanced Strength (HP) | Max HP: doadora +6% (teto 14%) | 20x Catalisador Superior + 1x Superior Weapon Recipe | 50% | 20kk Dalant |
+| Solid (Defesa PvP) | PvP Defense: doadora +6% (teto 16%) | 20x Catalisador Superior + 1x Superior Weapon Recipe | 50% | 20kk Dalant |
+| Anti-Sharp | Resistência a dano crítico: doadora +2% | 20x Catalisador Superior + 1x Superior Weapon Recipe | 50% | 20kk Dalant |
+| Sharp | Accuracy: doadora +5 | 20x Catalisador Superior + 1x Superior Weapon Recipe | 50% | 20kk Dalant |
+| Grand | Avoidance: doadora +5 | 20x Catalisador Superior + 1x Superior Weapon Recipe | 50% | 20kk Dalant |
+| Experience | Ganho de XP: doadora +5% (teto 15%) | 20x Catalisador Superior + 1x Superior Weapon Recipe | 50% | 20kk Dalant |
+| Hunter | Dano vs monstro normal: doadora +5% (teto 25%) + copia dano vs boss da doadora se ela tinha | 20x Catalisador Superior + 1x Superior Weapon Recipe | 50% | 20kk Dalant |
+
+Falha nunca quebra as duas armas — só perde 1-2 unidades dos materiais consumíveis.
+
+{gold:Bônus de Atributo em Armadura Intense}
+Diferente da arma, aqui a armadura {white:continua Intense} — só ganha um atributo novo fixo, sem trocar de raridade. Chance sobe +5% pra cada talica já socketada na peça (base 50%, teto 100%).
+
+| Atributo | Efeito | Catalisador | Materiais extras | Custo |
+|---|---|---|---|---|
+| Strong (PvP) | PvP Attack: 3-6% (4-8% na Upper) | ${icon("iycjh16", "Strong Superior Ability")} x5 | ${icon("irres01", "Red Stone")} x1 + 20x Catalisador Armadura + 1x Superior Armor Recipe | 7kk Dalant |
+| Vampiric | Lifesteal: 1-3% | ${icon("iycjh20", "Vampire Superior Ability")} x5 | Red Stone x1 + 20x Catalisador Armadura + 1x Superior Armor Recipe | 7kk Dalant |
+| Advanced Strength (HP) | Max HP: 5-8% (6-11% na Upper) | ${icon("iycjh06", "Advanced Strength Armor Ability")} x5 | Red Stone x1 + 20x Catalisador Armadura + 1x Superior Armor Recipe | 7kk Dalant |
+| Solid (Defesa PvP) | PvP Defense: 3-8% | ${icon("iycjh04", "Solid Armor Ability")} x5 | Red Stone x1 + 20x Catalisador Armadura + 1x Superior Armor Recipe | 7kk Dalant |
+| Anti-Sharp | Resistência a dano crítico (geral): 2-5% | ${icon("iycjh11", "Anti-Sharp Armor Ability")} x5 | Red Stone x1 + 20x Catalisador Armadura + 1x Superior Armor Recipe | 7kk Dalant |
+| Sharp | Accuracy: +4 a +8 | ${icon("iycjh09", "Sharp Armor Ability")} x5 | Red Stone x1 + 20x Catalisador Armadura + 1x Superior Armor Recipe | 7kk Dalant |
+| Grand | Avoidance: +4 a +8 | ${icon("iycjh10", "Grand Armor Ability")} x5 | Red Stone x1 + 20x Catalisador Armadura + 1x Superior Armor Recipe | 7kk Dalant |
+| Experience | Ganho de XP: 5-8% | ${icon("iycjh13", "Protection Armor Ability")} x5 | Red Stone x1 + 20x Catalisador Armadura + 1x Superior Armor Recipe | 7kk Dalant |
+| Hunter | Dano vs monstro normal: 15-25% (sempre) + 50% de chance extra de dano vs boss: 10-20% | ${icon("iycjh02", "Fine Armor Ability")} x5 | Red Stone x1 + 20x Catalisador Armadura + 1x Superior Armor Recipe | 7kk Dalant |
+
+Falha só quebra 1-2 unidades dos materiais consumíveis — a armadura nunca quebra.
+
+{gold:Promoção de Armadura pra Superior}
+Recipe separada da tabela acima — essa é a que muda o tier de verdade. Pega uma {white:Armadura/Escudo Intense} + uma {violet:Roxa doadora do mesmo grupo} (destruída), transplanta o afixo dela, reseta Talica/Runas/Rank a zero e sorteia rebaixamento de level (0-10).
+
+Materiais: 1x ${icon("irrc02", "Superior Recipe")} + 50x ${icon("irrc03", "Material de Promoção (Armadura)")} — sem chance de falha, sem custo em Dalant.
+
+{gold:Reroll de Afixo}
+Rerola os afixos de um equipamento — só os slots que você NÃO travou antes de confirmar continuam mudando, os travados mantêm exatamente o que já tinham.
+
+Materiais: 1x ${icon("irrc01", "Reroll Coupon")} — sem chance de falha, sem custo em Dalant.
+
+{gold:Runas}
+Socketa uma runa num slot livre — 100% de chance, sem custo em Dalant, mas a runa é sempre consumida no processo. Não dá pra repetir runa da mesma família no mesmo item.
+
+| Runa | Tier | Efeito |
+|---|---|---|
+| Rune of Strength | 1-6 | Attack +50 / +180 / +400 / +1200 / +1600 / +2500 |
+| Rune of Vitality | 1-6 | Max HP +50 / +180 / +400 / +1200 / +1600 / +2500 |
+| Rune of Avoidance | 1-5 | Avoidance +1 / +2 / +3 / +4 / +5 |
+| Rune of Regeneration | 1-6 | HP Regen/tick +15 / +40 / +90 / +200 / +300 / +450 |
+| Rune of Madness | 1-6 | Attack Speed +2% / +5% / +8% / +12% / +16% / +20% |
+
+Cada linha é uma família de runa com vários tiers — quanto mais alto o tier, maior o efeito.`,
     true
   );
 }

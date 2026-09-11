@@ -74,6 +74,7 @@ export const forumAreas: ForumArea[] = [
 // a começar pela primeira depois do lançamento — não usar para isso agora.
 export const SERVER_INFO_SLUG = "01-2";
 export const DROPS_SLUG = "02-4";
+export const COMBOS_SLUG = "02-2";
 
 export function findForumBoard(slug: string): { area: ForumArea; board: ForumBoard } | null {
   for (const area of forumAreas) {
