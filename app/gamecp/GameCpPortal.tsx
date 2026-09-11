@@ -16,6 +16,18 @@ const TOPUP_TIERS = [
   { amountBrl: 400, name: "Ultimate", color: "#ff5c5c" },
 ] as const;
 
+// Valores fixos de recarga de GP — sem nome de tier (isso é só das Pacotes), só o valor e o bônus de
+// GP por volume. Bônus tem que bater com TOPUP_BONUS_PERCENT_BY_AMOUNT em db/store.ts (mesma tabela,
+// uma pra exibir aqui, outra pra creditar de verdade no confirmTopupPayment).
+const TOPUP_GP_TIERS = [
+  { amountBrl: 50, bonusPercent: 0 },
+  { amountBrl: 120, bonusPercent: 5 },
+  { amountBrl: 250, bonusPercent: 10 },
+  { amountBrl: 400, bonusPercent: 15 },
+  { amountBrl: 600, bonusPercent: 30 },
+  { amountBrl: 1000, bonusPercent: 50 },
+] as const;
+
 // Ícone real pros itens de bônus da Recarregar. ipupr01 é custom (recorte manual, ver
 // public/assets/donnate/); ipcal01/ipwhp01 já são poções nativas já exportadas pro catálogo da
 // Loja (public/game-data/potions/icons/) — reaproveita direto, sem duplicar arquivo.
@@ -37,6 +49,8 @@ const DONATE_ITEM_ICONS: Record<string, string> = {
   // página (ver aviso), confiança baixa nesse ícone específico até confirmar.
   irgn0029: "/game-data/resources/icons/irgn0029.png",
   ircco37: "/game-data/resources/icons/ircco37.png",
+  ipcsh05: "/game-data/potions/icons/ipcsh05.png",
+  ipgld38: "/game-data/potions/icons/ipgld38.png",
 };
 
 type DonateItemTooltip = {
@@ -256,6 +270,32 @@ const DONATE_ITEM_TOOLTIPS: Record<string, DonateItemTooltip> = {
     drop: "Impossibility",
     useStatus: "Always",
     description: "Increase chance of reflecting a damage in 15%. Increase amount of damage reflected in 10%.",
+  },
+  ipcsh05: {
+    name: "Cash Potion 10.000",
+    type: "Adrenaline",
+    race: "All races",
+    target: "Self",
+    quantity: 99,
+    castDelay: "0.0secs",
+    specialEffects: ["Grants 10.000 Cash"],
+    market: "Impossibility",
+    drop: "Impossibility",
+    useStatus: "Always",
+    description: "Adds 10.000 Cash Points when used.",
+  },
+  ipgld38: {
+    name: "Gold Capsule+10000",
+    type: "Adrenaline",
+    race: "All races",
+    target: "Self",
+    quantity: 99,
+    castDelay: "0.0secs",
+    specialEffects: ["Grants 10.000 Gold Point"],
+    market: "Impossibility",
+    drop: "Impossibility",
+    useStatus: "Always",
+    description: "Capsule from cutting cold. transfer to gold point when used.",
   },
 };
 
@@ -602,6 +642,7 @@ export default function GameCpPortal({
                 <div className="gamecp-potion-list">
                   {group.items.map((p) => {
                     const qty = getQuantity(p.code);
+                    const tooltip = DONATE_ITEM_TOOLTIPS[p.code];
                     return (
                       <div className="gamecp-potion-row" key={p.code}>
                         {p.icon ? (
@@ -611,6 +652,41 @@ export default function GameCpPortal({
                           <span className="gamecp-potion-icon gamecp-potion-icon-fallback">?</span>
                         )}
                         <strong className="gamecp-potion-name">{p.name}</strong>
+                        {tooltip && (
+                          <div className="gamecp-item-tooltip gamecp-native-tooltip">
+                            <strong className="gamecp-native-tooltip-title">[{tooltip.name}]</strong>
+                            <dl className="gamecp-native-tooltip-fields">
+                              <dt>Type</dt>
+                              <dd>{tooltip.type}</dd>
+                              <dt>Race</dt>
+                              <dd>{tooltip.race}</dd>
+                              <dt>Target</dt>
+                              <dd>{tooltip.target}</dd>
+                              <dt>Quantity</dt>
+                              <dd>{tooltip.quantity}</dd>
+                              <dt>Cast Delay</dt>
+                              <dd>{tooltip.castDelay}</dd>
+                              {tooltip.specialEffects.length > 0 && (
+                                <>
+                                  <dt>Special Effects</dt>
+                                  <dd className="gamecp-native-tooltip-gold">
+                                    {tooltip.specialEffects.map((effect) => (
+                                      <span key={effect}>{effect}</span>
+                                    ))}
+                                  </dd>
+                                </>
+                              )}
+                              <dt>Market</dt>
+                              <dd className="gamecp-native-tooltip-green">{tooltip.market}</dd>
+                              <dt>Drop</dt>
+                              <dd className="gamecp-native-tooltip-green">{tooltip.drop}</dd>
+                              <dt>Use Status</dt>
+                              <dd>{tooltip.useStatus}</dd>
+                            </dl>
+                            <p className="gamecp-native-tooltip-desc-label">[Description]</p>
+                            <p className="gamecp-native-tooltip-desc">{tooltip.description}</p>
+                          </div>
+                        )}
                         <span className="gamecp-potion-price">
                           {(p.gpPrice * qty).toLocaleString(numberLocale)} <small>{t.gp}</small>
                         </span>
@@ -772,29 +848,29 @@ export default function GameCpPortal({
           </div>
           {topupError && <p className="store-error">{topupError}</p>}
           <div className="gamecp-topup-packages">
-            {TOPUP_TIERS.map(({ amountBrl, name, color }) => (
-              <div className="gamecp-topup-card" key={amountBrl} style={{ ["--tier-color" as string]: color }}>
-                <div className="gamecp-topup-card-badge">◈</div>
-                <div className="gamecp-topup-card-head">
-                  <strong>{name}</strong>
-                  <span className="gamecp-topup-card-underline" />
+            {TOPUP_GP_TIERS.map(({ amountBrl, bonusPercent }) => {
+              const totalGp = Math.round(amountBrl * GP_PER_REAL * (1 + bonusPercent / 100));
+              return (
+                <div className="gamecp-topup-card" key={amountBrl} style={{ ["--tier-color" as string]: "var(--cyan)" }}>
+                  <div className="gamecp-topup-card-badge">◈</div>
+                  {bonusPercent > 0 && <span className="gamecp-topup-bonus-badge">+{bonusPercent}% bônus</span>}
+                  <div className="gamecp-topup-card-foot">
+                    <p className="gamecp-topup-card-price">R$ {amountBrl}</p>
+                    <p className="gamecp-topup-card-gp">
+                      <b>◈</b> {totalGp.toLocaleString(numberLocale)} {t.gp}
+                    </p>
+                    <button
+                      type="button"
+                      className="gamecp-topup-card-buy"
+                      disabled={loading}
+                      onClick={() => handleTopup(amountBrl)}
+                    >
+                      {t.buy}
+                    </button>
+                  </div>
                 </div>
-                <div className="gamecp-topup-card-foot">
-                  <p className="gamecp-topup-card-gp">
-                    <b>◈</b> {(amountBrl * GP_PER_REAL).toLocaleString(numberLocale)} {t.gp}
-                  </p>
-                  <p className="gamecp-topup-card-price">R$ {amountBrl}</p>
-                  <button
-                    type="button"
-                    className="gamecp-topup-card-buy"
-                    disabled={loading}
-                    onClick={() => handleTopup(amountBrl)}
-                  >
-                    {t.buy}
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

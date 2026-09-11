@@ -395,6 +395,18 @@ export async function setOrderAsaasReference(orderId: number, asaasPaymentId: st
     .where(eq(orders.id, orderId));
 }
 
+// Bônus de GP por volume de recarga (ver TOPUP_GP_TIERS em GameCpPortal.tsx — mesma tabela, uma pra
+// exibir na tela, outra pra creditar de verdade aqui). Valor não listado (ex.: amountBrlCents fora
+// dos 6 botões fixos) cai em 0% — nunca bloqueia o crédito base, só não dá bônus.
+const TOPUP_BONUS_PERCENT_BY_AMOUNT: Record<number, number> = {
+  5000: 0, // R$50
+  12000: 5, // R$120
+  25000: 10, // R$250
+  40000: 15, // R$400
+  60000: 30, // R$600
+  100000: 50, // R$1000
+};
+
 // Chamado só pelo webhook, depois de reconfirmar o pagamento direto na API
 // da Asaas (nunca confiar só no corpo do webhook). Idempotente: se a order
 // já estiver 'paid', não credita de novo — trava a linha (FOR UPDATE) pra
@@ -421,7 +433,9 @@ export async function confirmTopupPayment(
       return { credited: false };
     }
 
-    const cashAmount = Math.round((order.amountBrlCents / 100) * siteConfig.cashPerReal);
+    const baseCashAmount = Math.round((order.amountBrlCents / 100) * siteConfig.cashPerReal);
+    const bonusPercent = TOPUP_BONUS_PERCENT_BY_AMOUNT[order.amountBrlCents] ?? 0;
+    const cashAmount = Math.round(baseCashAmount * (1 + bonusPercent / 100));
 
     await tx
       .update(orders)
