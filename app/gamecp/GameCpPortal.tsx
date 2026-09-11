@@ -282,6 +282,8 @@ const COPY = {
     tabChar: "Personagem",
     topupTitle: "Recarregar Game CP",
     topupHint: "Pagamento via Asaas (PIX, cartão, Mercado Pago). R$ 1 = 1.000 Game CP.",
+    packagesPremiumNote:
+      "Todos os pacotes dão Premium por 30 dias (não acumula — comprar mais de um pacote no mês não estende a duração). Vantagens: 2x mais XP, 2x mais Drop, 2x mais Mastery, Auto Loot.",
     character: "Personagem selecionado",
     level: "nível",
     noChars: "Nenhum personagem encontrado nessa conta — entre no jogo pra criar o primeiro.",
@@ -333,6 +335,8 @@ const COPY = {
     tabChar: "Character",
     topupTitle: "Top up Game CP",
     topupHint: "Payment via Asaas (PIX, card, Mercado Pago). R$ 1 = 1,000 Game CP.",
+    packagesPremiumNote:
+      "Every package grants Premium for 30 days (non-stacking — buying more than one package in a month does not extend the duration). Benefits: 2x XP, 2x Drop, 2x Mastery, Auto Loot.",
     character: "Selected character",
     level: "level",
     noChars: "No character found on this account — log in-game to create your first one.",
@@ -697,9 +701,12 @@ export default function GameCpPortal({
             <h2>{t.tabPackages}</h2>
             <p>{t.topupHint}</p>
           </div>
+          <p className="gamecp-topup-premium-note">{t.packagesPremiumNote}</p>
           <div className="gamecp-topup-packages">
             {TOPUP_TIERS.map(({ amountBrl, name, color }) => {
-              const items = topupBonusItems[amountBrl] ?? [];
+              // irgn0029 (Premium 30 Dias) é entregue igual aos outros itens, mas não aparece na
+              // lista do card — já é coberto pelo aviso em packagesPremiumNote acima.
+              const items = (topupBonusItems[amountBrl] ?? []).filter((item) => item.itemCode !== "irgn0029");
               return (
                 <div className="gamecp-topup-card" key={amountBrl} style={{ ["--tier-color" as string]: color }}>
                   <div className="gamecp-topup-card-badge">📦</div>
