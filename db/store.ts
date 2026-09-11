@@ -255,12 +255,13 @@ const PACKAGE_SEED: PackageSeedEntry[] = [
     name: "Beginner [Free]",
     priceBrlCents: 0,
     gpPrice: 0,
-    cashAmount: 0,
+    // Cash creditado direto (TryCreditCash/g_RFAcc.CreditBalance, mesmo caminho de pack_50/150/250),
+    // não mais via Cash Potion 5.000 (ipcsh04) - poção reportada com bug pelo usuário 2026-09-11.
+    cashAmount: 5000,
     dalantReward: 20_000_000,
     oncePerAccount: true,
     items: [
       { itemCode: "ipglp01", amount: 4, label: "Gold Point Pill" },
-      { itemCode: "ipcsh04", amount: 1, label: "Cash Potion 5.000" },
       { itemCode: "irgn0027", amount: 1, label: "Premium (7 Dias)" },
     ],
   },

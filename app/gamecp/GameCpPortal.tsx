@@ -43,7 +43,6 @@ const TOPUP_GP_TIERS = [
 // só pra exibir com ícone/tooltip aqui; a entrega de verdade vem do backend, não daqui).
 const BEGINNER_PACKAGE_ITEMS = [
   { itemCode: "ipglp01", amount: 4, label: "Gold Point Pill" },
-  { itemCode: "ipcsh04", amount: 1, label: "Cash Potion 5.000" },
   { itemCode: "irgn0027", amount: 1, label: "Premium (7 Dias)" },
 ] as const;
 
@@ -71,7 +70,6 @@ const DONATE_ITEM_ICONS: Record<string, string> = {
   ipcsh05: "/game-data/potions/icons/ipcsh05.png",
   ipgld38: "/game-data/potions/icons/ipgld38.png",
   ipglp01: "/game-data/potions/icons/ipglp01.png",
-  ipcsh04: "/game-data/potions/icons/ipcsh04.png",
   irgn0027: "/game-data/resources/icons/irgn0027.png",
 };
 
@@ -331,19 +329,6 @@ const DONATE_ITEM_TOOLTIPS: Record<string, DonateItemTooltip> = {
     drop: "Impossibility",
     useStatus: "Always",
     description: "Adds 500 Gold Point when used.",
-  },
-  ipcsh04: {
-    name: "Cash Potion 5.000",
-    type: "Adrenaline",
-    race: "All races",
-    target: "Self",
-    quantity: 99,
-    castDelay: "0.0secs",
-    specialEffects: ["Grants 5.000 Cash"],
-    market: "Impossibility",
-    drop: "Impossibility",
-    useStatus: "Always",
-    description: "Adds 5.000 Cash Points when used.",
   },
   irgn0027: {
     name: "Premium (7 Dias)",
@@ -865,6 +850,10 @@ export default function GameCpPortal({
                 <li className="gamecp-topup-card-item">
                   <span className="gamecp-topup-card-item-icon gamecp-beginner-banner-dalant">◈</span>
                   <span>20.000.000 Dalant</span>
+                </li>
+                <li className="gamecp-topup-card-item">
+                  <span className="gamecp-topup-card-item-icon gamecp-beginner-banner-dalant">$</span>
+                  <span>5.000 Cash</span>
                 </li>
                 {BEGINNER_PACKAGE_ITEMS.map((item) => {
                   const tooltip = DONATE_ITEM_TOOLTIPS[item.itemCode];
