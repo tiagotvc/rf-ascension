@@ -14,11 +14,9 @@ export type AsaasCheckoutResult =
   | { ok: true; checkoutUrl: string; asaasCheckoutId: string }
   | { ok: false; error: string };
 
-function asaasConfig(): { baseUrl: string; apiKey: string } {
+function asaasConfig(): { baseUrl: string; apiKey: string } | null {
   const apiKey = process.env.ASAAS_API_KEY;
-  if (!apiKey) {
-    throw new Error("ASAAS_API_KEY não configurada — sem ela não dá pra criar cobrança real.");
-  }
+  if (!apiKey) return null;
   const env = process.env.ASAAS_ENV === "production" ? "production" : "sandbox";
   const baseUrl = env === "production" ? "https://api.asaas.com/v3" : "https://sandbox.asaas.com/api/v3";
   return { baseUrl, apiKey };
@@ -36,7 +34,11 @@ export async function createTopupCheckout(params: {
   amountBrlCents: number;
   siteUrl: string;
 }): Promise<AsaasCheckoutResult> {
-  const { baseUrl, apiKey } = asaasConfig();
+  const config = asaasConfig();
+  if (!config) {
+    return { ok: false, error: "Recarga temporariamente indisponível (ASAAS_API_KEY não configurada)." };
+  }
+  const { baseUrl, apiKey } = config;
   const amountBrl = params.amountBrlCents / 100;
 
   let res: Response;
@@ -89,7 +91,9 @@ export type AsaasPaymentStatus = { id: string; status: string; externalReference
 // valor pago (`value`, em reais) pra quem chamar poder conferir que bate
 // com o valor esperado da order antes de creditar qualquer coisa.
 export async function fetchAsaasPayment(paymentId: string): Promise<AsaasPaymentStatus | null> {
-  const { baseUrl, apiKey } = asaasConfig();
+  const config = asaasConfig();
+  if (!config) return null;
+  const { baseUrl, apiKey } = config;
 
   let res: Response;
   try {

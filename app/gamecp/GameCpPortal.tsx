@@ -464,9 +464,9 @@ export default function GameCpPortal({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ amountBrlCents }),
       });
-      const data = await res.json();
-      if (!res.ok) {
-        setTopupError(data.error ?? t.genericTopupError);
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.checkoutUrl) {
+        setTopupError(data?.error ?? t.genericTopupError);
         return;
       }
       window.location.href = data.checkoutUrl;
@@ -513,9 +513,9 @@ export default function GameCpPortal({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ packageKey, characterSerial: selectedCharacter, quantity: 1 }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
       if (!res.ok) {
-        setTopupError(data.error ?? t.genericPurchaseError);
+        setTopupError(data?.error ?? t.genericPurchaseError);
         return;
       }
       setTopupError(t.delivered);
@@ -847,7 +847,7 @@ export default function GameCpPortal({
             <p>{t.topupHint}</p>
           </div>
           {topupError && <p className="store-error">{topupError}</p>}
-          <div className="gamecp-topup-packages">
+          <div className="gamecp-topup-packages gamecp-topup-packages-gp">
             {TOPUP_GP_TIERS.map(({ amountBrl, bonusPercent }) => {
               const totalGp = Math.round(amountBrl * GP_PER_REAL * (1 + bonusPercent / 100));
               return (
