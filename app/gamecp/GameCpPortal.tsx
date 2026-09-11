@@ -334,6 +334,9 @@ const COPY = {
     packagesHint: "Pague com o Game CP que você já tem — entrega automática, sem passar pelo Asaas.",
     packagesPremiumNote:
       "Todos os pacotes dão Premium por 30 dias (não acumula — comprar mais de um pacote no mês não estende a duração). Vantagens: 2x mais XP, 2x mais Drop, 2x mais Mastery, Auto Loot.",
+    beginnerTitle: "Beginner [Free]",
+    beginnerHint: "Pacote de boas-vindas grátis — 20kk de Dalant, 4x Gold Point Pill, 1x Cash Potion 5.000 e 1x Premium (7 Dias). Só pode resgatar uma vez por conta.",
+    beginnerClaim: "Resgatar",
     character: "Personagem selecionado",
     level: "nível",
     noChars: "Nenhum personagem encontrado nessa conta — entre no jogo pra criar o primeiro.",
@@ -389,6 +392,9 @@ const COPY = {
     packagesHint: "Pay with the Game CP you already have — automatic delivery, no Asaas checkout needed.",
     packagesPremiumNote:
       "Every package grants Premium for 30 days (non-stacking — buying more than one package in a month does not extend the duration). Benefits: 2x XP, 2x Drop, 2x Mastery, Auto Loot.",
+    beginnerTitle: "Beginner [Free]",
+    beginnerHint: "Free welcome package — 20M Dalant, 4x Gold Point Pill, 1x Cash Potion 5,000 and 1x Premium (7 Days). Claimable once per account.",
+    beginnerClaim: "Claim",
     character: "Selected character",
     level: "level",
     noChars: "No character found on this account — log in-game to create your first one.",
@@ -794,6 +800,20 @@ export default function GameCpPortal({
             </label>
           )}
           {topupError && <p className="store-error">{topupError}</p>}
+          <div className="gamecp-beginner-banner">
+            <div>
+              <strong>{t.beginnerTitle}</strong>
+              <p>{t.beginnerHint}</p>
+            </div>
+            <button
+              type="button"
+              className="gamecp-topup-card-buy"
+              disabled={loading}
+              onClick={() => handleBuyPackage("beginner_free")}
+            >
+              {t.beginnerClaim}
+            </button>
+          </div>
           <p className="gamecp-topup-premium-note">{t.packagesPremiumNote}</p>
           <div className="gamecp-topup-packages">
             {TOPUP_TIERS.map(({ amountBrl, name, color }) => {

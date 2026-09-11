@@ -1,4 +1,4 @@
-import { eq, sql, inArray, desc } from "drizzle-orm";
+import { eq, sql, inArray, desc, and } from "drizzle-orm";
 import { getDb } from "./index";
 import { donationPackages, donationPackageItems, walletLedger, walletBalances, orders, deliveries } from "./schema";
 import { siteConfig } from "../app/config/site";
@@ -31,6 +31,8 @@ async function ensureStoreSchema(db: Db) {
   // sem bônus) — DISTINTO de cash_amount (Cash real entregue no jogo, com
   // bônus). Nunca usar cash_amount como preço — bug real já corrigido aqui.
   await db.execute(sql`ALTER TABLE donation_packages ADD COLUMN IF NOT EXISTS gp_price INTEGER NOT NULL DEFAULT 0`);
+  await db.execute(sql`ALTER TABLE donation_packages ADD COLUMN IF NOT EXISTS dalant_reward INTEGER NOT NULL DEFAULT 0`);
+  await db.execute(sql`ALTER TABLE donation_packages ADD COLUMN IF NOT EXISTS once_per_account BOOLEAN NOT NULL DEFAULT false`);
   await db.execute(sql`CREATE TABLE IF NOT EXISTS donation_package_items (
     id SERIAL PRIMARY KEY,
     package_id INTEGER NOT NULL REFERENCES donation_packages(id) ON DELETE CASCADE,
@@ -99,7 +101,17 @@ async function ensureStoreSchema(db: Db) {
 // Thorns Generator) não dá pra vender no Cash Shop nativo — por isso o
 // pacote continua carregando item além do Cash.
 type PackageSeedItem = { itemCode: string; amount: number; label: string };
-const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice: number; cashAmount: number; items: PackageSeedItem[] }[] = [
+type PackageSeedEntry = {
+  key: string;
+  name: string;
+  priceBrlCents: number;
+  gpPrice: number;
+  cashAmount: number;
+  items: PackageSeedItem[];
+  dalantReward?: number;
+  oncePerAccount?: boolean;
+};
+const PACKAGE_SEED: PackageSeedEntry[] = [
   {
     key: "pack_50",
     name: "Pacote Season Setembro 01",
@@ -235,6 +247,23 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
       { itemCode: "ircco37", amount: 1, label: "Thorns Generator [Cash]" },
     ],
   },
+  // Pacote de boas-vindas, grátis, uma vez só por conta (oncePerAccount, ver purchasePackage).
+  // ipglp01 dá de verdade 500 Gold Point por uso (confirmado via [Description] real do item, não
+  // 1000 como pedido originalmente) - usei o item real mesmo assim, sinalizado ao usuário.
+  {
+    key: "beginner_free",
+    name: "Beginner [Free]",
+    priceBrlCents: 0,
+    gpPrice: 0,
+    cashAmount: 0,
+    dalantReward: 20_000_000,
+    oncePerAccount: true,
+    items: [
+      { itemCode: "ipglp01", amount: 4, label: "Gold Point Pill" },
+      { itemCode: "ipcsh04", amount: 1, label: "Cash Potion 5.000" },
+      { itemCode: "irgn0027", amount: 1, label: "Premium (7 Dias)" },
+    ],
+  },
 ];
 
 async function seedPackages(db: Db) {
@@ -260,7 +289,9 @@ async function seedPackages(db: Db) {
         row.visibleToPlayers !== true ||
         row.name !== p.name ||
         row.gpPrice !== p.gpPrice ||
-        row.cashAmount !== p.cashAmount
+        row.cashAmount !== p.cashAmount ||
+        row.dalantReward !== (p.dalantReward ?? 0) ||
+        row.oncePerAccount !== (p.oncePerAccount ?? false)
       )
         return false;
       const rowItems = existingItems.filter((i) => i.packageId === row.id);
@@ -307,6 +338,8 @@ async function seedPackages(db: Db) {
               stockTotal: 100,
               stockRemaining: 100,
               visibleToPlayers: true,
+              dalantReward: p.dalantReward ?? 0,
+              oncePerAccount: p.oncePerAccount ?? false,
             })
             .returning({ id: donationPackages.id })
         )[0].id;
@@ -321,6 +354,8 @@ async function seedPackages(db: Db) {
           cashAmount: p.cashAmount,
           itemCode,
           visibleToPlayers: true,
+          dalantReward: p.dalantReward ?? 0,
+          oncePerAccount: p.oncePerAccount ?? false,
         })
         .where(eq(donationPackages.id, packageId));
       await db.delete(donationPackageItems).where(eq(donationPackageItems.packageId, packageId));
@@ -467,6 +502,7 @@ export type PurchaseResult =
       accountUsername: string;
       cashAmount: number;
       items: { itemCode: string; amount: number }[];
+      dalantReward: number;
     }
   | { ok: false; error: string };
 
@@ -496,6 +532,13 @@ export async function purchasePackage(
     if (!pkg) return { ok: false, error: "Pacote não encontrado." };
     if (!pkg.visibleToPlayers && !allowHidden) return { ok: false, error: "Pacote não disponível." };
     if (pkg.stockRemaining < quantity) return { ok: false, error: "Sem estoque suficiente desse pacote." };
+    if (pkg.oncePerAccount) {
+      const [already] = await tx
+        .select({ id: orders.id })
+        .from(orders)
+        .where(and(eq(orders.accountUsername, accountUsername), eq(orders.packageId, pkg.id)));
+      if (already) return { ok: false, error: "Você já resgatou este pacote nessa conta." };
+    }
 
     const totalGpCost = pkg.gpPrice * quantity;
     const totalCashReward = pkg.cashAmount * quantity;
@@ -560,6 +603,7 @@ export async function purchasePackage(
       accountUsername,
       cashAmount: totalCashReward,
       items: items.map((i) => ({ itemCode: i.itemCode, amount: i.amount * quantity })),
+      dalantReward: pkg.dalantReward * quantity,
     };
   });
 }

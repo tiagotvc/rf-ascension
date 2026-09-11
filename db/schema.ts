@@ -68,6 +68,13 @@ export const donationPackages = pgTable("donation_packages", {
   stockTotal: integer("stock_total").notNull(),
   stockRemaining: integer("stock_remaining").notNull(),
   visibleToPlayers: boolean("visible_to_players").notNull().default(false),
+  // Dalant creditado direto no personagem via exchangeCurrency (síncrono, na rota de compra) — não
+  // passa pela fila de entrega de item (deliverPackage/AccountBridge não sabe creditar Dalant, só
+  // item+Cash; ver app/api/store/purchase/route.ts).
+  dalantReward: integer("dalant_reward").notNull().default(0),
+  // Pacote que só pode ser resgatado uma vez por conta (ex.: pacote de boas-vindas) — checado em
+  // purchasePackage via um SELECT em orders por accountUsername+packageId.
+  oncePerAccount: boolean("once_per_account").notNull().default(false),
   createdAt: timestamp(),
 });
 

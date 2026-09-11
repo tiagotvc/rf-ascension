@@ -1,7 +1,7 @@
 import { getPlayerSession } from "../../../lib/player-auth";
 import { getSessionUser } from "../../../lib/auth";
 import { isStaffEmail } from "../../../../db/forum";
-import { listCharacters, deliverPackage } from "../../../lib/game-account";
+import { listCharacters, deliverPackage, exchangeCurrency } from "../../../lib/game-account";
 import { purchasePackage, recordDeliveryAttempt } from "../../../../db/store";
 import { checkRateLimit } from "../../../lib/rate-limit";
 
@@ -59,5 +59,11 @@ export async function POST(request: Request) {
   const method: "bag" | "mail" = delivery.itemStatuses.includes("mail") ? "mail" : "bag";
   await recordDeliveryAttempt(result.deliveryId, delivery.ok ? { delivered: true, method } : { delivered: false });
 
-  return Response.json({ ok: true, deliveryId: result.deliveryId, delivered: delivery.ok });
+  // Dalant não passa pela fila de entrega de item (AccountBridge não sabe creditar Dalant nesse
+  // endpoint, só item+Cash) — credita síncrono aqui, mesmo caminho real que /api/store/exchange já
+  // usa. A compra em si já valeu (GP debitado, estoque decrementado) mesmo se isso falhar; sem fila
+  // de retry pro Dalant hoje, então só reporta a falha na resposta.
+  const dalantCredited = result.dalantReward > 0 ? (await exchangeCurrency(result.characterSerial, result.accountUsername, "dalant", result.dalantReward)).ok : true;
+
+  return Response.json({ ok: true, deliveryId: result.deliveryId, delivered: delivery.ok, dalantCredited });
 }
