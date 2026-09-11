@@ -716,11 +716,12 @@ export type RecentOrder = {
 // Painel admin (/admin/orders) — quem comprou o quê, pago ou pendente. `amountBrlCents` só existe em
 // orders kind='topup' (recarga real via Asaas); `gpPrice`/`packageName` só em kind='package_purchase'
 // (pacote pago com GP já na carteira, ver purchasePackage) - junta com donation_packages pra achar
-// esses dois campos, já que orders só guarda o packageId.
-export async function listRecentOrders(limit: number): Promise<RecentOrder[]> {
+// esses dois campos, já que orders só guarda o packageId. `accountUsername` opcional filtra pra uma
+// conta só - usado pela aba "Minhas compras" do próprio jogador (nunca vê pedido de outra conta).
+export async function listRecentOrders(limit: number, accountUsername?: string): Promise<RecentOrder[]> {
   const db = await getDb();
   await ensureStoreSchema(db);
-  const rows = await db
+  const query = db
     .select({
       id: orders.id,
       kind: orders.kind,
@@ -734,8 +735,9 @@ export async function listRecentOrders(limit: number): Promise<RecentOrder[]> {
       packageName: donationPackages.name,
     })
     .from(orders)
-    .leftJoin(donationPackages, eq(orders.packageId, donationPackages.id))
-    .orderBy(desc(orders.id))
-    .limit(limit);
+    .leftJoin(donationPackages, eq(orders.packageId, donationPackages.id));
+  const rows = accountUsername
+    ? await query.where(eq(orders.accountUsername, accountUsername)).orderBy(desc(orders.id)).limit(limit)
+    : await query.orderBy(desc(orders.id)).limit(limit);
   return rows;
 }

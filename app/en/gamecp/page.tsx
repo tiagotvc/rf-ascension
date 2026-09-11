@@ -2,7 +2,7 @@ import GameCpPortal from "../../gamecp/GameCpPortal";
 import HeaderAuth from "../../HeaderAuth";
 import { getPlayerSession } from "../../lib/player-auth";
 import { listCharacters } from "../../lib/game-account";
-import { getWalletBalance, listDonationPackages } from "../../../db/store";
+import { getWalletBalance, listDonationPackages, listRecentOrders } from "../../../db/store";
 import { getPublicPotionCatalog } from "../../../db/potion-shop";
 import { extractTopupBonusItems } from "../../lib/topup-bonus";
 
@@ -25,9 +25,13 @@ export default async function EnglishGameCp() {
     getPlayerSession(),
   ]);
   const topupBonusItems = extractTopupBonusItems(allPackages);
-  const [walletBalance, characters] = playerSession
-    ? await Promise.all([getWalletBalance(playerSession.username), listCharacters(playerSession.username)])
-    : [null, []];
+  const [walletBalance, characters, orders] = playerSession
+    ? await Promise.all([
+        getWalletBalance(playerSession.username),
+        listCharacters(playerSession.username),
+        listRecentOrders(50, playerSession.username),
+      ])
+    : [null, [], []];
 
   const header = (
     <header className="site-header forum-nav">
@@ -93,6 +97,7 @@ export default async function EnglishGameCp() {
           walletBalance={walletBalance}
           characters={characters.map((c) => ({ serial: c.serial, name: c.name, level: c.level, dalant: c.dalant, goldPoint: c.goldPoint }))}
           topupBonusItems={topupBonusItems}
+          orders={orders}
           locale="en"
         />
       </section>

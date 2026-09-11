@@ -750,6 +750,15 @@
 .gamecp-char-selected{margin:18px 0 0;color:#707b87;font-size:12px}
 .gamecp-char-selected b{color:var(--gold)}
 
+.gamecp-orders-table{margin-top:8px;overflow-x:auto}
+.gamecp-orders-row{display:grid;grid-template-columns:150px 100px 1fr 110px;gap:14px;align-items:center;padding:13px 16px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(13,17,23,.5);font-size:11px;color:#c8ced5;white-space:nowrap}
+.gamecp-orders-row.gamecp-orders-head{background:rgba(13,17,23,.85);color:#707b87;font:700 8px var(--font-geist-mono);letter-spacing:.06em;text-transform:uppercase}
+.gamecp-orders-status{padding:3px 9px;width:fit-content;font:700 8px var(--font-geist-mono);text-transform:uppercase;letter-spacing:.04em}
+.gamecp-orders-status-paid{color:#59e7a4;background:rgba(89,231,164,.1)}
+.gamecp-orders-status-pending{color:#e9b960;background:rgba(233,185,96,.1)}
+.gamecp-orders-status-failed,.gamecp-orders-status-refunded{color:#ff6b6b;background:rgba(255,107,107,.1)}
+@media(max-width:640px){.gamecp-orders-row{grid-template-columns:1fr 1fr;row-gap:6px}}
+
 @media(max-width:900px){.gamecp-topbar{grid-template-columns:1fr;justify-items:start}.gamecp-topbar-actions{justify-self:start}.gamecp-subnav{width:100%}.gamecp-subnav button{flex:1}}
 @media(max-width:640px){.gamecp-potion-row{grid-template-columns:36px 1fr;row-gap:8px}.gamecp-potion-price{grid-column:2}.gamecp-qty{grid-column:1/-1;justify-self:start}.gamecp-potion-buy{grid-column:1/-1;width:100%}.gamecp-panel{padding:22px 18px}}
 

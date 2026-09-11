@@ -7,6 +7,16 @@ export type StoreCharacter = { serial: number; name: string; level: number; dala
 
 export type TopupBonusItem = { itemCode: string; amount: number; label: string };
 
+export type PlayerOrder = {
+  id: number;
+  kind: string;
+  amountBrlCents: number | null;
+  gpPrice: number | null;
+  packageName: string | null;
+  status: string;
+  createdAt: string | null;
+};
+
 const MAX_PURCHASE_QUANTITY = 20;
 const GP_PER_REAL = 1000;
 const TOPUP_TIERS = [
@@ -317,6 +327,7 @@ const COPY = {
     tabShop: "Loja",
     tabTopup: "Recarregar",
     tabPackages: "Pacotes",
+    tabOrders: "Minhas Compras",
     tabChar: "Personagem",
     topupTitle: "Recarregar Game CP",
     topupHint: "Pagamento via Asaas (PIX, cartão, Mercado Pago). R$ 1 = 1.000 Game CP.",
@@ -341,6 +352,19 @@ const COPY = {
     genericTopupError: "Erro ao criar cobrança.",
     genericPurchaseError: "Erro na compra.",
     delivered: "Compra entregue! Confira a bag (ou o correio in-game) do personagem escolhido.",
+    ordersTitle: "Minhas Compras",
+    ordersHint: "Histórico de recargas e pacotes comprados nessa conta.",
+    noOrders: "Nenhuma compra ainda.",
+    orderDate: "Data",
+    orderType: "Tipo",
+    orderValue: "Valor",
+    orderStatus: "Status",
+    orderKindTopup: "Recarga",
+    orderKindPackage: "Pacote",
+    orderStatusPaid: "Pago",
+    orderStatusPending: "Pendente",
+    orderStatusFailed: "Falhou",
+    orderStatusRefunded: "Estornado",
   },
   en: {
     createTab: "Create account",
@@ -358,6 +382,7 @@ const COPY = {
     tabShop: "Shop",
     tabTopup: "Top up",
     tabPackages: "Packages",
+    tabOrders: "My Purchases",
     tabChar: "Character",
     topupTitle: "Top up Game CP",
     topupHint: "Payment via Asaas (PIX, card, Mercado Pago). R$ 1 = 1,000 Game CP.",
@@ -382,6 +407,19 @@ const COPY = {
     genericTopupError: "Error creating charge.",
     genericPurchaseError: "Purchase error.",
     delivered: "Purchase delivered! Check the bag (or in-game mail) of the character you chose.",
+    ordersTitle: "My Purchases",
+    ordersHint: "Top-up and package purchase history for this account.",
+    noOrders: "No purchases yet.",
+    orderDate: "Date",
+    orderType: "Type",
+    orderValue: "Value",
+    orderStatus: "Status",
+    orderKindTopup: "Top-up",
+    orderKindPackage: "Package",
+    orderStatusPaid: "Paid",
+    orderStatusPending: "Pending",
+    orderStatusFailed: "Failed",
+    orderStatusRefunded: "Refunded",
   },
 };
 
@@ -391,6 +429,7 @@ export default function GameCpPortal({
   walletBalance,
   characters,
   topupBonusItems = {},
+  orders = [],
   locale = "pt",
 }: {
   potions: PublicPotion[];
@@ -398,6 +437,7 @@ export default function GameCpPortal({
   walletBalance: number | null;
   characters: StoreCharacter[];
   topupBonusItems?: Record<number, TopupBonusItem[]>;
+  orders?: PlayerOrder[];
   locale?: "pt" | "en";
 }) {
   const t = COPY[locale];
@@ -411,7 +451,7 @@ export default function GameCpPortal({
   const [topupError, setTopupError] = useState<string | null>(null);
   const [selectedCharacter, setSelectedCharacter] = useState<number | "">(characters[0]?.serial ?? "");
   const [purchaseMessage, setPurchaseMessage] = useState<string | null>(null);
-  const [dashTab, setDashTab] = useState<"shop" | "topup" | "packages" | "character">("shop");
+  const [dashTab, setDashTab] = useState<"shop" | "topup" | "packages" | "orders" | "character">("shop");
   const [quantities, setQuantities] = useState<Record<string, number>>({});
 
   const potionGroups: { category: string; items: PublicPotion[] }[] = [];
@@ -621,6 +661,9 @@ export default function GameCpPortal({
         </button>
         <button className={dashTab === "packages" ? "active" : ""} onClick={() => setDashTab("packages")} type="button">
           {t.tabPackages}
+        </button>
+        <button className={dashTab === "orders" ? "active" : ""} onClick={() => setDashTab("orders")} type="button">
+          {t.tabOrders}
         </button>
         <button className={dashTab === "character" ? "active" : ""} onClick={() => setDashTab("character")} type="button">
           {t.tabChar}
@@ -873,6 +916,51 @@ export default function GameCpPortal({
               );
             })}
           </div>
+        </div>
+      )}
+
+      {dashTab === "orders" && (
+        <div className="gamecp-panel">
+          <div className="gamecp-panel-head">
+            <h2>{t.ordersTitle}</h2>
+            <p>{t.ordersHint}</p>
+          </div>
+          {orders.length === 0 ? (
+            <p className="store-error">{t.noOrders}</p>
+          ) : (
+            <div className="gamecp-orders-table">
+              <div className="gamecp-orders-row gamecp-orders-head">
+                <span>{t.orderDate}</span>
+                <span>{t.orderType}</span>
+                <span>{t.orderValue}</span>
+                <span>{t.orderStatus}</span>
+              </div>
+              {orders.map((o) => {
+                const statusKey =
+                  o.status === "paid"
+                    ? "orderStatusPaid"
+                    : o.status === "failed"
+                      ? "orderStatusFailed"
+                      : o.status === "refunded"
+                        ? "orderStatusRefunded"
+                        : "orderStatusPending";
+                return (
+                  <div className="gamecp-orders-row" key={o.id}>
+                    <span>{o.createdAt ? new Date(o.createdAt).toLocaleString(locale === "en" ? "en-US" : "pt-BR", { dateStyle: "short", timeStyle: "short" }) : "—"}</span>
+                    <span>{o.kind === "topup" ? t.orderKindTopup : t.orderKindPackage}</span>
+                    <span>
+                      {o.kind === "topup"
+                        ? `R$ ${((o.amountBrlCents ?? 0) / 100).toLocaleString(numberLocale, { minimumFractionDigits: 2 })}`
+                        : o.gpPrice !== null
+                          ? `${o.gpPrice.toLocaleString(numberLocale)} ${t.gp}${o.packageName ? ` (${o.packageName})` : ""}`
+                          : "—"}
+                    </span>
+                    <span className={`gamecp-orders-status gamecp-orders-status-${o.status}`}>{t[statusKey]}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
