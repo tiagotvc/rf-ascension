@@ -107,7 +107,7 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
     gpPrice: 50000,
     cashAmount: 55000,
     items: [
-      { itemCode: "irgn0029", amount: 1, label: "Jade Premium (30 Dias)" },
+      { itemCode: "irgn0029", amount: 1, label: "Premium (30 Dias)" },
       { itemCode: "irchm01", amount: 1, label: "Wrapping Charm" },
       { itemCode: "ipupr01", amount: 1, label: "Upgrade Protection Potion" },
       { itemCode: "iwspu10", amount: 1, label: "Speed Knife Tier 1" },
@@ -122,7 +122,7 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
     gpPrice: 150000,
     cashAmount: 170000,
     items: [
-      { itemCode: "irgn0029", amount: 1, label: "Jade Premium (30 Dias)" },
+      { itemCode: "irgn0029", amount: 1, label: "Premium (30 Dias)" },
       { itemCode: "irchm02", amount: 1, label: "Trading Charm" },
       { itemCode: "iwspu11", amount: 1, label: "Speed Knife Tier 2" },
       { itemCode: "ipupr01", amount: 3, label: "Upgrade Protection Potion" },
@@ -139,7 +139,7 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
     gpPrice: 250000,
     cashAmount: 320000,
     items: [
-      { itemCode: "irgn0029", amount: 1, label: "Jade Premium (30 Dias)" },
+      { itemCode: "irgn0029", amount: 1, label: "Premium (30 Dias)" },
       { itemCode: "iwspu12", amount: 1, label: "Speed Knife Tier 3" },
       { itemCode: "irchm63", amount: 1, label: "All in One Charm" },
       { itemCode: "ipupr01", amount: 5, label: "Upgrade Protection Potion" },
@@ -168,6 +168,7 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
       { itemCode: "irchm63", amount: 1, label: "5 in One Charm [Cash]" },
       { itemCode: "irunv04", amount: 50, label: "Evolution Stone [Highest]" },
       { itemCode: "irrc01", amount: 5, label: "Reroll Coupon" },
+      { itemCode: "irgn0029", amount: 1, label: "Premium (30 Dias)" },
     ],
   },
   {
@@ -185,6 +186,7 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
       { itemCode: "irchm63", amount: 1, label: "5 in One Charm [Cash]" },
       { itemCode: "irunv04", amount: 99, label: "Evolution Stone [Highest]" },
       { itemCode: "irrc01", amount: 10, label: "Reroll Coupon" },
+      { itemCode: "irgn0029", amount: 1, label: "Premium (30 Dias)" },
     ],
   },
   {
@@ -205,6 +207,8 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
       { itemCode: "ipfhp01", amount: 20, label: "Full Recovery Potion" },
       { itemCode: "ipcur01", amount: 20, label: "Neutralizing Potion" },
       { itemCode: "ipapo01", amount: 20, label: "Potion of Apocalypse" },
+      { itemCode: "irgn0029", amount: 1, label: "Premium (30 Dias)" },
+      { itemCode: "ircco37", amount: 1, label: "Thorns Generator [Cash]" },
     ],
   },
   {
@@ -225,6 +229,8 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
       { itemCode: "ipfhp01", amount: 40, label: "Full Recovery Potion" },
       { itemCode: "ipcur01", amount: 40, label: "Neutralizing Potion" },
       { itemCode: "ipapo01", amount: 40, label: "Potion of Apocalypse" },
+      { itemCode: "irgn0029", amount: 1, label: "Premium (30 Dias)" },
+      { itemCode: "ircco37", amount: 1, label: "Thorns Generator [Cash]" },
     ],
   },
 ];

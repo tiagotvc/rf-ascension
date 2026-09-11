@@ -36,6 +36,10 @@ const DONATE_ITEM_ICONS: Record<string, string> = {
   irchm63: "/game-data/resources/icons/irchm63.png",
   irunv04: "/game-data/resources/icons/irunv04.png",
   irrc01: "/game-data/resources/icons/irrc01.png",
+  // irgn0029: ícone extraído bate visualmente IGUAL ao do irchm63 — provável mesmo problema de
+  // página (ver aviso), confiança baixa nesse ícone específico até confirmar.
+  irgn0029: "/game-data/resources/icons/irgn0029.png",
+  ircco37: "/game-data/resources/icons/ircco37.png",
 };
 
 type DonateItemTooltip = {
@@ -218,6 +222,43 @@ const DONATE_ITEM_TOOLTIPS: Record<string, DonateItemTooltip> = {
     useStatus: "Always",
     description:
       "Used with Item Combine to reroll an equipped item's affixes. Any affix slots locked in the Affix Reroll window are protected and kept unchanged.",
+  },
+  // irgn0029: o texto de [Description] real (via NDItem.edf) está DESATUALIZADO — fala 22%/24%/20hp/
+  // 15%/15%, mas os EffectData[5] atuais (fonte que o jogo de fato aplica) são 25%/25%/50%/Move Speed/
+  // Auto Loot. Usei os valores atuais (EffectData), não o texto velho — mesmo tipo de divergência já
+  // achada antes no Upgrade Protection Potion (600s vs 120s).
+  irgn0029: {
+    name: "Premium (30 Dias)",
+    type: "Resource",
+    race: "All races",
+    target: "Self",
+    quantity: 99,
+    castDelay: "0.0secs",
+    specialEffects: [
+      "PvE Attack Bonus (normal monsters) +25%",
+      "PvE Defense Bonus (normal monsters) +25%",
+      "Experience Gain Rate +50%",
+      "Increased Move Speed",
+      "Auto Loot enabled",
+    ],
+    market: "Impossibility",
+    drop: "Impossibility",
+    useStatus: "Always",
+    description:
+      "Grants +25% PvE attack and +25% PvE defense against normal monsters, +50% Experience Gain Rate, increased Move Speed and Auto Loot, active for 30 days. Buying more than one does not stack the duration — using another one while still active resets to 30 days, it does not add up.",
+  },
+  ircco37: {
+    name: "Thorns Generator [Cash]",
+    type: "Resource",
+    race: "All races",
+    target: "Self",
+    quantity: 99,
+    castDelay: "0.0secs",
+    specialEffects: ["Reflect Chance +15%", "Reflect Value +10%"],
+    market: "Impossibility",
+    drop: "Impossibility",
+    useStatus: "Always",
+    description: "Increase chance of reflecting a damage in 15%. Increase amount of damage reflected in 10%.",
   },
 };
 
