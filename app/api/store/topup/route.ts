@@ -4,7 +4,7 @@ import { createTopupOrder, setOrderAsaasReference } from "../../../../db/store";
 import { createTopupCheckout } from "../../../lib/asaas";
 import { checkRateLimit } from "../../../lib/rate-limit";
 
-const MIN_BRL_CENTS = 1000; // R$10
+const MIN_BRL_CENTS = 500; // R$5
 const MAX_BRL_CENTS = 100000; // R$1000
 
 export async function POST(request: Request) {
