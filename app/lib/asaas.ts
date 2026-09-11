@@ -58,7 +58,7 @@ export async function createTopupCheckout(params: {
         },
         items: [
           {
-            name: "Recarga de saldo — RF Echelon",
+            name: "Recarga RF Echelon", // API da Asaas limita a 30 chars
             description: `Pedido #${params.orderId}`,
             quantity: 1,
             value: amountBrl,
@@ -72,7 +72,11 @@ export async function createTopupCheckout(params: {
 
   const data = (await res.json().catch(() => null)) as Record<string, unknown> | null;
   if (!res.ok || !data) {
-    return { ok: false, error: "Erro inesperado ao criar a cobrança." };
+    // TODO(temporário): expõe o detalhe real da resposta da Asaas pra diagnosticar o primeiro
+    // teste ao vivo — trocar por uma mensagem genérica assim que a integração estiver confirmada
+    // funcionando, não faz sentido vazar erro de API externa pro jogador pra sempre.
+    const detail = data ? JSON.stringify(data).slice(0, 400) : `sem corpo JSON (HTTP ${res.status})`;
+    return { ok: false, error: `Erro ao criar a cobrança — HTTP ${res.status}: ${detail}` };
   }
 
   const checkoutUrl = checkoutUrlFromResponse(data);
