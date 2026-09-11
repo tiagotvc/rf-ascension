@@ -38,7 +38,11 @@ export async function POST(request: Request) {
   // avulsa que venha a existir, mas o caminho `checkout` é o que de fato importa aqui.
   const checkoutId = payload.checkout?.id;
   if (checkoutId) {
+    // TODO(temporário): log de diagnóstico do primeiro teste ao vivo, remover depois de confirmar
+    // que o crédito funciona ponta a ponta.
+    console.log("[asaas-webhook] checkout event received", JSON.stringify(payload));
     const realCheckout = await fetchAsaasCheckout(checkoutId);
+    console.log("[asaas-webhook] fetchAsaasCheckout result", JSON.stringify(realCheckout));
     if (
       !realCheckout ||
       realCheckout.id !== checkoutId ||
@@ -46,13 +50,16 @@ export async function POST(request: Request) {
       !realCheckout.externalReference ||
       realCheckout.valueBrlCents === null
     ) {
+      console.log("[asaas-webhook] checkout validation failed, no-op");
       return Response.json({ ok: true });
     }
     const orderId = Number(realCheckout.externalReference);
     if (!Number.isInteger(orderId)) {
+      console.log("[asaas-webhook] externalReference is not an integer order id:", realCheckout.externalReference);
       return Response.json({ ok: true });
     }
-    await confirmTopupPayment(orderId, realCheckout.id, realCheckout.valueBrlCents);
+    const result = await confirmTopupPayment(orderId, realCheckout.id, realCheckout.valueBrlCents);
+    console.log("[asaas-webhook] confirmTopupPayment result", JSON.stringify(result), "orderId", orderId);
     return Response.json({ ok: true });
   }
 
