@@ -20,6 +20,7 @@ const TOPUP_TIERS = [
 // GP por volume. Bônus tem que bater com TOPUP_BONUS_PERCENT_BY_AMOUNT em db/store.ts (mesma tabela,
 // uma pra exibir aqui, outra pra creditar de verdade no confirmTopupPayment).
 const TOPUP_GP_TIERS = [
+  { amountBrl: 5, bonusPercent: 0 },
   { amountBrl: 50, bonusPercent: 0 },
   { amountBrl: 120, bonusPercent: 5 },
   { amountBrl: 250, bonusPercent: 10 },
