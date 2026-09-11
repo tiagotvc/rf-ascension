@@ -19,10 +19,13 @@ const TOPUP_TIERS = [
   { amountBrl: 400, name: "Ultimate", color: "#ff5c5c" },
 ] as const;
 
-// Ícone real (recortado do jogo, ver public/assets/donnate/<item>/) pros itens de bônus da
-// Recarregar — mesma convenção já usada pro Thorns Generator.
+// Ícone real pros itens de bônus da Recarregar. ipupr01 é custom (recorte manual, ver
+// public/assets/donnate/); ipcal01/ipwhp01 já são poções nativas já exportadas pro catálogo da
+// Loja (public/game-data/potions/icons/) — reaproveita direto, sem duplicar arquivo.
 const DONATE_ITEM_ICONS: Record<string, string> = {
   ipupr01: "/assets/donnate/upgrade-potion/icon.png",
+  ipcal01: "/game-data/potions/icons/ipcal01.png",
+  ipwhp01: "/game-data/potions/icons/ipwhp01.png",
 };
 
 type DonateItemTooltip = {
@@ -55,6 +58,37 @@ const DONATE_ITEM_TOOLTIPS: Record<string, DonateItemTooltip> = {
     useStatus: "Always",
     description:
       "For 120 seconds after drinking this, every Item Upgrade attempt (Alter Durability Point / talic) you make is protected from total destruction. The talic can still fail, and a failed attempt can still reset the item's upgrade sockets back to empty - but the item itself will never be destroyed while the protection is active. Consumed on use, one use = one 120s window.",
+  },
+  // Race/Target/Cast Delay/Market/Drop conferidos byte-a-byte no PotionItem.dat real (bSell/
+  // bExchange/bGround/strCivil/TargetEff/fActDelay). Type e Use Status não têm offset confirmado
+  // pra esses dois ainda — mantidos como "Adrenaline"/"Always" pelo mesmo padrão do ipupr01, sem
+  // 100% de certeza (avisar se aparecer diferente no jogo).
+  ipcal01: {
+    name: "Summon Potion",
+    type: "Adrenaline",
+    race: "All races",
+    target: "Self",
+    quantity: 99,
+    castDelay: "10.0secs",
+    specialEffects: ["Summons a party member to your location"],
+    market: "Possibility",
+    drop: "Impossibility",
+    useStatus: "Always",
+    description:
+      "Potion to summon the desired character to your position. Only possible to use once, and if the character declines the offer the summon will not be made.",
+  },
+  ipwhp01: {
+    name: "Teleport Potion",
+    type: "Adrenaline",
+    race: "All races",
+    target: "Self",
+    quantity: 99,
+    castDelay: "10.0secs",
+    specialEffects: ["Teleports you to a party member's location"],
+    market: "Possibility",
+    drop: "Impossibility",
+    useStatus: "Always",
+    description: "Potion to teleport to the desired character's position. Only possible to use once.",
   },
 };
 

@@ -159,7 +159,11 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
     priceBrlCents: 0,
     gpPrice: 0,
     cashAmount: 0,
-    items: [{ itemCode: "ipupr01", amount: 1, label: "Upgrade Protection Potion" }],
+    items: [
+      { itemCode: "ipupr01", amount: 1, label: "Upgrade Protection Potion" },
+      { itemCode: "ipcal01", amount: 5, label: "Summon Potion" },
+      { itemCode: "ipwhp01", amount: 5, label: "Teleport Potion" },
+    ],
   },
   {
     key: "topup_bonus_120",
@@ -167,7 +171,11 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
     priceBrlCents: 0,
     gpPrice: 0,
     cashAmount: 0,
-    items: [{ itemCode: "ipupr01", amount: 2, label: "Upgrade Protection Potion" }],
+    items: [
+      { itemCode: "ipupr01", amount: 2, label: "Upgrade Protection Potion" },
+      { itemCode: "ipcal01", amount: 10, label: "Summon Potion" },
+      { itemCode: "ipwhp01", amount: 10, label: "Teleport Potion" },
+    ],
   },
   {
     key: "topup_bonus_250",
@@ -175,7 +183,11 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
     priceBrlCents: 0,
     gpPrice: 0,
     cashAmount: 0,
-    items: [{ itemCode: "ipupr01", amount: 3, label: "Upgrade Protection Potion" }],
+    items: [
+      { itemCode: "ipupr01", amount: 3, label: "Upgrade Protection Potion" },
+      { itemCode: "ipcal01", amount: 15, label: "Summon Potion" },
+      { itemCode: "ipwhp01", amount: 15, label: "Teleport Potion" },
+    ],
   },
   {
     key: "topup_bonus_400",
@@ -183,7 +195,11 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
     priceBrlCents: 0,
     gpPrice: 0,
     cashAmount: 0,
-    items: [{ itemCode: "ipupr01", amount: 5, label: "Upgrade Protection Potion" }],
+    items: [
+      { itemCode: "ipupr01", amount: 5, label: "Upgrade Protection Potion" },
+      { itemCode: "ipcal01", amount: 30, label: "Summon Potion" },
+      { itemCode: "ipwhp01", amount: 30, label: "Teleport Potion" },
+    ],
   },
 ];
 
