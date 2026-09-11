@@ -26,6 +26,8 @@ const DONATE_ITEM_ICONS: Record<string, string> = {
   ipupr01: "/assets/donnate/upgrade-potion/icon.png",
   ipcal01: "/game-data/potions/icons/ipcal01.png",
   ipwhp01: "/game-data/potions/icons/ipwhp01.png",
+  ipgld29: "/game-data/potions/icons/ipgld29.png",
+  ipcsb19: "/game-data/potions/icons/ipcsb19.png",
 };
 
 type DonateItemTooltip = {
@@ -89,6 +91,36 @@ const DONATE_ITEM_TOOLTIPS: Record<string, DonateItemTooltip> = {
     drop: "Impossibility",
     useStatus: "Always",
     description: "Potion to teleport to the desired character's position. Only possible to use once.",
+  },
+  // Campos brutos conferidos direto em PotionItem.dat.parsed.json (bSell/bExchange/bGround/
+  // strCivil/TargetEff/fActDelay). Use Status (nUseState) varia por item (0 aqui, 3 no ipcsb19,
+  // 1 nos anteriores) e não tem enum confirmado ainda — "Always" é o mesmo chute dos outros, sem
+  // certeza total.
+  ipgld29: {
+    name: "Gold Capsule+3000",
+    type: "Adrenaline",
+    race: "All races",
+    target: "Self",
+    quantity: 99,
+    castDelay: "0.0secs",
+    specialEffects: ["Grants 3000 Gold Point"],
+    market: "Impossibility",
+    drop: "Impossibility",
+    useStatus: "Always",
+    description: "Capsule from cutting cold. transfer to gold point when used.",
+  },
+  ipcsb19: {
+    name: "Quick Revival Potion",
+    type: "Adrenaline",
+    race: "All races",
+    target: "Self",
+    quantity: 99,
+    castDelay: "0.0secs",
+    specialEffects: ["Can use skill immediately after revival"],
+    market: "Possibility",
+    drop: "Impossibility",
+    useStatus: "Always",
+    description: "Can use skill as soon as revived",
   },
 };
 

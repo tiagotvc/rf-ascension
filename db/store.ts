@@ -163,6 +163,8 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
       { itemCode: "ipupr01", amount: 1, label: "Upgrade Protection Potion" },
       { itemCode: "ipcal01", amount: 5, label: "Summon Potion" },
       { itemCode: "ipwhp01", amount: 5, label: "Teleport Potion" },
+      { itemCode: "ipgld29", amount: 3, label: "Gold Capsule+3000" },
+      { itemCode: "ipcsb19", amount: 3, label: "Quick Revival Potion" },
     ],
   },
   {
@@ -175,6 +177,8 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
       { itemCode: "ipupr01", amount: 2, label: "Upgrade Protection Potion" },
       { itemCode: "ipcal01", amount: 10, label: "Summon Potion" },
       { itemCode: "ipwhp01", amount: 10, label: "Teleport Potion" },
+      { itemCode: "ipgld29", amount: 5, label: "Gold Capsule+3000" },
+      { itemCode: "ipcsb19", amount: 5, label: "Quick Revival Potion" },
     ],
   },
   {
@@ -187,6 +191,8 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
       { itemCode: "ipupr01", amount: 3, label: "Upgrade Protection Potion" },
       { itemCode: "ipcal01", amount: 15, label: "Summon Potion" },
       { itemCode: "ipwhp01", amount: 15, label: "Teleport Potion" },
+      { itemCode: "ipgld29", amount: 8, label: "Gold Capsule+3000" },
+      { itemCode: "ipcsb19", amount: 10, label: "Quick Revival Potion" },
     ],
   },
   {
@@ -199,6 +205,8 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
       { itemCode: "ipupr01", amount: 5, label: "Upgrade Protection Potion" },
       { itemCode: "ipcal01", amount: 30, label: "Summon Potion" },
       { itemCode: "ipwhp01", amount: 30, label: "Teleport Potion" },
+      { itemCode: "ipgld29", amount: 15, label: "Gold Capsule+3000" },
+      { itemCode: "ipcsb19", amount: 20, label: "Quick Revival Potion" },
     ],
   },
 ];
