@@ -35,6 +35,9 @@ export default async function AdminPotions() {
           <a className="active" href="/admin/potions">
             <i>⚗</i> Loja de poções <b>{catalog.length}</b>
           </a>
+          <a href="/admin/orders">
+            <i>◈</i> Pedidos
+          </a>
           <a href="/forum">
             <i>◫</i> Áreas do fórum
           </a>

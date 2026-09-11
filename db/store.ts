@@ -1,4 +1,4 @@
-import { eq, sql, inArray } from "drizzle-orm";
+import { eq, sql, inArray, desc } from "drizzle-orm";
 import { getDb } from "./index";
 import { donationPackages, donationPackageItems, walletLedger, walletBalances, orders, deliveries } from "./schema";
 import { siteConfig } from "../app/config/site";
@@ -698,4 +698,44 @@ export async function refundGp(accountUsername: string, gpAmount: number, reason
         set: { balanceCash: sql`${walletBalances.balanceCash} + ${gpAmount}`, updatedAt: new Date().toISOString() },
       });
   });
+}
+
+export type RecentOrder = {
+  id: number;
+  kind: string;
+  accountUsername: string;
+  characterName: string | null;
+  amountBrlCents: number | null;
+  gpPrice: number | null;
+  packageName: string | null;
+  status: string;
+  asaasPaymentId: string | null;
+  createdAt: string | null;
+};
+
+// Painel admin (/admin/orders) — quem comprou o quê, pago ou pendente. `amountBrlCents` só existe em
+// orders kind='topup' (recarga real via Asaas); `gpPrice`/`packageName` só em kind='package_purchase'
+// (pacote pago com GP já na carteira, ver purchasePackage) - junta com donation_packages pra achar
+// esses dois campos, já que orders só guarda o packageId.
+export async function listRecentOrders(limit: number): Promise<RecentOrder[]> {
+  const db = await getDb();
+  await ensureStoreSchema(db);
+  const rows = await db
+    .select({
+      id: orders.id,
+      kind: orders.kind,
+      accountUsername: orders.accountUsername,
+      characterName: orders.characterName,
+      amountBrlCents: orders.amountBrlCents,
+      status: orders.status,
+      asaasPaymentId: orders.asaasPaymentId,
+      createdAt: orders.createdAt,
+      gpPrice: donationPackages.gpPrice,
+      packageName: donationPackages.name,
+    })
+    .from(orders)
+    .leftJoin(donationPackages, eq(orders.packageId, donationPackages.id))
+    .orderBy(desc(orders.id))
+    .limit(limit);
+  return rows;
 }

@@ -772,3 +772,17 @@
 .potion-shop-admin-category:disabled{opacity:.35}
 .potion-shop-admin-price{width:70px;height:32px;padding:0 8px;border:1px solid #27323c;background:#080c11;color:#fff;font:10px var(--font-geist-mono)}
 .potion-shop-admin-price:disabled{opacity:.35}
+
+.admin-orders-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
+.admin-orders-summary>div{padding:18px 20px;border:1px solid #202a34;background:rgba(12,17,23,.8)}
+.admin-orders-summary strong{display:block;font-size:22px;color:#fff}
+.admin-orders-summary span{color:#707b87;font:7px var(--font-geist-mono);letter-spacing:.1em;text-transform:uppercase}
+.admin-orders-table{margin-top:24px;overflow-x:auto}
+.admin-orders-row{display:grid;grid-template-columns:130px 130px 120px 90px 190px 90px 1fr;gap:12px;align-items:center;padding:13px 15px;border-bottom:1px solid #1d2730;background:rgba(10,14,19,.55);font-size:10px;color:#c8ced5;white-space:nowrap}
+.admin-orders-row.admin-orders-head{background:rgba(10,14,19,.9);color:#707b87;font:700 8px var(--font-geist-mono);letter-spacing:.06em;text-transform:uppercase}
+.admin-orders-mono{font-family:var(--font-geist-mono);font-size:9px;color:#58636e;overflow:hidden;text-overflow:ellipsis}
+.admin-orders-status{padding:3px 8px;text-align:center;font:700 8px var(--font-geist-mono);text-transform:uppercase;letter-spacing:.04em}
+.admin-orders-status-paid{color:#59e7a4;background:rgba(89,231,164,.1)}
+.admin-orders-status-pending{color:#e9b960;background:rgba(233,185,96,.1)}
+.admin-orders-status-failed,.admin-orders-status-refunded{color:#ff6b6b;background:rgba(255,107,107,.1)}
+@media(max-width:1000px){.admin-orders-summary{grid-template-columns:1fr}}

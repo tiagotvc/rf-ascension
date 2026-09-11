@@ -21,6 +21,7 @@ export default async function Admin() {
           <a className="active" href="/admin"><i>✎</i> Criar post</a>
           <a href="#posts"><i>▤</i> Posts recentes <b>{recent.length}</b></a>
           <a href="/admin/potions"><i>⚗</i> Loja de poções</a>
+          <a href="/admin/orders"><i>◈</i> Pedidos</a>
           <a href="/forum"><i>◫</i> Áreas do fórum</a>
         </nav>
         <div className="admin-user">
