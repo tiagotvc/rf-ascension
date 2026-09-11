@@ -125,3 +125,52 @@ const CONFIRMED_STATUSES = new Set(["CONFIRMED", "RECEIVED", "RECEIVED_IN_CASH"]
 export function isAsaasPaymentConfirmed(status: string): boolean {
   return CONFIRMED_STATUSES.has(status);
 }
+
+export type AsaasCheckoutStatus = { id: string; status: string; externalReference: string | null; valueBrlCents: number | null };
+
+// Rebusca o CHECKOUT direto na API — mesmo motivo do fetchAsaasPayment (nunca confiar no corpo do
+// webhook). O evento real que a Asaas manda quando um checkout é pago é CHECKOUT_PAID, com um objeto
+// `checkout` no payload (não `payment` — checkout e cobrança avulsa são recursos diferentes na Asaas).
+// Valor pago vem do próprio campo `value` do checkout se existir, senão soma `items[].value *
+// quantity` (formato que a criação do checkout ecoa de volta, ver createTopupCheckout).
+export async function fetchAsaasCheckout(checkoutId: string): Promise<AsaasCheckoutStatus | null> {
+  const config = asaasConfig();
+  if (!config) return null;
+  const { baseUrl, apiKey } = config;
+
+  let res: Response;
+  try {
+    res = await fetch(`${baseUrl}/checkouts/${encodeURIComponent(checkoutId)}`, {
+      headers: { access_token: apiKey },
+    });
+  } catch {
+    return null;
+  }
+
+  if (!res.ok) return null;
+  const data = (await res.json().catch(() => null)) as Record<string, unknown> | null;
+  if (!data || typeof data.id !== "string" || typeof data.status !== "string") return null;
+
+  let valueBrlCents: number | null = null;
+  if (typeof data.value === "number") {
+    valueBrlCents = Math.round(data.value * 100);
+  } else if (Array.isArray(data.items)) {
+    const total = (data.items as Record<string, unknown>[]).reduce((sum, item) => {
+      const value = typeof item.value === "number" ? item.value : 0;
+      const quantity = typeof item.quantity === "number" ? item.quantity : 1;
+      return sum + value * quantity;
+    }, 0);
+    valueBrlCents = total > 0 ? Math.round(total * 100) : null;
+  }
+
+  return {
+    id: data.id,
+    status: data.status,
+    externalReference: typeof data.externalReference === "string" ? data.externalReference : null,
+    valueBrlCents,
+  };
+}
+
+export function isAsaasCheckoutPaid(status: string): boolean {
+  return status === "PAID";
+}
