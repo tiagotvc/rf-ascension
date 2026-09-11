@@ -1,7 +1,7 @@
 import GameCpPortal from "./GameCpPortal";
 import HeaderAuth from "../HeaderAuth";
 import { getPlayerSession } from "../lib/player-auth";
-import { listCharacters, getGameCash } from "../lib/game-account";
+import { listCharacters } from "../lib/game-account";
 import { getWalletBalance, listDonationPackages } from "../../db/store";
 import { getPublicPotionCatalog } from "../../db/potion-shop";
 import { extractTopupBonusItems } from "../lib/topup-bonus";
@@ -25,9 +25,9 @@ export default async function GameCp() {
     getPlayerSession(),
   ]);
   const topupBonusItems = extractTopupBonusItems(allPackages);
-  const [walletBalance, characters, gameCash] = playerSession
-    ? await Promise.all([getWalletBalance(playerSession.username), listCharacters(playerSession.username), getGameCash(playerSession.username)])
-    : [null, [], null];
+  const [walletBalance, characters] = playerSession
+    ? await Promise.all([getWalletBalance(playerSession.username), listCharacters(playerSession.username)])
+    : [null, []];
 
   const header = (
     <header className="site-header forum-nav">
@@ -92,7 +92,6 @@ export default async function GameCp() {
           loggedInUsername={playerSession.username}
           walletBalance={walletBalance}
           characters={characters.map((c) => ({ serial: c.serial, name: c.name, level: c.level, dalant: c.dalant, goldPoint: c.goldPoint }))}
-          gameCash={gameCash}
           topupBonusItems={topupBonusItems}
         />
       </section>

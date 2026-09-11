@@ -7,9 +7,6 @@ export type StoreCharacter = { serial: number; name: string; level: number; dala
 
 export type TopupBonusItem = { itemCode: string; amount: number; label: string };
 
-const EXCHANGE_RATES = { cash: 1, dalant: 1_000_000, goldpoint: 25 } as const;
-type ExchangeCurrencyKey = keyof typeof EXCHANGE_RATES;
-
 const MAX_PURCHASE_QUANTITY = 20;
 const GP_PER_REAL = 1000;
 const TOPUP_TIERS = [
@@ -282,6 +279,7 @@ const COPY = {
     tabChar: "Personagem",
     topupTitle: "Recarregar Game CP",
     topupHint: "Pagamento via Asaas (PIX, cartão, Mercado Pago). R$ 1 = 1.000 Game CP.",
+    packagesHint: "Pague com o Game CP que você já tem — entrega automática, sem passar pelo Asaas.",
     packagesPremiumNote:
       "Todos os pacotes dão Premium por 30 dias (não acumula — comprar mais de um pacote no mês não estende a duração). Vantagens: 2x mais XP, 2x mais Drop, 2x mais Mastery, Auto Loot.",
     character: "Personagem selecionado",
@@ -302,19 +300,6 @@ const COPY = {
     genericTopupError: "Erro ao criar cobrança.",
     genericPurchaseError: "Erro na compra.",
     delivered: "Compra entregue! Confira a bag (ou o correio in-game) do personagem escolhido.",
-    exchangeTitle: "Trocar Game CP por moeda do jogo",
-    exchangeHint: "Troque o GP que você já tem por Cash, Dalant ou Gold Point, direto no personagem selecionado.",
-    exchangeCash: "Cash",
-    exchangeDalant: "Dalant",
-    exchangeGoldPoint: "Gold Point",
-    exchangeRateCash: "1 GP = 1 Cash",
-    exchangeRateDalant: "1 GP = 1.000.000 Dalant",
-    exchangeRateGoldPoint: "1 GP = 25 Gold Point",
-    exchangeSubmit: "Trocar",
-    exchangeSuccess: "Troca concluída! Confira o personagem.",
-    genericExchangeError: "Erro na troca.",
-    balancesTitle: "Saldos reais no jogo",
-    accountCash: "Cash da conta",
   },
   en: {
     createTab: "Create account",
@@ -335,6 +320,7 @@ const COPY = {
     tabChar: "Character",
     topupTitle: "Top up Game CP",
     topupHint: "Payment via Asaas (PIX, card, Mercado Pago). R$ 1 = 1,000 Game CP.",
+    packagesHint: "Pay with the Game CP you already have — automatic delivery, no Asaas checkout needed.",
     packagesPremiumNote:
       "Every package grants Premium for 30 days (non-stacking — buying more than one package in a month does not extend the duration). Benefits: 2x XP, 2x Drop, 2x Mastery, Auto Loot.",
     character: "Selected character",
@@ -355,19 +341,6 @@ const COPY = {
     genericTopupError: "Error creating charge.",
     genericPurchaseError: "Purchase error.",
     delivered: "Purchase delivered! Check the bag (or in-game mail) of the character you chose.",
-    exchangeTitle: "Exchange Game CP for in-game currency",
-    exchangeHint: "Trade the GP you already have for Cash, Dalant or Gold Point, straight to the selected character.",
-    exchangeCash: "Cash",
-    exchangeDalant: "Dalant",
-    exchangeGoldPoint: "Gold Point",
-    exchangeRateCash: "1 GP = 1 Cash",
-    exchangeRateDalant: "1 GP = 1,000,000 Dalant",
-    exchangeRateGoldPoint: "1 GP = 25 Gold Point",
-    exchangeSubmit: "Exchange",
-    exchangeSuccess: "Exchange complete! Check your character.",
-    genericExchangeError: "Exchange error.",
-    balancesTitle: "Real in-game balances",
-    accountCash: "Account Cash",
   },
 };
 
@@ -376,7 +349,6 @@ export default function GameCpPortal({
   loggedInUsername,
   walletBalance,
   characters,
-  gameCash = null,
   topupBonusItems = {},
   locale = "pt",
 }: {
@@ -384,7 +356,6 @@ export default function GameCpPortal({
   loggedInUsername: string | null;
   walletBalance: number | null;
   characters: StoreCharacter[];
-  gameCash?: number | null;
   topupBonusItems?: Record<number, TopupBonusItem[]>;
   locale?: "pt" | "en";
 }) {
@@ -401,13 +372,6 @@ export default function GameCpPortal({
   const [purchaseMessage, setPurchaseMessage] = useState<string | null>(null);
   const [dashTab, setDashTab] = useState<"shop" | "topup" | "packages" | "character">("shop");
   const [quantities, setQuantities] = useState<Record<string, number>>({});
-  const [exchangeAmounts, setExchangeAmounts] = useState<Record<ExchangeCurrencyKey, string>>({
-    cash: "1000",
-    dalant: "1000",
-    goldpoint: "1000",
-  });
-  const [exchangeLoading, setExchangeLoading] = useState<ExchangeCurrencyKey | null>(null);
-  const [exchangeMessage, setExchangeMessage] = useState<string | null>(null);
 
   const potionGroups: { category: string; items: PublicPotion[] }[] = [];
   for (const p of potions) {
@@ -451,10 +415,6 @@ export default function GameCpPortal({
   }
 
   async function handleTopup(amountBrl: number) {
-    if (!selectedCharacter) {
-      setTopupError(t.chooseCharFirst);
-      return;
-    }
     setLoading(true);
     setTopupError(null);
     try {
@@ -462,7 +422,7 @@ export default function GameCpPortal({
       const res = await fetch("/api/store/topup", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ amountBrlCents, characterSerial: selectedCharacter }),
+        body: JSON.stringify({ amountBrlCents }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -500,30 +460,28 @@ export default function GameCpPortal({
     }
   }
 
-  async function handleExchange(currency: ExchangeCurrencyKey) {
+  async function handleBuyPackage(packageKey: string) {
     if (!selectedCharacter) {
-      setExchangeMessage(t.chooseCharFirst);
+      setTopupError(t.chooseCharFirst);
       return;
     }
-    const gpAmount = parseInt(exchangeAmounts[currency], 10);
-    if (!Number.isInteger(gpAmount) || gpAmount <= 0) return;
-    setExchangeLoading(currency);
-    setExchangeMessage(null);
+    setLoading(true);
+    setTopupError(null);
     try {
-      const res = await fetch("/api/store/exchange", {
+      const res = await fetch("/api/store/purchase", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ currency, gpAmount, characterSerial: selectedCharacter }),
+        body: JSON.stringify({ packageKey, characterSerial: selectedCharacter, quantity: 1 }),
       });
       const data = await res.json();
       if (!res.ok) {
-        setExchangeMessage(data.error ?? t.genericExchangeError);
+        setTopupError(data.error ?? t.genericPurchaseError);
         return;
       }
-      setExchangeMessage(t.exchangeSuccess);
+      setTopupError(t.delivered);
       window.location.reload();
     } finally {
-      setExchangeLoading(null);
+      setLoading(false);
     }
   }
 
@@ -699,8 +657,23 @@ export default function GameCpPortal({
         <div className="gamecp-panel">
           <div className="gamecp-panel-head">
             <h2>{t.tabPackages}</h2>
-            <p>{t.topupHint}</p>
+            <p>{t.packagesHint}</p>
           </div>
+          {characters.length === 0 ? (
+            <p className="store-error">{t.noChars}</p>
+          ) : (
+            <label className="gamecp-char-select gamecp-char-select-inline">
+              <span className="mini-label">{t.character}</span>
+              <select value={selectedCharacter} onChange={(e) => setSelectedCharacter(Number(e.target.value))}>
+                {characters.map((c) => (
+                  <option key={c.serial} value={c.serial}>
+                    {c.name} ({t.level} {c.level})
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          {topupError && <p className="store-error">{topupError}</p>}
           <p className="gamecp-topup-premium-note">{t.packagesPremiumNote}</p>
           <div className="gamecp-topup-packages">
             {TOPUP_TIERS.map(({ amountBrl, name, color }) => {
@@ -772,15 +745,14 @@ export default function GameCpPortal({
                     </ul>
                   )}
                   <div className="gamecp-topup-card-foot">
-                    <p className="gamecp-topup-card-gp">
-                      <b>◈</b> {(amountBrl * GP_PER_REAL).toLocaleString(numberLocale)} {t.gp}
+                    <p className="gamecp-topup-card-price">
+                      <b>◈</b> {amountBrl.toLocaleString(numberLocale)} {t.gp}
                     </p>
-                    <p className="gamecp-topup-card-price">R$ {amountBrl}</p>
                     <button
                       type="button"
                       className="gamecp-topup-card-buy"
                       disabled={loading}
-                      onClick={() => handleTopup(amountBrl)}
+                      onClick={() => handleBuyPackage(`topup_bonus_${amountBrl}`)}
                     >
                       {t.buy}
                     </button>
@@ -789,7 +761,6 @@ export default function GameCpPortal({
               );
             })}
           </div>
-          {topupError && <p className="store-error">{topupError}</p>}
         </div>
       )}
 
@@ -799,75 +770,31 @@ export default function GameCpPortal({
             <h2>{t.topupTitle}</h2>
             <p>{t.topupHint}</p>
           </div>
-
-          <div className="gamecp-exchange">
-            <div className="gamecp-panel-head">
-              <h3>{t.exchangeTitle}</h3>
-              <p>{t.exchangeHint}</p>
-            </div>
-            <div className="gamecp-exchange-grid">
-              {(
-                [
-                  { key: "cash" as const, label: t.exchangeCash, rateLabel: t.exchangeRateCash },
-                  { key: "dalant" as const, label: t.exchangeDalant, rateLabel: t.exchangeRateDalant },
-                  { key: "goldpoint" as const, label: t.exchangeGoldPoint, rateLabel: t.exchangeRateGoldPoint },
-                ]
-              ).map(({ key, label, rateLabel }) => {
-                const gpAmount = parseInt(exchangeAmounts[key], 10) || 0;
-                const targetAmount = gpAmount * EXCHANGE_RATES[key];
-                return (
-                  <div className="gamecp-exchange-card" key={key}>
-                    <strong>{label}</strong>
-                    <small>{rateLabel}</small>
-                    <input
-                      type="number"
-                      min={1}
-                      value={exchangeAmounts[key]}
-                      onChange={(e) => setExchangeAmounts((prev) => ({ ...prev, [key]: e.target.value }))}
-                    />
-                    <p className="gamecp-exchange-preview">
-                      → {targetAmount.toLocaleString(numberLocale)} {label}
-                    </p>
-                    <button
-                      className="btn btn-primary"
-                      type="button"
-                      disabled={exchangeLoading !== null || gpAmount <= 0}
-                      onClick={() => handleExchange(key)}
-                    >
-                      {t.exchangeSubmit}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-            {exchangeMessage && <p className="store-message">{exchangeMessage}</p>}
-          </div>
-
-          <div className="gamecp-balances">
-            <div className="gamecp-panel-head">
-              <h3>{t.balancesTitle}</h3>
-            </div>
-            <p className="gamecp-account-cash">
-              <b>◈</b> {t.accountCash}: {(gameCash ?? 0).toLocaleString(numberLocale)}
-            </p>
-            {characters.length > 0 ? (
-              <div className="gamecp-balances-table">
-                <div className="gamecp-balances-row gamecp-balances-head">
-                  <span>{t.character}</span>
-                  <span>{t.exchangeDalant}</span>
-                  <span>{t.exchangeGoldPoint}</span>
+          {topupError && <p className="store-error">{topupError}</p>}
+          <div className="gamecp-topup-packages">
+            {TOPUP_TIERS.map(({ amountBrl, name, color }) => (
+              <div className="gamecp-topup-card" key={amountBrl} style={{ ["--tier-color" as string]: color }}>
+                <div className="gamecp-topup-card-badge">◈</div>
+                <div className="gamecp-topup-card-head">
+                  <strong>{name}</strong>
+                  <span className="gamecp-topup-card-underline" />
                 </div>
-                {characters.map((c) => (
-                  <div className="gamecp-balances-row" key={c.serial}>
-                    <span>{c.name}</span>
-                    <span>{c.dalant.toLocaleString(numberLocale)}</span>
-                    <span>{c.goldPoint.toLocaleString(numberLocale)}</span>
-                  </div>
-                ))}
+                <div className="gamecp-topup-card-foot">
+                  <p className="gamecp-topup-card-gp">
+                    <b>◈</b> {(amountBrl * GP_PER_REAL).toLocaleString(numberLocale)} {t.gp}
+                  </p>
+                  <p className="gamecp-topup-card-price">R$ {amountBrl}</p>
+                  <button
+                    type="button"
+                    className="gamecp-topup-card-buy"
+                    disabled={loading}
+                    onClick={() => handleTopup(amountBrl)}
+                  >
+                    {t.buy}
+                  </button>
+                </div>
               </div>
-            ) : (
-              <p className="store-error">{t.noChars}</p>
-            )}
+            ))}
           </div>
         </div>
       )}

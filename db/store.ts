@@ -149,15 +149,17 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
       { itemCode: "irgn0045", amount: 3, label: "Thorns Generator [8%]" },
     ],
   },
-  // Bônus de item da Recarregar (Fase 6) — nunca comprados via purchasePackage (preço/GP/Cash
-  // zerados, "compra" de verdade é o topup real via Asaas). Servem só de molde pra
-  // queueTopupBonusDelivery (itens via donation_package_items, mesmo motor de fila/retry das
-  // compras normais) e pra exibir os itens do pacote na Recarregar (listDonationPackages(true)).
+  // Pacotes da aba "Pacotes" (Fase 6) — comprados direto com GP já na carteira via purchasePackage
+  // (mesmo motor atômico debita-e-entrega de pack_50/150/250 acima: trava a carteira, confere saldo,
+  // debita e enfileira entrega numa única transação - sem depender do Asaas, sem corrida). Preço em GP
+  // é 1:1 com o valor em reais do nome só por convenção de exibição (1 real = 1 GP nesses pacotes,
+  // bem mais barato que o câmbio normal de recarga de 1 real = 1000 GP) - a recarga de GP em si
+  // continua exclusivamente na aba "Recarregar" via Asaas, sem ligação com esses pacotes.
   {
     key: "topup_bonus_50",
-    name: "Bônus Recarga R$50",
+    name: "Pacote Silver",
     priceBrlCents: 0,
-    gpPrice: 0,
+    gpPrice: 50,
     cashAmount: 0,
     items: [
       { itemCode: "ipupr01", amount: 1, label: "Upgrade Protection Potion" },
@@ -173,9 +175,9 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
   },
   {
     key: "topup_bonus_120",
-    name: "Bônus Recarga R$120",
+    name: "Pacote Gold",
     priceBrlCents: 0,
-    gpPrice: 0,
+    gpPrice: 120,
     cashAmount: 0,
     items: [
       { itemCode: "ipupr01", amount: 2, label: "Upgrade Protection Potion" },
@@ -191,9 +193,9 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
   },
   {
     key: "topup_bonus_250",
-    name: "Bônus Recarga R$250",
+    name: "Pacote Diamond",
     priceBrlCents: 0,
-    gpPrice: 0,
+    gpPrice: 250,
     cashAmount: 0,
     items: [
       { itemCode: "ipupr01", amount: 3, label: "Upgrade Protection Potion" },
@@ -213,9 +215,9 @@ const PACKAGE_SEED: { key: string; name: string; priceBrlCents: number; gpPrice:
   },
   {
     key: "topup_bonus_400",
-    name: "Bônus Recarga R$400",
+    name: "Pacote Ultimate",
     priceBrlCents: 0,
-    gpPrice: 0,
+    gpPrice: 400,
     cashAmount: 0,
     items: [
       { itemCode: "ipupr01", amount: 5, label: "Upgrade Protection Potion" },
@@ -371,29 +373,18 @@ export async function getWalletBalance(accountUsername: string): Promise<number>
   return row?.balance ?? 0;
 }
 
-export async function createTopupOrder(
-  accountUsername: string,
-  amountBrlCents: number,
-  characterSerial: number | null,
-  characterName: string | null
-): Promise<number> {
+// GP é saldo de conta, não de personagem (ver getWalletBalance) — recarga não precisa de personagem
+// nenhum, só credita a carteira da conta. Os pacotes (itens de bônus) viraram compra separada, paga em
+// GP já na carteira, direto via purchasePackage - não têm mais relação com o valor recarregado aqui.
+export async function createTopupOrder(accountUsername: string, amountBrlCents: number): Promise<number> {
   const db = await getDb();
   await ensureStoreSchema(db);
   const [order] = await db
     .insert(orders)
-    .values({ kind: "topup", accountUsername, amountBrlCents, characterSerial, characterName, status: "pending" })
+    .values({ kind: "topup", accountUsername, amountBrlCents, status: "pending" })
     .returning({ id: orders.id });
   return order.id;
 }
-
-// R$ da faixa de recarga -> chave do pacote-molde (só itens, ver PACKAGE_SEED acima) que define o
-// bônus daquela faixa — usado por confirmTopupPayment pra enfileirar a entrega.
-const TOPUP_BONUS_PACKAGE_BY_AMOUNT: Record<number, string> = {
-  5000: "topup_bonus_50",
-  12000: "topup_bonus_120",
-  25000: "topup_bonus_250",
-  40000: "topup_bonus_400",
-};
 
 export async function setOrderAsaasReference(orderId: number, asaasPaymentId: string): Promise<void> {
   const db = await getDb();
@@ -449,26 +440,6 @@ export async function confirmTopupPayment(
         target: walletBalances.accountUsername,
         set: { balanceCash: sql`${walletBalances.balanceCash} + ${cashAmount}`, updatedAt: new Date().toISOString() },
       });
-
-    // Bônus de item da faixa (ver TOPUP_BONUS_PACKAGE_BY_AMOUNT) — só enfileira se a order já tinha
-    // um personagem escolhido (rota /api/store/topup exige isso). Nunca bloqueia o crédito de GP: se
-    // o pacote-molde não existir por algum motivo, o pagamento ainda é confirmado normalmente.
-    const bonusPackageKey = TOPUP_BONUS_PACKAGE_BY_AMOUNT[order.amountBrlCents];
-    if (bonusPackageKey && order.characterSerial && order.characterName) {
-      const [bonusPkg] = await tx.select().from(donationPackages).where(eq(donationPackages.key, bonusPackageKey));
-      if (bonusPkg) {
-        await tx.insert(deliveries).values({
-          orderId,
-          accountUsername: order.accountUsername,
-          characterSerial: order.characterSerial,
-          characterName: order.characterName,
-          packageId: bonusPkg.id,
-          itemCode: "iwswb55", // legado, sem uso real (mesmo padrão de purchasePackage)
-          cashAmount: bonusPkg.cashAmount,
-          status: "queued",
-        });
-      }
-    }
 
     return { credited: true };
   });
