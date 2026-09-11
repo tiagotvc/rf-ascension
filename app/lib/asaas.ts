@@ -120,6 +120,40 @@ export async function fetchAsaasPayment(paymentId: string): Promise<AsaasPayment
   };
 }
 
+// Confirmação extra pro caminho de checkout (ver parseAsaasCheckoutPayload — a Asaas não tem GET pra
+// um checkout específico, só criar/cancelar, confirmado na doc). GET /v3/payments?externalReference=X
+// é endpoint real e documentado: busca os pagamentos que a Asaas gerou de fato pro checkout pago,
+// cruzando de forma independente do corpo do webhook. Devolve lista vazia (nunca lança) se a busca
+// falhar ou não achar nada — quem chama trata isso como "confirmação extra indisponível", não bloqueia
+// o crédito só com base nisso (a autenticação do webhook por token já é a garantia principal).
+export async function fetchAsaasPaymentsByExternalReference(externalReference: string): Promise<AsaasPaymentStatus[]> {
+  const config = asaasConfig();
+  if (!config) return [];
+  const { baseUrl, apiKey } = config;
+
+  let res: Response;
+  try {
+    res = await fetch(`${baseUrl}/payments?externalReference=${encodeURIComponent(externalReference)}`, {
+      headers: { access_token: apiKey },
+    });
+  } catch {
+    return [];
+  }
+
+  if (!res.ok) return [];
+  const data = (await res.json().catch(() => null)) as Record<string, unknown> | null;
+  if (!data || !Array.isArray(data.data)) return [];
+
+  return (data.data as Record<string, unknown>[])
+    .filter((p) => typeof p.id === "string" && typeof p.status === "string")
+    .map((p) => ({
+      id: p.id as string,
+      status: p.status as string,
+      valueBrlCents: typeof p.value === "number" ? Math.round(p.value * 100) : null,
+      externalReference: typeof p.externalReference === "string" ? p.externalReference : null,
+    }));
+}
+
 const CONFIRMED_STATUSES = new Set(["CONFIRMED", "RECEIVED", "RECEIVED_IN_CASH"]);
 
 export function isAsaasPaymentConfirmed(status: string): boolean {
@@ -128,28 +162,19 @@ export function isAsaasPaymentConfirmed(status: string): boolean {
 
 export type AsaasCheckoutStatus = { id: string; status: string; externalReference: string | null; valueBrlCents: number | null };
 
-// Rebusca o CHECKOUT direto na API — mesmo motivo do fetchAsaasPayment (nunca confiar no corpo do
-// webhook). O evento real que a Asaas manda quando um checkout é pago é CHECKOUT_PAID, com um objeto
-// `checkout` no payload (não `payment` — checkout e cobrança avulsa são recursos diferentes na Asaas).
-// Valor pago vem do próprio campo `value` do checkout se existir, senão soma `items[].value *
-// quantity` (formato que a criação do checkout ecoa de volta, ver createTopupCheckout).
-export async function fetchAsaasCheckout(checkoutId: string): Promise<AsaasCheckoutStatus | null> {
-  const config = asaasConfig();
-  if (!config) return null;
-  const { baseUrl, apiKey } = config;
-
-  let res: Response;
-  try {
-    res = await fetch(`${baseUrl}/checkouts/${encodeURIComponent(checkoutId)}`, {
-      headers: { access_token: apiKey },
-    });
-  } catch {
-    return null;
-  }
-
-  if (!res.ok) return null;
-  const data = (await res.json().catch(() => null)) as Record<string, unknown> | null;
-  if (!data || typeof data.id !== "string" || typeof data.status !== "string") return null;
+// 2026-09-11: tentei rebuscar o checkout direto na API (GET /checkouts/{id}, mesmo princípio do
+// fetchAsaasPayment) antes de confiar no corpo do webhook, mas esse endpoint nunca respondeu nada
+// utilizável em teste ao vivo (fetch chegou a rodar, resultado sempre null - a doc de referência
+// desse GET específico também nunca carregou, então não dá pra confirmar se o path/formato assumido
+// está certo). Removido: em vez disso, parseAsaasCheckoutPayload lê direto do objeto `checkout` que
+// já vem no corpo do webhook - a autenticação real aqui é o token do header asaas-access-token
+// (comparação constant-time no route.ts), que já é a garantia server-to-server; sem ele a requisição
+// nem chega a ser processada. Confirmado com um pagamento real (R$5, pedido #78): o payload do evento
+// CHECKOUT_PAID já traz id/status/externalReference/items completos e corretos.
+export function parseAsaasCheckoutPayload(checkout: unknown): AsaasCheckoutStatus | null {
+  if (!checkout || typeof checkout !== "object") return null;
+  const data = checkout as Record<string, unknown>;
+  if (typeof data.id !== "string" || typeof data.status !== "string") return null;
 
   let valueBrlCents: number | null = null;
   if (typeof data.value === "number") {

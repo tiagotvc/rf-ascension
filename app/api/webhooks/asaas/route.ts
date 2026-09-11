@@ -1,13 +1,22 @@
 import { timingSafeEqual } from "node:crypto";
 import { confirmTopupPayment } from "../../../../db/store";
-import { fetchAsaasPayment, isAsaasPaymentConfirmed, fetchAsaasCheckout, isAsaasCheckoutPaid } from "../../../lib/asaas";
+import {
+  fetchAsaasPayment,
+  isAsaasPaymentConfirmed,
+  parseAsaasCheckoutPayload,
+  isAsaasCheckoutPaid,
+  fetchAsaasPaymentsByExternalReference,
+} from "../../../lib/asaas";
 
-// Webhook da Asaas — a ÚNICA forma de saldo ser creditado (nunca a partir
-// do retorno do navegador). Confere o token configurado no painel da Asaas
-// (comparação constant-time), e MESMO ASSIM não confia no corpo do
-// webhook: rebusca o pagamento direto na API antes de creditar qualquer
-// coisa. Idempotente — reenviar o mesmo evento não credita duas vezes
-// (ver confirmTopupPayment, trava a linha da order e confere status).
+// Webhook da Asaas — a ÚNICA forma de saldo ser creditado (nunca a partir do retorno do navegador).
+// Confere o token configurado no painel da Asaas (comparação constant-time) — essa é a autenticação
+// server-to-server real; sem ela a requisição nem chega a ser processada. Pra cobrança avulsa
+// (`payment`), ainda rebusca o pagamento direto na API antes de creditar (fetchAsaasPayment). Pra
+// checkout (`checkout`, o caminho real da recarga - ver createTopupCheckout), o campo id/status/
+// externalReference/value vem direto do corpo já autenticado (ver comentário em
+// parseAsaasCheckoutPayload sobre por que não há um re-fetch aqui). Idempotente nos dois casos —
+// reenviar o mesmo evento não credita duas vezes (ver confirmTopupPayment, trava a linha da order e
+// confere status).
 export async function POST(request: Request) {
   const expectedToken = process.env.ASAAS_WEBHOOK_TOKEN;
   if (!expectedToken) {
@@ -24,7 +33,7 @@ export async function POST(request: Request) {
   let payload: {
     event?: string;
     payment?: { id?: string; externalReference?: string };
-    checkout?: { id?: string };
+    checkout?: unknown;
   };
   try {
     payload = await request.json();
@@ -36,30 +45,39 @@ export async function POST(request: Request) {
   // quando o checkout é pago é CHECKOUT_PAID, com um objeto `checkout`, não `payment` (recursos
   // diferentes na Asaas). Mantém o caminho `payment` como fallback pra qualquer evento de cobrança
   // avulsa que venha a existir, mas o caminho `checkout` é o que de fato importa aqui.
-  const checkoutId = payload.checkout?.id;
-  if (checkoutId) {
-    // TODO(temporário): log de diagnóstico do primeiro teste ao vivo, remover depois de confirmar
-    // que o crédito funciona ponta a ponta.
-    console.log("[asaas-webhook] checkout event received", JSON.stringify(payload));
-    const realCheckout = await fetchAsaasCheckout(checkoutId);
-    console.log("[asaas-webhook] fetchAsaasCheckout result", JSON.stringify(realCheckout));
+  if (payload.checkout) {
+    const checkoutData = parseAsaasCheckoutPayload(payload.checkout);
     if (
-      !realCheckout ||
-      realCheckout.id !== checkoutId ||
-      !isAsaasCheckoutPaid(realCheckout.status) ||
-      !realCheckout.externalReference ||
-      realCheckout.valueBrlCents === null
+      !checkoutData ||
+      !isAsaasCheckoutPaid(checkoutData.status) ||
+      !checkoutData.externalReference ||
+      checkoutData.valueBrlCents === null
     ) {
-      console.log("[asaas-webhook] checkout validation failed, no-op");
       return Response.json({ ok: true });
     }
-    const orderId = Number(realCheckout.externalReference);
+    const orderId = Number(checkoutData.externalReference);
     if (!Number.isInteger(orderId)) {
-      console.log("[asaas-webhook] externalReference is not an integer order id:", realCheckout.externalReference);
       return Response.json({ ok: true });
     }
-    const result = await confirmTopupPayment(orderId, realCheckout.id, realCheckout.valueBrlCents);
-    console.log("[asaas-webhook] confirmTopupPayment result", JSON.stringify(result), "orderId", orderId);
+
+    // Confirmação extra (a Asaas não tem GET pra um checkout específico, só um payments?externalReference=
+    // real — ver fetchAsaasPaymentsByExternalReference): se achar pagamento(s) vinculados mas nenhum
+    // confirmado, ou um confirmado com valor diferente do esperado, é sinal de adulteração — não credita.
+    // Lista vazia (busca indisponível/sem resultado) não bloqueia — a autenticação por token do webhook
+    // já é a garantia principal.
+    const relatedPayments = await fetchAsaasPaymentsByExternalReference(checkoutData.externalReference);
+    const confirmedMatch = relatedPayments.find((p) => isAsaasPaymentConfirmed(p.status));
+    if (relatedPayments.length > 0 && !confirmedMatch) {
+      console.log(`[asaas-webhook] order ${orderId}: pagamentos achados mas nenhum confirmado, não credita`, JSON.stringify(relatedPayments));
+      return Response.json({ ok: true });
+    }
+    if (confirmedMatch && confirmedMatch.valueBrlCents !== null && confirmedMatch.valueBrlCents !== checkoutData.valueBrlCents) {
+      console.log(`[asaas-webhook] order ${orderId}: valor do pagamento confirmado (${confirmedMatch.valueBrlCents}) diverge do checkout (${checkoutData.valueBrlCents}), não credita`);
+      return Response.json({ ok: true });
+    }
+
+    const result = await confirmTopupPayment(orderId, checkoutData.id, checkoutData.valueBrlCents);
+    console.log(`[asaas-webhook] order ${orderId}: confirmTopupPayment credited=${result.credited}, confirmação extra=${confirmedMatch ? "achou pagamento confirmado" : "indisponível"}`);
     return Response.json({ ok: true });
   }
 
