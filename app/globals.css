@@ -700,6 +700,7 @@
 .gamecp-potion-row{position:relative;display:grid;grid-template-columns:44px 1fr auto auto auto;align-items:center;gap:16px;min-height:60px;padding:10px 16px;background:rgba(13,17,23,.5);border:1px solid rgba(255,255,255,.06);border-radius:0}
 .gamecp-potion-icon{display:block;width:36px;height:36px;object-fit:contain;border:1px solid rgba(92,225,230,.2);border-radius:0;background:rgba(92,225,230,.05)}
 .gamecp-potion-icon-fallback{display:grid;place-items:center;color:var(--cyan);font:700 13px var(--font-geist-mono)}
+.gamecp-potion-icon.gamecp-beginner-banner-dalant{display:grid;place-items:center;font:700 15px var(--font-geist-mono)}
 .gamecp-potion-name{font-size:13px;line-height:1.3;color:#e8ecef}
 .gamecp-potion-price{color:var(--gold);font:700 15px var(--font-geist-mono);line-height:1;white-space:nowrap}
 .gamecp-potion-price>small{font-size:9px;letter-spacing:.06em}

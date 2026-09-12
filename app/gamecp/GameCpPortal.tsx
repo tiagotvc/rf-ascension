@@ -46,6 +46,15 @@ const BEGINNER_PACKAGE_ITEMS = [
   { itemCode: "irgn0027", amount: 1, label: "Premium (7 Dias)" },
 ] as const;
 
+// Cash Potion 10.000/Gold Capsule+10000 na Loja não entregam mais poção (ver
+// app/api/store/buy-potion/route.ts CURRENCY_POTIONS) — creditam Cash/Gold Point direto na conta.
+// Exibe como crédito (símbolo de moeda, sem tooltip de item) em vez de item de poção, pra não parecer
+// que precisa usar alguma coisa depois.
+const CURRENCY_SHOP_ITEMS: Record<string, { symbol: string; label: string }> = {
+  ipcsh05: { symbol: "$", label: "10.000 Cash (crédito direto)" },
+  ipgld38: { symbol: "◈", label: "10.000 Gold Point (crédito direto)" },
+};
+
 // Ícone real pros itens de bônus da Recarregar. ipupr01 é custom (recorte manual, ver
 // public/assets/donnate/); ipcal01/ipwhp01 já são poções nativas já exportadas pro catálogo da
 // Loja (public/game-data/potions/icons/) — reaproveita direto, sem duplicar arquivo.
@@ -67,8 +76,6 @@ const DONATE_ITEM_ICONS: Record<string, string> = {
   // página (ver aviso), confiança baixa nesse ícone específico até confirmar.
   irgn0029: "/game-data/resources/icons/irgn0029.png",
   ircco37: "/game-data/resources/icons/ircco37.png",
-  ipcsh05: "/game-data/potions/icons/ipcsh05.png",
-  ipgld38: "/game-data/potions/icons/ipgld38.png",
   ipglp01: "/game-data/potions/icons/ipglp01.png",
   irgn0027: "/game-data/resources/icons/irgn0027.png",
 };
@@ -290,32 +297,6 @@ const DONATE_ITEM_TOOLTIPS: Record<string, DonateItemTooltip> = {
     drop: "Impossibility",
     useStatus: "Always",
     description: "Increase chance of reflecting a damage in 15%. Increase amount of damage reflected in 10%.",
-  },
-  ipcsh05: {
-    name: "Cash Potion 10.000",
-    type: "Adrenaline",
-    race: "All races",
-    target: "Self",
-    quantity: 99,
-    castDelay: "0.0secs",
-    specialEffects: ["Grants 10.000 Cash"],
-    market: "Impossibility",
-    drop: "Impossibility",
-    useStatus: "Always",
-    description: "Adds 10.000 Cash Points when used.",
-  },
-  ipgld38: {
-    name: "Gold Capsule+10000",
-    type: "Adrenaline",
-    race: "All races",
-    target: "Self",
-    quantity: 99,
-    castDelay: "0.0secs",
-    specialEffects: ["Grants 10.000 Gold Point"],
-    market: "Impossibility",
-    drop: "Impossibility",
-    useStatus: "Always",
-    description: "Capsule from cutting cold. transfer to gold point when used.",
   },
   ipglp01: {
     name: "Gold Point Pill",
@@ -734,16 +715,19 @@ export default function GameCpPortal({
                 <div className="gamecp-potion-list">
                   {group.items.map((p) => {
                     const qty = getQuantity(p.code);
-                    const tooltip = DONATE_ITEM_TOOLTIPS[p.code];
+                    const currencyDisplay = CURRENCY_SHOP_ITEMS[p.code];
+                    const tooltip = currencyDisplay ? undefined : DONATE_ITEM_TOOLTIPS[p.code];
                     return (
                       <div className="gamecp-potion-row" key={p.code}>
-                        {p.icon ? (
+                        {currencyDisplay ? (
+                          <span className="gamecp-potion-icon gamecp-beginner-banner-dalant">{currencyDisplay.symbol}</span>
+                        ) : p.icon ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img className="gamecp-potion-icon" src={`/game-data/${p.icon}`} alt="" />
                         ) : (
                           <span className="gamecp-potion-icon gamecp-potion-icon-fallback">?</span>
                         )}
-                        <strong className="gamecp-potion-name">{p.name}</strong>
+                        <strong className="gamecp-potion-name">{currencyDisplay?.label ?? p.name}</strong>
                         {tooltip && (
                           <div className="gamecp-item-tooltip gamecp-native-tooltip">
                             <strong className="gamecp-native-tooltip-title">[{tooltip.name}]</strong>
