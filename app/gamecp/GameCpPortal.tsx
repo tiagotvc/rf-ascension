@@ -51,8 +51,9 @@ const BEGINNER_PACKAGE_ITEMS = [
 // Exibe como crédito (símbolo de moeda, sem tooltip de item) em vez de item de poção, pra não parecer
 // que precisa usar alguma coisa depois.
 const CURRENCY_SHOP_ITEMS: Record<string, { symbol: string; label: string }> = {
-  ipcsh05: { symbol: "$", label: "10.000 Cash (crédito direto)" },
-  ipgld38: { symbol: "◈", label: "10.000 Gold Point (crédito direto)" },
+  ipcsh05: { symbol: "$", label: "1.000 Cash (crédito direto)" },
+  ipgld38: { symbol: "◈", label: "1.000 Gold Point (crédito direto)" },
+  ipgld45: { symbol: "◈", label: "1.000 Dalant (crédito direto)" },
 };
 
 // Ícone real pros itens de bônus da Recarregar. ipupr01 é custom (recorte manual, ver

@@ -9,9 +9,13 @@ import { checkRateLimit } from "../../../lib/rate-limit";
 // (mesmo caminho da Recarregar) - NÃO deliverPackage, que a AccountBridge rejeita com items=[] vazio
 // ("ao menos 1 item são obrigatórios", Program.cs) - bug real achado ao vivo 2026-09-12: toda tentativa
 // de Cash Potion estava debitando o GP e estornando na mesma hora, sempre.
-const CURRENCY_POTIONS: Record<string, { currency: "cash" | "goldpoint"; amountPerUnit: number }> = {
-  ipcsh05: { currency: "cash", amountPerUnit: 10000 },
-  ipgld38: { currency: "goldpoint", amountPerUnit: 10000 },
+const CURRENCY_POTIONS: Record<string, { currency: "cash" | "goldpoint" | "dalant"; amountPerUnit: number }> = {
+  ipcsh05: { currency: "cash", amountPerUnit: 1000 },
+  ipgld38: { currency: "goldpoint", amountPerUnit: 1000 },
+  // ipgld45 (nome real "Gold Capsule+100") reaproveitado só como código-gatilho — não existe item
+  // "Dalant Capsule" no catálogo real pra usar de verdade; nome de exibição sobrescrito no frontend
+  // (CURRENCY_SHOP_ITEMS, GameCpPortal.tsx).
+  ipgld45: { currency: "dalant", amountPerUnit: 1000 },
 };
 
 export async function POST(request: Request) {
