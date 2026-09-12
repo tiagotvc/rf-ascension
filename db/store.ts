@@ -701,7 +701,7 @@ export async function recordDeliveryAttempt(
 // constantes — fácil de trocar depois se o balanceamento mudar.
 export const EXCHANGE_RATES = {
   cash: 1,
-  dalant: 1_000_000,
+  dalant: 5_000_000,
   goldpoint: 25,
 } as const;
 
