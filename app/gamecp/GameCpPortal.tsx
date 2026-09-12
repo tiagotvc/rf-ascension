@@ -18,7 +18,7 @@ export type PlayerOrder = {
 };
 
 const MAX_PURCHASE_QUANTITY = 20;
-const GP_PER_REAL = 1000;
+const GP_PER_REAL = 1;
 const TOPUP_TIERS = [
   { amountBrl: 50, name: "Silver", color: "#c8ced5" },
   { amountBrl: 120, name: "Gold", color: "var(--gold)" },
@@ -372,7 +372,7 @@ const COPY = {
     tabOrders: "Minhas Compras",
     tabChar: "Personagem",
     topupTitle: "Recarregar Game CP",
-    topupHint: "Pagamento via Asaas (PIX, cartão, Mercado Pago). R$ 1 = 1.000 Game CP.",
+    topupHint: "Pagamento via Asaas (PIX, cartão, Mercado Pago). R$ 1 = 1 Game CP.",
     packagesHint: "Pague com o Game CP que você já tem — entrega automática, sem passar pelo Asaas.",
     packagesPremiumNote:
       "Todos os pacotes dão Premium por 30 dias (não acumula — comprar mais de um pacote no mês não estende a duração). Vantagens: 2x mais XP, 2x mais Drop, 2x mais Mastery, Auto Loot.",
@@ -430,7 +430,7 @@ const COPY = {
     tabOrders: "My Purchases",
     tabChar: "Character",
     topupTitle: "Top up Game CP",
-    topupHint: "Payment via Asaas (PIX, card, Mercado Pago). R$ 1 = 1,000 Game CP.",
+    topupHint: "Payment via Asaas (PIX, card, Mercado Pago). R$ 1 = 1 Game CP.",
     packagesHint: "Pay with the Game CP you already have — automatic delivery, no Asaas checkout needed.",
     packagesPremiumNote:
       "Every package grants Premium for 30 days (non-stacking — buying more than one package in a month does not extend the duration). Benefits: 2x XP, 2x Drop, 2x Mastery, Auto Loot.",
