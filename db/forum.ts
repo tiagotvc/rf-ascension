@@ -188,7 +188,12 @@ Pra arma, em vez de herdar o afixo inteiro da Roxa, existem 9 variantes — cada
 | Experience | Ganho de XP: doadora +5% (teto 15%) | 50% | 20kk Dalant |
 | Hunter | Dano vs monstro normal: doadora +5% (teto 25%) + copia dano vs boss da doadora se ela tinha | 50% | 20kk Dalant |
 
-Falha nunca quebra as duas armas — só perde 1-2 unidades dos materiais consumíveis.`;
+Falha nunca quebra as duas armas — só perde 1-2 unidades dos materiais consumíveis.
+
+{gold:Armadura/Escudo — materiais}
+Pra armadura e escudo não tem variante por atributo — a peça herda o afixo inteiro da Roxa doadora (é o exemplo já mostrado lá em cima). Sem chance de falha, sem custo em Dalant.
+
+Materiais: 1x !icon[Superior Recipe](/game-data/combine/icons/irrc02.png) + 50x !icon[Material de Promoção](/game-data/combine/icons/irrc03.png)`;
 
 const RANKUP_TOPIC_BODY = `O Rank é um atributo separado do +Upgrade normal (os pontinhos de talica) — existe tanto em arma quanto em armadura, e dá um bônus fixo de dano ou defesa que soma direto no combate, sem depender da fórmula normal de defesa.
 
