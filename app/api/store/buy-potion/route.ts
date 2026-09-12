@@ -1,13 +1,14 @@
 import { getPlayerSession } from "../../../lib/player-auth";
-import { listCharacters, deliverItem, deliverPackage, exchangeCurrency } from "../../../lib/game-account";
+import { listCharacters, deliverItem, exchangeCurrency } from "../../../lib/game-account";
 import { purchasePotion } from "../../../../db/potion-shop";
 import { refundGp } from "../../../../db/store";
 import { checkRateLimit } from "../../../lib/rate-limit";
 
 // Cash Potion 10.000 e Gold Capsule+10000 viraram crédito direto (Cash/Gold Point) em vez de entrega
-// de item — a poção em si foi reportada com bug pelo usuário 2026-09-11. Cash usa o mesmo
-// TryCreditCash/g_RFAcc.CreditBalance de sempre (base BILLING, sem relação com o checksum de
-// tbl_NpcData que travava Dalant); Gold Point usa o mesmo exchangeCurrency já usado na Recarregar.
+// de item — a poção em si foi reportada com bug pelo usuário 2026-09-11. Os dois usam exchangeCurrency
+// (mesmo caminho da Recarregar) - NÃO deliverPackage, que a AccountBridge rejeita com items=[] vazio
+// ("ao menos 1 item são obrigatórios", Program.cs) - bug real achado ao vivo 2026-09-12: toda tentativa
+// de Cash Potion estava debitando o GP e estornando na mesma hora, sempre.
 const CURRENCY_POTIONS: Record<string, { currency: "cash" | "goldpoint"; amountPerUnit: number }> = {
   ipcsh05: { currency: "cash", amountPerUnit: 10000 },
   ipgld38: { currency: "goldpoint", amountPerUnit: 10000 },
@@ -57,10 +58,7 @@ export async function POST(request: Request) {
   const currencyPotion = CURRENCY_POTIONS[itemCode];
   if (currencyPotion) {
     const amount = currencyPotion.amountPerUnit * quantity;
-    const result =
-      currencyPotion.currency === "cash"
-        ? (await deliverPackage(character.serial, session.username, amount, [])).ok
-        : (await exchangeCurrency(character.serial, session.username, "goldpoint", amount)).ok;
+    const result = (await exchangeCurrency(character.serial, session.username, currencyPotion.currency, amount)).ok;
     if (!result) {
       await refundGp(session.username, debit.totalGpCost, `potion_refund:${itemCode}`);
       return Response.json({ error: "Não foi possível entregar agora. Seu GP foi devolvido — tente de novo em instantes." }, { status: 502 });
