@@ -198,47 +198,47 @@ Materiais: 1x !icon[Superior Recipe](/game-data/combine/icons/irrc02.png) + 50x 
 // Guia crescente de NPCs de apoio — cada seção nova vai sendo adicionada
 // conforme formos documentando o próximo NPC (Foreign Vendor, Events, etc.
 // ainda faltam).
-const NPC_GUIDE_TOPIC_BODY = `Guia com o que cada NPC de apoio faz no RF Echelon. Esse tópico vai crescer aos poucos — se o NPC que você procura ainda não está aqui, é porque ainda não documentamos ele.
+const NPC_GUIDE_TOPIC_BODY = `Guide covering what each support NPC does in RF Echelon. This topic will keep growing — if the NPC you're looking for isn't here yet, it just means we haven't documented it yet.
 
 {gold:Armor Exchanger}
 ![NPC Armor Exchanger](/assets/npcs/armor-exchanger.png)
 
-Troca Cristal de Tálica + Dalant por uma {cyan:Box de Armadura} do nível escolhido. A box entrega uma peça {green:Intense} ou {orange:Superior} (sorteio) do nível pedido — o tipo de peça sai de acordo com a classe do seu personagem.
+Trades Talic Crystals + Dalant for an {cyan:Armor Box} of the chosen level. The box grants an {green:Intense} or {orange:Superior} piece (random) of the requested level — the piece type depends on your character's class.
 
-![Janela do Armor Exchanger](/assets/npcs/armor-exchanger-window.png)
+![Armor Exchanger window](/assets/npcs/armor-exchanger-window.png)
 
-Custo por nível (confirmado):
+Cost per level (confirmed):
 
-| Nível | Custo |
+| Level | Cost |
 |---|---|
-| 31 | 1 Cristal de Tálica + 200.000 Dalant |
-| 33 | 1 Cristal de Tálica + 300.000 Dalant |
-| 35 | 1 Cristal de Tálica + 400.000 Dalant |
-| 37 | 1 Cristal de Tálica + 500.000 Dalant |
-| 39 | 2 Cristais de Tálica + 800.000 Dalant |
-| 41 | 2 Cristais de Tálica + 1.000.000 Dalant |
-| 43 | 2 Cristais de Tálica + 1.200.000 Dalant |
-| 45 | 2 Cristais de Tálica + 1.500.000 Dalant |
-| 47 | 4 Cristais de Tálica + 2.000.000 Dalant |
-| 50 | 10 Cristais de Tálica + 10.000.000 Dalant |
+| 31 | 1 Talic Crystal + 200,000 Dalant |
+| 33 | 1 Talic Crystal + 300,000 Dalant |
+| 35 | 1 Talic Crystal + 400,000 Dalant |
+| 37 | 1 Talic Crystal + 500,000 Dalant |
+| 39 | 2 Talic Crystals + 800,000 Dalant |
+| 41 | 2 Talic Crystals + 1,000,000 Dalant |
+| 43 | 2 Talic Crystals + 1,200,000 Dalant |
+| 45 | 2 Talic Crystals + 1,500,000 Dalant |
+| 47 | 4 Talic Crystals + 2,000,000 Dalant |
+| 50 | 10 Talic Crystals + 10,000,000 Dalant |
 
 {cyan:Buff Me}
 ![NPC Buff Me](/assets/npcs/buff-me.png)
 
-Esse NPC é direto ao ponto: aplica um buff em você, de graça (0 Dalant), sem precisar de item nem consumível.
+This NPC is straightforward: applies a buff to you for free (0 Dalant), no item or consumable required.
 
-![Janela do Buff Me](/assets/npcs/buff-me-window.png)
+![Buff Me window](/assets/npcs/buff-me-window.png)
 
-Basta escolher o buff na lista da janela e clicar em {white:Apply} — ele é aplicado na hora, direto em cima do seu personagem.
+Just pick the buff from the window's list and click {white:Apply} — it's applied instantly, directly to your character.
 
 {orange:Daily Quest}
 ![NPC Daily Quest](/assets/npcs/daily-quest.png)
 
-Abre a janela de {white:Quest} listando as diárias disponíveis pra aceitar — na captura abaixo aparece "Daily Quest 1" na lista.
+Opens the {white:Quest} window listing the available dailies to accept — in the screenshot below, "Daily Quest 1" shows up in the list.
 
-![Janela do Daily Quest](/assets/npcs/daily-quest-window.png)
+![Daily Quest window](/assets/npcs/daily-quest-window.png)
 
-Detalhes de requisito e recompensa de cada diária ainda não foram confirmados — assim que tivermos essa informação, atualizamos essa seção.`;
+Requirement and reward details for each daily haven't been confirmed yet — we'll update this section as soon as we have that information.`;
 
 const RANKUP_TOPIC_BODY = `O Rank é um atributo separado do +Upgrade normal (os pontinhos de talica) — existe tanto em arma quanto em armadura, e dá um bônus fixo de dano ou defesa que soma direto no combate, sem depender da fórmula normal de defesa.
 
@@ -375,6 +375,10 @@ async function ensureForumSchema(db: Db) {
   await db.execute(sql`UPDATE forum_topics SET author_name = REPLACE(author_name, 'Equipe Ascension', 'Equipe Echelon') WHERE author_email = ${STAFF_EMAIL} AND author_name LIKE '%Ascension%'`);
   await db.execute(sql`UPDATE forum_posts SET author_name = REPLACE(author_name, 'Equipe Ascension', 'Equipe Echelon') WHERE author_email = ${STAFF_EMAIL} AND author_name LIKE '%Ascension%'`);
   await db.execute(sql`UPDATE forum_posts SET body = REPLACE(body, 'RF Ascension', 'RF Echelon') WHERE author_email = ${STAFF_EMAIL} AND body LIKE '%RF Ascension%'`);
+  // Pedido explícito: todo o mural de "Informações do servidor" passou a
+  // ser só em inglês. O tópico de NPCs já tinha sido semeado com o título
+  // em português antes dessa decisão — renomeia em vez de duplicar.
+  await db.execute(sql`UPDATE forum_topics SET title = 'NPC Guide — RF Echelon' WHERE forum_slug = ${SERVER_INFO_SLUG} AND author_email = ${STAFF_EMAIL} AND title = 'Guia de NPCs — RF Echelon'`);
   // Ofícios, Coleta e Crafting foi removido do catálogo — apaga o que já
   // tinha sido semeado (nunca toca em posts de jogador nesse tópico, mas
   // como é mural de equipe isso nunca existiu de qualquer forma).
@@ -434,8 +438,8 @@ async function ensureForumSchema(db: Db) {
   await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Novo Tooltip de Skills e Buffs", SKILL_TOOLTIP_TOPIC_BODY);
   await ensureSubTopic(db, "Combine Superior — Promova seu Equipamento", SUPERIOR_TOPIC_BODY);
   await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Combine Superior — Promova seu Equipamento", SUPERIOR_TOPIC_BODY);
-  await ensureSubTopic(db, "Guia de NPCs — RF Echelon", NPC_GUIDE_TOPIC_BODY);
-  await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Guia de NPCs — RF Echelon", NPC_GUIDE_TOPIC_BODY);
+  await ensureSubTopic(db, "NPC Guide — RF Echelon", NPC_GUIDE_TOPIC_BODY);
+  await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "NPC Guide — RF Echelon", NPC_GUIDE_TOPIC_BODY);
   await rewriteMasterTopicBody(db);
   await seedServerInfo(db);
   await seedMonsterDrops(db);
@@ -497,7 +501,7 @@ Recursos do servidor:
 - [Sistema de Runas — Novos Slots de Item](/forum/${SERVER_INFO_SLUG}/topic/${ids.runeId})
 - [Novo Tooltip de Skills e Buffs](/forum/${SERVER_INFO_SLUG}/topic/${ids.skillTooltipId})
 - [Combine Superior — Promova seu Equipamento](/forum/${SERVER_INFO_SLUG}/topic/${ids.superiorId})
-- [Guia de NPCs — RF Echelon](/forum/${SERVER_INFO_SLUG}/topic/${ids.npcGuideId})
+- [NPC Guide — RF Echelon](/forum/${SERVER_INFO_SLUG}/topic/${ids.npcGuideId})
 
 Eventos:
 - Invasão de monstros às terças e quintas, 10h e 16h (drops especiais e XP extra)`;
@@ -553,7 +557,7 @@ async function rewriteMasterTopicBody(db: Db) {
   const runeId = await findId("Sistema de Runas — Novos Slots de Item");
   const skillTooltipId = await findId("Novo Tooltip de Skills e Buffs");
   const superiorId = await findId("Combine Superior — Promova seu Equipamento");
-  const npcGuideId = await findId("Guia de NPCs — RF Echelon");
+  const npcGuideId = await findId("NPC Guide — RF Echelon");
   if (!editorId || !rankupId || !talicaFavorId || !runeId || !skillTooltipId || !superiorId || !npcGuideId) return;
 
   const newBody = buildMasterBody({ editorId, rankupId, talicaFavorId, runeId, skillTooltipId, superiorId, npcGuideId });
@@ -599,7 +603,7 @@ async function seedServerInfo(db: Db) {
   const runeId = await createStaffTopic("Sistema de Runas — Novos Slots de Item", RUNE_TOPIC_BODY);
   const skillTooltipId = await createStaffTopic("Novo Tooltip de Skills e Buffs", SKILL_TOOLTIP_TOPIC_BODY);
   const superiorId = await createStaffTopic("Combine Superior — Promova seu Equipamento", SUPERIOR_TOPIC_BODY);
-  const npcGuideId = await createStaffTopic("Guia de NPCs — RF Echelon", NPC_GUIDE_TOPIC_BODY);
+  const npcGuideId = await createStaffTopic("NPC Guide — RF Echelon", NPC_GUIDE_TOPIC_BODY);
 
   await createStaffTopic(
     MASTER_TITLE,
