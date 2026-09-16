@@ -110,6 +110,7 @@ type PackageSeedEntry = {
   items: PackageSeedItem[];
   dalantReward?: number;
   oncePerAccount?: boolean;
+  visibleToPlayers?: boolean;
 };
 const PACKAGE_SEED: PackageSeedEntry[] = [
   {
@@ -260,6 +261,10 @@ const PACKAGE_SEED: PackageSeedEntry[] = [
     cashAmount: 5000,
     dalantReward: 20_000_000,
     oncePerAccount: true,
+    // Removido da aba Pacotes a pedido do usuário 2026-09-16 - fica oculto (não deletado: já existem
+    // orders/deliveries reais de contas que resgataram, e donationPackages não tem onDelete cascade
+    // nessas tabelas, então apagar a linha quebraria a FK e derrubaria o seed em produção).
+    visibleToPlayers: false,
     items: [
       { itemCode: "ipglp01", amount: 4, label: "Gold Point Pill" },
       { itemCode: "irgn0027", amount: 1, label: "Premium (7 Dias)" },
@@ -287,7 +292,7 @@ async function seedPackages(db: Db) {
       const row = existing.find((r) => r.key === p.key);
       if (
         !row ||
-        row.visibleToPlayers !== true ||
+        row.visibleToPlayers !== (p.visibleToPlayers ?? true) ||
         row.name !== p.name ||
         row.gpPrice !== p.gpPrice ||
         row.cashAmount !== p.cashAmount ||
@@ -338,7 +343,7 @@ async function seedPackages(db: Db) {
               itemCode,
               stockTotal: 100,
               stockRemaining: 100,
-              visibleToPlayers: true,
+              visibleToPlayers: p.visibleToPlayers ?? true,
               dalantReward: p.dalantReward ?? 0,
               oncePerAccount: p.oncePerAccount ?? false,
             })
@@ -354,7 +359,7 @@ async function seedPackages(db: Db) {
           gpPrice: p.gpPrice,
           cashAmount: p.cashAmount,
           itemCode,
-          visibleToPlayers: true,
+          visibleToPlayers: p.visibleToPlayers ?? true,
           dalantReward: p.dalantReward ?? 0,
           oncePerAccount: p.oncePerAccount ?? false,
         })
