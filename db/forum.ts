@@ -218,7 +218,25 @@ Custo por nível (confirmado):
 | 35 | 1 Cristal de Tálica + 400.000 Dalant |
 | 37 | 1 Cristal de Tálica + 500.000 Dalant |
 
-A janela também oferece os níveis 39, 41, 43, 45, 47 e 50, mas o texto da descrição corta antes de mostrar o custo desses — assim que confirmarmos os valores certos, atualizamos essa tabela.`;
+A janela também oferece os níveis 39, 41, 43, 45, 47 e 50, mas o texto da descrição corta antes de mostrar o custo desses — assim que confirmarmos os valores certos, atualizamos essa tabela.
+
+{cyan:Buff Me}
+![NPC Buff Me](/assets/npcs/buff-me.png)
+
+Esse NPC é direto ao ponto: aplica um buff em você, de graça (0 Dalant), sem precisar de item nem consumível.
+
+![Janela do Buff Me](/assets/npcs/buff-me-window.png)
+
+Basta escolher o buff na lista da janela e clicar em {white:Apply} — ele é aplicado na hora, direto em cima do seu personagem.
+
+{orange:Daily Quest}
+![NPC Daily Quest](/assets/npcs/daily-quest.png)
+
+Abre a janela de {white:Quest} listando as diárias disponíveis pra aceitar — na captura abaixo aparece "Daily Quest 1" na lista.
+
+![Janela do Daily Quest](/assets/npcs/daily-quest-window.png)
+
+Detalhes de requisito e recompensa de cada diária ainda não foram confirmados — assim que tivermos essa informação, atualizamos essa seção.`;
 
 const RANKUP_TOPIC_BODY = `O Rank é um atributo separado do +Upgrade normal (os pontinhos de talica) — existe tanto em arma quanto em armadura, e dá um bônus fixo de dano ou defesa que soma direto no combate, sem depender da fórmula normal de defesa.
 
