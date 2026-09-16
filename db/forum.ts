@@ -240,6 +240,49 @@ Opens the {white:Quest} window listing the available dailies to accept — in th
 
 Requirement and reward details for each daily haven't been confirmed yet — we'll update this section as soon as we have that information.`;
 
+// Nomes/ícones reais extraídos do Item.edf atualizado (RFEchelon\DataTable) via
+// GenericItemIconExportTask - bxgem32/34/36/38/40/42/44/46 não existem no catálogo (só os níveis
+// ímpares 31-47 têm Armor Box própria, mesmo padrão do Armor Exchanger). O nome real do item vem com
+// sufixo "[TEST]" no Item.edf (placeholder interno da equipe) - removido aqui só pra exibição, sem
+// mudar o item de verdade.
+const DUNGEON_TOPIC_BODY = `Dungeon rework:
+
+- Every dungeon can now be soloed.
+- Reward count per run went from 1 to 4.
+
+{gold:Possible rewards}
+
+{cyan:Talics}
+- !icon[Keen Talic](/game-data/dungeon/icons/irtal01.png) Keen Talic
+- !icon[Destruction Talic](/game-data/dungeon/icons/irtal02.png) Destruction Talic
+- !icon[Darkness Talic](/game-data/dungeon/icons/irtal03.png) Darkness Talic
+- !icon[Chaos Talic](/game-data/dungeon/icons/irtal04.png) Chaos Talic
+- !icon[Hatred Talic](/game-data/dungeon/icons/irtal05.png) Hatred Talic
+- !icon[Favor Talic](/game-data/dungeon/icons/irtal06.png) Favor Talic
+- !icon[Wisdom Talic](/game-data/dungeon/icons/irtal07.png) Wisdom Talic
+- !icon[Sacred Fire Talic](/game-data/dungeon/icons/irtal08.png) Sacred Fire Talic
+- !icon[Belief Talic](/game-data/dungeon/icons/irtal09.png) Belief Talic
+- !icon[Guard Talic](/game-data/dungeon/icons/irtal10.png) Guard Talic
+- !icon[Glory Talic](/game-data/dungeon/icons/irtal11.png) Glory Talic
+- !icon[Grace Talic](/game-data/dungeon/icons/irtal12.png) Grace Talic
+- !icon[Mercy Talic](/game-data/dungeon/icons/irtal13.png) Mercy Talic
+- !icon[Restoration Talic](/game-data/dungeon/icons/irtal14.png) Restoration Talic
+
+{orange:Boxes}
+- !icon[Rune Box](/game-data/dungeon/icons/bxrun01.png) Rune Box
+- !icon[Smith Material Box](/game-data/dungeon/icons/bxsmt01.png) Smith Material Box
+
+{violet:Armor Boxes}
+- !icon[Armor Box Lv.31](/game-data/dungeon/icons/bxgem31.png) Armor Box (Lv.31)
+- !icon[Armor Box Lv.33](/game-data/dungeon/icons/bxgem33.png) Armor Box (Lv.33)
+- !icon[Armor Box Lv.35](/game-data/dungeon/icons/bxgem35.png) Armor Box (Lv.35)
+- !icon[Armor Box Lv.37](/game-data/dungeon/icons/bxgem37.png) Armor Box (Lv.37)
+- !icon[Armor Box Lv.39](/game-data/dungeon/icons/bxgem39.png) Armor Box (Lv.39)
+- !icon[Armor Box Lv.41](/game-data/dungeon/icons/bxgem41.png) Armor Box (Lv.41)
+- !icon[Armor Box Lv.43](/game-data/dungeon/icons/bxgem43.png) Armor Box (Lv.43)
+- !icon[Armor Box Lv.45](/game-data/dungeon/icons/bxgem45.png) Armor Box (Lv.45)
+- !icon[Armor Box Lv.47](/game-data/dungeon/icons/bxgem47.png) Armor Box (Lv.47)`;
+
 const RANKUP_TOPIC_BODY = `O Rank é um atributo separado do +Upgrade normal (os pontinhos de talica) — existe tanto em arma quanto em armadura, e dá um bônus fixo de dano ou defesa que soma direto no combate, sem depender da fórmula normal de defesa.
 
 ![Tooltip de arma mostrando Rank 17 level e +114 de Attack Point](/assets/rankup/before.png)
@@ -440,6 +483,8 @@ async function ensureForumSchema(db: Db) {
   await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Combine Superior — Promova seu Equipamento", SUPERIOR_TOPIC_BODY);
   await ensureSubTopic(db, "NPC Guide — RF Echelon", NPC_GUIDE_TOPIC_BODY);
   await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "NPC Guide — RF Echelon", NPC_GUIDE_TOPIC_BODY);
+  await ensureSubTopic(db, "Dungeon Changes — RF Echelon", DUNGEON_TOPIC_BODY);
+  await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Dungeon Changes — RF Echelon", DUNGEON_TOPIC_BODY);
   await rewriteMasterTopicBody(db);
   await seedServerInfo(db);
   await seedMonsterDrops(db);
@@ -477,6 +522,7 @@ type MasterLinkIds = {
   skillTooltipId: number;
   superiorId: number;
   npcGuideId: number;
+  dungeonId: number;
 };
 
 // Única fonte do texto do tópico mestre — usada tanto no seed inicial quanto
@@ -502,6 +548,7 @@ Recursos do servidor:
 - [Novo Tooltip de Skills e Buffs](/forum/${SERVER_INFO_SLUG}/topic/${ids.skillTooltipId})
 - [Combine Superior — Promova seu Equipamento](/forum/${SERVER_INFO_SLUG}/topic/${ids.superiorId})
 - [NPC Guide — RF Echelon](/forum/${SERVER_INFO_SLUG}/topic/${ids.npcGuideId})
+- [Dungeon Changes — RF Echelon](/forum/${SERVER_INFO_SLUG}/topic/${ids.dungeonId})
 
 Eventos:
 - Invasão de monstros às terças e quintas, 10h e 16h (drops especiais e XP extra)`;
@@ -558,9 +605,10 @@ async function rewriteMasterTopicBody(db: Db) {
   const skillTooltipId = await findId("Novo Tooltip de Skills e Buffs");
   const superiorId = await findId("Combine Superior — Promova seu Equipamento");
   const npcGuideId = await findId("NPC Guide — RF Echelon");
-  if (!editorId || !rankupId || !talicaFavorId || !runeId || !skillTooltipId || !superiorId || !npcGuideId) return;
+  const dungeonId = await findId("Dungeon Changes — RF Echelon");
+  if (!editorId || !rankupId || !talicaFavorId || !runeId || !skillTooltipId || !superiorId || !npcGuideId || !dungeonId) return;
 
-  const newBody = buildMasterBody({ editorId, rankupId, talicaFavorId, runeId, skillTooltipId, superiorId, npcGuideId });
+  const newBody = buildMasterBody({ editorId, rankupId, talicaFavorId, runeId, skillTooltipId, superiorId, npcGuideId, dungeonId });
 
   const [original] = await db
     .select({ id: forumPosts.id, body: forumPosts.body })
@@ -604,10 +652,11 @@ async function seedServerInfo(db: Db) {
   const skillTooltipId = await createStaffTopic("Novo Tooltip de Skills e Buffs", SKILL_TOOLTIP_TOPIC_BODY);
   const superiorId = await createStaffTopic("Combine Superior — Promova seu Equipamento", SUPERIOR_TOPIC_BODY);
   const npcGuideId = await createStaffTopic("NPC Guide — RF Echelon", NPC_GUIDE_TOPIC_BODY);
+  const dungeonId = await createStaffTopic("Dungeon Changes — RF Echelon", DUNGEON_TOPIC_BODY);
 
   await createStaffTopic(
     MASTER_TITLE,
-    buildMasterBody({ editorId, rankupId, talicaFavorId, runeId, skillTooltipId, superiorId, npcGuideId }),
+    buildMasterBody({ editorId, rankupId, talicaFavorId, runeId, skillTooltipId, superiorId, npcGuideId, dungeonId }),
     true
   );
 }
