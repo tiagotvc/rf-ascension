@@ -9,7 +9,7 @@ export type PotionCatalogEntry = { code: string; name: string; icon: string | nu
 // caminho completo relativo a /game-data/ (ex.: "potions/icons/iywml01.png"), pronto pra um <img src>.
 // Não confundir com potion_shop_items (banco): aquilo é só a curadoria de quais o admin habilitou pra
 // venda e por qual preço — o catálogo aqui é só leitura, sempre o universo completo.
-const CATALOG_DIRS = ["potions", "resources"];
+const CATALOG_DIRS = ["potions", "resources", "weapons"];
 
 export function loadPotionCatalog(): PotionCatalogEntry[] {
   const all: PotionCatalogEntry[] = [];
