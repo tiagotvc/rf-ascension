@@ -195,6 +195,31 @@ Pra armadura e escudo não tem variante por atributo — a peça herda o afixo i
 
 Materiais: 1x !icon[Superior Recipe](/game-data/combine/icons/irrc02.png) + 50x !icon[Material de Promoção](/game-data/combine/icons/irrc03.png)`;
 
+// Guia crescente de NPCs de apoio — cada seção nova vai sendo adicionada
+// conforme formos documentando o próximo NPC (Foreign Vendor, Daily Quest,
+// Buff Me, Events, etc. ainda faltam). Custo do Armor Exchanger confirmado
+// só até Lv.37 — a janela em jogo corta o texto antes de mostrar os níveis
+// seguintes, então isso NÃO é extrapolado aqui (regra: nunca especular).
+const NPC_GUIDE_TOPIC_BODY = `Guia com o que cada NPC de apoio faz no RF Echelon. Esse tópico vai crescer aos poucos — se o NPC que você procura ainda não está aqui, é porque ainda não documentamos ele.
+
+{gold:Armor Exchanger}
+![NPC Armor Exchanger](/assets/npcs/armor-exchanger.png)
+
+Troca Cristal de Tálica + Dalant por uma {cyan:Box de Armadura} do nível escolhido. A box entrega uma peça {green:Intense} ou {orange:Superior} (sorteio) do nível pedido — o tipo de peça sai de acordo com a classe do seu personagem.
+
+![Janela do Armor Exchanger](/assets/npcs/armor-exchanger-window.png)
+
+Custo por nível (confirmado):
+
+| Nível | Custo |
+|---|---|
+| 31 | 1 Cristal de Tálica + 200.000 Dalant |
+| 33 | 1 Cristal de Tálica + 300.000 Dalant |
+| 35 | 1 Cristal de Tálica + 400.000 Dalant |
+| 37 | 1 Cristal de Tálica + 500.000 Dalant |
+
+A janela também oferece os níveis 39, 41, 43, 45, 47 e 50, mas o texto da descrição corta antes de mostrar o custo desses — assim que confirmarmos os valores certos, atualizamos essa tabela.`;
+
 const RANKUP_TOPIC_BODY = `O Rank é um atributo separado do +Upgrade normal (os pontinhos de talica) — existe tanto em arma quanto em armadura, e dá um bônus fixo de dano ou defesa que soma direto no combate, sem depender da fórmula normal de defesa.
 
 ![Tooltip de arma mostrando Rank 17 level e +114 de Attack Point](/assets/rankup/before.png)
@@ -389,6 +414,8 @@ async function ensureForumSchema(db: Db) {
   await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Novo Tooltip de Skills e Buffs", SKILL_TOOLTIP_TOPIC_BODY);
   await ensureSubTopic(db, "Combine Superior — Promova seu Equipamento", SUPERIOR_TOPIC_BODY);
   await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Combine Superior — Promova seu Equipamento", SUPERIOR_TOPIC_BODY);
+  await ensureSubTopic(db, "Guia de NPCs — RF Echelon", NPC_GUIDE_TOPIC_BODY);
+  await rewriteTopicBodyIfChanged(db, SERVER_INFO_SLUG, "Guia de NPCs — RF Echelon", NPC_GUIDE_TOPIC_BODY);
   await rewriteMasterTopicBody(db);
   await seedServerInfo(db);
   await seedMonsterDrops(db);
@@ -425,6 +452,7 @@ type MasterLinkIds = {
   runeId: number;
   skillTooltipId: number;
   superiorId: number;
+  npcGuideId: number;
 };
 
 // Única fonte do texto do tópico mestre — usada tanto no seed inicial quanto
@@ -449,6 +477,7 @@ Recursos do servidor:
 - [Sistema de Runas — Novos Slots de Item](/forum/${SERVER_INFO_SLUG}/topic/${ids.runeId})
 - [Novo Tooltip de Skills e Buffs](/forum/${SERVER_INFO_SLUG}/topic/${ids.skillTooltipId})
 - [Combine Superior — Promova seu Equipamento](/forum/${SERVER_INFO_SLUG}/topic/${ids.superiorId})
+- [Guia de NPCs — RF Echelon](/forum/${SERVER_INFO_SLUG}/topic/${ids.npcGuideId})
 
 Eventos:
 - Invasão de monstros às terças e quintas, 10h e 16h (drops especiais e XP extra)`;
@@ -504,9 +533,10 @@ async function rewriteMasterTopicBody(db: Db) {
   const runeId = await findId("Sistema de Runas — Novos Slots de Item");
   const skillTooltipId = await findId("Novo Tooltip de Skills e Buffs");
   const superiorId = await findId("Combine Superior — Promova seu Equipamento");
-  if (!editorId || !rankupId || !talicaFavorId || !runeId || !skillTooltipId || !superiorId) return;
+  const npcGuideId = await findId("Guia de NPCs — RF Echelon");
+  if (!editorId || !rankupId || !talicaFavorId || !runeId || !skillTooltipId || !superiorId || !npcGuideId) return;
 
-  const newBody = buildMasterBody({ editorId, rankupId, talicaFavorId, runeId, skillTooltipId, superiorId });
+  const newBody = buildMasterBody({ editorId, rankupId, talicaFavorId, runeId, skillTooltipId, superiorId, npcGuideId });
 
   const [original] = await db
     .select({ id: forumPosts.id, body: forumPosts.body })
@@ -549,10 +579,11 @@ async function seedServerInfo(db: Db) {
   const runeId = await createStaffTopic("Sistema de Runas — Novos Slots de Item", RUNE_TOPIC_BODY);
   const skillTooltipId = await createStaffTopic("Novo Tooltip de Skills e Buffs", SKILL_TOOLTIP_TOPIC_BODY);
   const superiorId = await createStaffTopic("Combine Superior — Promova seu Equipamento", SUPERIOR_TOPIC_BODY);
+  const npcGuideId = await createStaffTopic("Guia de NPCs — RF Echelon", NPC_GUIDE_TOPIC_BODY);
 
   await createStaffTopic(
     MASTER_TITLE,
-    buildMasterBody({ editorId, rankupId, talicaFavorId, runeId, skillTooltipId, superiorId }),
+    buildMasterBody({ editorId, rankupId, talicaFavorId, runeId, skillTooltipId, superiorId, npcGuideId }),
     true
   );
 }
