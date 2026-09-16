@@ -39,13 +39,6 @@ const TOPUP_GP_TIERS = [
   { amountBrl: 1000, bonusPercent: 50 },
 ] as const;
 
-// Itens do pacote Beginner [Free] (ver PACKAGE_SEED["beginner_free"] em db/store.ts — mesma lista,
-// só pra exibir com ícone/tooltip aqui; a entrega de verdade vem do backend, não daqui).
-const BEGINNER_PACKAGE_ITEMS = [
-  { itemCode: "ipglp01", amount: 4, label: "Gold Point Pill" },
-  { itemCode: "irgn0027", amount: 1, label: "Premium (7 Dias)" },
-] as const;
-
 // Cash Potion 10.000/Gold Capsule+10000 na Loja não entregam mais poção (ver
 // app/api/store/buy-potion/route.ts CURRENCY_POTIONS) — creditam Cash/Gold Point direto na conta.
 // Exibe como crédito (símbolo de moeda, sem tooltip de item) em vez de item de poção, pra não parecer
@@ -358,9 +351,6 @@ const COPY = {
     packagesHint: "Pague com o Game CP que você já tem — entrega automática, sem passar pelo Asaas.",
     packagesPremiumNote:
       "Todos os pacotes dão Premium por 30 dias (não acumula — comprar mais de um pacote no mês não estende a duração). Vantagens: 2x mais XP, 2x mais Drop, 2x mais Mastery, Auto Loot.",
-    beginnerTitle: "Beginner [Free]",
-    beginnerHint: "Pacote de boas-vindas grátis — só pode resgatar uma vez por conta.",
-    beginnerClaim: "Resgatar",
     character: "Personagem selecionado",
     level: "nível",
     noChars: "Nenhum personagem encontrado nessa conta — entre no jogo pra criar o primeiro.",
@@ -416,9 +406,6 @@ const COPY = {
     packagesHint: "Pay with the Game CP you already have — automatic delivery, no Asaas checkout needed.",
     packagesPremiumNote:
       "Every package grants Premium for 30 days (non-stacking — buying more than one package in a month does not extend the duration). Benefits: 2x XP, 2x Drop, 2x Mastery, Auto Loot.",
-    beginnerTitle: "Beginner [Free]",
-    beginnerHint: "Free welcome package — claimable once per account.",
-    beginnerClaim: "Claim",
     character: "Selected character",
     level: "level",
     noChars: "No character found on this account — log in-game to create your first one.",
@@ -827,83 +814,6 @@ export default function GameCpPortal({
             </label>
           )}
           {topupError && <p className="store-error">{topupError}</p>}
-          <div className="gamecp-beginner-banner">
-            <div className="gamecp-beginner-banner-info">
-              <strong>{t.beginnerTitle}</strong>
-              <p>{t.beginnerHint}</p>
-              <ul className="gamecp-topup-card-items gamecp-beginner-banner-items">
-                <li className="gamecp-topup-card-item">
-                  <span className="gamecp-topup-card-item-icon gamecp-beginner-banner-dalant">◈</span>
-                  <span>20.000.000 Dalant</span>
-                </li>
-                <li className="gamecp-topup-card-item">
-                  <span className="gamecp-topup-card-item-icon gamecp-beginner-banner-dalant">$</span>
-                  <span>5.000 Cash</span>
-                </li>
-                {BEGINNER_PACKAGE_ITEMS.map((item) => {
-                  const tooltip = DONATE_ITEM_TOOLTIPS[item.itemCode];
-                  return (
-                    <li key={item.itemCode} className="gamecp-topup-card-item">
-                      <span className="gamecp-topup-card-item-icon">
-                        {DONATE_ITEM_ICONS[item.itemCode] ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={DONATE_ITEM_ICONS[item.itemCode]} alt="" />
-                        ) : (
-                          <span className="gamecp-topup-card-item-fallback">{item.label.charAt(0)}</span>
-                        )}
-                      </span>
-                      <span>
-                        {item.amount}x {item.label}
-                      </span>
-                      {tooltip && (
-                        <div className="gamecp-item-tooltip gamecp-native-tooltip">
-                          <strong className="gamecp-native-tooltip-title">[{tooltip.name}]</strong>
-                          <dl className="gamecp-native-tooltip-fields">
-                            <dt>Type</dt>
-                            <dd>{tooltip.type}</dd>
-                            <dt>Race</dt>
-                            <dd>{tooltip.race}</dd>
-                            <dt>Target</dt>
-                            <dd>{tooltip.target}</dd>
-                            <dt>Quantity</dt>
-                            <dd>{tooltip.quantity}</dd>
-                            <dt>Cast Delay</dt>
-                            <dd>{tooltip.castDelay}</dd>
-                            {tooltip.specialEffects.length > 0 && (
-                              <>
-                                <dt>Special Effects</dt>
-                                <dd className="gamecp-native-tooltip-gold">
-                                  {tooltip.specialEffects.map((effect) => (
-                                    <span key={effect}>{effect}</span>
-                                  ))}
-                                </dd>
-                              </>
-                            )}
-                            <dt>Market</dt>
-                            <dd className="gamecp-native-tooltip-green">{tooltip.market}</dd>
-                            <dt>Drop</dt>
-                            <dd className="gamecp-native-tooltip-green">{tooltip.drop}</dd>
-                            <dt>Use Status</dt>
-                            <dd>{tooltip.useStatus}</dd>
-                          </dl>
-                          <p className="gamecp-native-tooltip-desc-label">[Description]</p>
-                          <p className="gamecp-native-tooltip-desc">{tooltip.description}</p>
-                        </div>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-            <button
-              type="button"
-              className="gamecp-topup-card-buy"
-              disabled={loading}
-              onClick={() => handleBuyPackage("beginner_free")}
-            >
-              {t.beginnerClaim}
-            </button>
-          </div>
           <p className="gamecp-topup-premium-note">{t.packagesPremiumNote}</p>
           <div className="gamecp-topup-packages">
             {TOPUP_TIERS.map(({ amountBrl, name, color }) => {
