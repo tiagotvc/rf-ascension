@@ -196,10 +196,8 @@ Pra armadura e escudo não tem variante por atributo — a peça herda o afixo i
 Materiais: 1x !icon[Superior Recipe](/game-data/combine/icons/irrc02.png) + 50x !icon[Material de Promoção](/game-data/combine/icons/irrc03.png)`;
 
 // Guia crescente de NPCs de apoio — cada seção nova vai sendo adicionada
-// conforme formos documentando o próximo NPC (Foreign Vendor, Daily Quest,
-// Buff Me, Events, etc. ainda faltam). Custo do Armor Exchanger confirmado
-// só até Lv.37 — a janela em jogo corta o texto antes de mostrar os níveis
-// seguintes, então isso NÃO é extrapolado aqui (regra: nunca especular).
+// conforme formos documentando o próximo NPC (Foreign Vendor, Events, etc.
+// ainda faltam).
 const NPC_GUIDE_TOPIC_BODY = `Guia com o que cada NPC de apoio faz no RF Echelon. Esse tópico vai crescer aos poucos — se o NPC que você procura ainda não está aqui, é porque ainda não documentamos ele.
 
 {gold:Armor Exchanger}
@@ -217,8 +215,12 @@ Custo por nível (confirmado):
 | 33 | 1 Cristal de Tálica + 300.000 Dalant |
 | 35 | 1 Cristal de Tálica + 400.000 Dalant |
 | 37 | 1 Cristal de Tálica + 500.000 Dalant |
-
-A janela também oferece os níveis 39, 41, 43, 45, 47 e 50, mas o texto da descrição corta antes de mostrar o custo desses — assim que confirmarmos os valores certos, atualizamos essa tabela.
+| 39 | 2 Cristais de Tálica + 800.000 Dalant |
+| 41 | 2 Cristais de Tálica + 1.000.000 Dalant |
+| 43 | 2 Cristais de Tálica + 1.200.000 Dalant |
+| 45 | 2 Cristais de Tálica + 1.500.000 Dalant |
+| 47 | 4 Cristais de Tálica + 2.000.000 Dalant |
+| 50 | 10 Cristais de Tálica + 10.000.000 Dalant |
 
 {cyan:Buff Me}
 ![NPC Buff Me](/assets/npcs/buff-me.png)
