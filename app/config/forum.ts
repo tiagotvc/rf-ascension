@@ -70,9 +70,11 @@ export const forumAreas: ForumArea[] = [
 ];
 
 // "Informações do servidor": descreve os sistemas do jogo (o que existe hoje).
-// "Notas de atualização" fica reservada para o histórico de manutenções reais,
-// a começar pela primeira depois do lançamento — não usar para isso agora.
+// "Notas de atualização" é o histórico de manutenções reais, um tópico de staff por data (a listagem
+// do board já ordena por pinned+createdAt desc - ver listTopicsForBoard - então a mais recente cai
+// em cima sozinha, sem precisar de lógica extra). Passou a ser usada a partir de 2026-09-17, a pedido.
 export const SERVER_INFO_SLUG = "01-2";
+export const PATCH_NOTES_SLUG = "01-3";
 export const DROPS_SLUG = "02-4";
 export const COMBOS_SLUG = "02-2";
 

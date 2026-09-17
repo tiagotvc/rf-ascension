@@ -2,7 +2,7 @@ import { and, count, desc, eq, inArray } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 import { getDb } from "./index";
 import { forumPosts, forumTopics } from "./schema";
-import { SERVER_INFO_SLUG, DROPS_SLUG, COMBOS_SLUG, findForumBoard } from "../app/config/forum";
+import { SERVER_INFO_SLUG, PATCH_NOTES_SLUG, DROPS_SLUG, COMBOS_SLUG, findForumBoard } from "../app/config/forum";
 
 type Db = Awaited<ReturnType<typeof getDb>>;
 
@@ -405,12 +405,6 @@ async function ensureForumSchema(db: Db) {
     created_at TEXT NOT NULL
   )`);
   await db.execute(sql`CREATE INDEX IF NOT EXISTS forum_posts_topic_id_idx ON forum_posts (topic_id)`);
-  // Correção de rota: essas notas foram semeadas em "Notas de atualização"
-  // (01-3) antes de decidirmos que esse mural fica reservado para a primeira
-  // manutenção real. Move o que já existir para "Informações do servidor".
-  await db.execute(
-    sql`UPDATE forum_topics SET forum_slug = ${SERVER_INFO_SLUG} WHERE forum_slug = '01-3' AND author_email = ${STAFF_EMAIL}`
-  );
   // Rebrand RF Ascension -> RF Echelon: título, autor e corpo já semeados
   // ainda tinham o nome antigo (a troca dos textos-fonte só afeta o próximo
   // insert; conteúdo já gravado no D1 precisa de migração explícita).
@@ -558,21 +552,27 @@ Eventos:
 // quando um recurso novo é adicionado DEPOIS que o tópico mestre já existe
 // (seedServerInfo só roda inteiro na primeira vez, então não recria os
 // sub-tópicos que já estavam lá; isso preenche especificamente o que falta).
-async function ensureSubTopic(db: Db, title: string, body: string): Promise<number> {
+async function ensureSubTopic(db: Db, title: string, body: string, forumSlug: string = SERVER_INFO_SLUG): Promise<number> {
   const [existing] = await db
     .select({ id: forumTopics.id })
     .from(forumTopics)
-    .where(
-      and(eq(forumTopics.forumSlug, SERVER_INFO_SLUG), eq(forumTopics.title, title), eq(forumTopics.authorEmail, STAFF_EMAIL))
-    );
+    .where(and(eq(forumTopics.forumSlug, forumSlug), eq(forumTopics.title, title), eq(forumTopics.authorEmail, STAFF_EMAIL)));
   if (existing) return existing.id;
 
   const [topic] = await db
     .insert(forumTopics)
-    .values({ forumSlug: SERVER_INFO_SLUG, title, authorName: STAFF_NAME, authorEmail: STAFF_EMAIL })
+    .values({ forumSlug, title, authorName: STAFF_NAME, authorEmail: STAFF_EMAIL })
     .returning();
   await db.insert(forumPosts).values({ topicId: topic.id, body, authorName: STAFF_NAME, authorEmail: STAFF_EMAIL });
   return topic.id;
+}
+
+// Notas de atualização (01-3): um tópico de staff por data, mais recente sempre em cima (a listagem do
+// board já ordena por pinned+createdAt desc). Ao contrário dos guias de "Informações do servidor", cada
+// entrada é um registro histórico fixo - sem rewriteTopicBodyIfChanged, pra não reescrever uma nota já
+// publicada sem querer. `title` já deve trazer a data (ex.: "Patch 17/09 - ...").
+export async function ensurePatchNoteTopic(db: Db, title: string, body: string): Promise<number> {
+  return ensureSubTopic(db, title, body, PATCH_NOTES_SLUG);
 }
 
 // Sub-tópicos já existem (mesmos ids) e o texto do mestre mudou de novo —
