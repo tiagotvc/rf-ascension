@@ -252,7 +252,7 @@ const DUNGEON_TOPIC_BODY = `Dungeon rework:
 - Time to complete each mission is up 50% (e.g. 2 min → 3 min).
 
 {gold:Possible rewards}
-The reward pool isn't identical across every dungeon — it depends on the dungeon's level range. Below: what every dungeon gives in common, then what changes by level.
+Each dungeon clear rolls 4 rewards at random from its pool below — it's a lottery, not "you get everything listed." The pool isn't identical across every dungeon either — it depends on the dungeon's level range. Below: what every dungeon gives in common, then what changes by level.
 
 {cyan:Common to every dungeon}
 - !icon[Keen Talic](/game-data/dungeon/icons/irtal01.png) Keen Talic
@@ -262,25 +262,25 @@ The reward pool isn't identical across every dungeon — it depends on the dunge
 - !icon[Fire Ruby](/game-data/dungeon/icons/irgef03.png) Fire Ruby
 - !icon[Wind Obsidian](/game-data/dungeon/icons/irgew03.png) Wind Obsidian
 - !icon[Poison Topaz](/game-data/dungeon/icons/irget03.png) Poison Topaz
-- !icon[Evolution Stone Low](/game-data/dungeon/icons/irunv01.png) Evolution Stone [Low]
+- !icon[Evolution Stone Low](/game-data/dungeon/icons/irunv01.png) Evolution Stone [Low] x5-10
+- !icon[Dungeon Token](/game-data/dungeon/icons/iydtk01.png) Dungeon Token x2-3
 - !icon[Smith Material Box](/game-data/dungeon/icons/bxsmt01.png) Smith Material Box
 - !icon[Rune Box](/game-data/dungeon/icons/bxrun01.png) Rune Box
 - !icon[Intense Weapon Recipe](/game-data/dungeon/icons/iyset29.png) Intense Weapon Recipe
 - !icon[Intense Armor Recipe](/game-data/dungeon/icons/iyset32.png) Intense Armor Recipe
 - !icon[Superior Weapon Recipe](/game-data/dungeon/icons/iyset30.png) Superior Weapon Recipe (rare)
-- !icon[Superior Armor Recipe](/game-data/dungeon/icons/iyset33.png) Superior Armor Recipe (rare)
 - !icon[Artisan's Breath](/game-data/dungeon/icons/iyset35.png) Artisan's Breath
 
 {orange:What changes by level}
-| Level range | Dungeons | Armor Box | T2 Elemental Gems | Bonus |
-|---|---|---|---|---|
-| 15-20 | 1 | !icon[Armor Box Lv.47](/game-data/dungeon/icons/bxgem47.png) Lv.47 | — | Gain 1% EXP Potion x2 |
-| 21-25 | 2 | !icon[Armor Box Lv.47](/game-data/dungeon/icons/bxgem47.png) Lv.47 | — | Gain 1% EXP Potion x2 |
-| 26-30 | 3 | !icon[Armor Box Lv.31](/game-data/dungeon/icons/bxgem31.png) Lv.31 | Yes | — |
-| 31-35 | 4 | !icon[Armor Box Lv.35](/game-data/dungeon/icons/bxgem35.png) Lv.35 | Yes | — |
-| 36-40 | 4 | !icon[Armor Box Lv.39](/game-data/dungeon/icons/bxgem39.png) Lv.39 | Yes | — |
-| 41-45 | 5 | !icon[Armor Box Lv.45](/game-data/dungeon/icons/bxgem45.png) Lv.45 | — | — |
-| 46-49 | 5 | !icon[Armor Box Lv.47](/game-data/dungeon/icons/bxgem47.png) Lv.47 | — | Gain 1% EXP Potion x2 |
+| Level range | Dungeons | Armor Box | T2 Elemental Gems | Superior Armor Recipe | Bonus |
+|---|---|---|---|---|---|
+| 15-20 | 1 | !icon[Armor Box Lv.31](/game-data/dungeon/icons/bxgem31.png) Lv.31 | — | — | Gain 1% EXP Potion x2 |
+| 21-25 | 2 | !icon[Armor Box Lv.31](/game-data/dungeon/icons/bxgem31.png) Lv.31 | — | — | Gain 1% EXP Potion x2 |
+| 26-30 | 3 | !icon[Armor Box Lv.31](/game-data/dungeon/icons/bxgem31.png) Lv.31 | Yes (x2) | — | — |
+| 31-35 | 4 | !icon[Armor Box Lv.35](/game-data/dungeon/icons/bxgem35.png) Lv.35 | Yes (x2) | — | — |
+| 36-40 | 4 | !icon[Armor Box Lv.39](/game-data/dungeon/icons/bxgem39.png) Lv.39 | Yes (x2) | Yes | — |
+| 41-45 | 5 | !icon[Armor Box Lv.45](/game-data/dungeon/icons/bxgem45.png) Lv.45 | — | Yes | — |
+| 46-49 | 5 | !icon[Armor Box Lv.47](/game-data/dungeon/icons/bxgem47.png) Lv.47 | — | Yes | Gain 1% EXP Potion x2 |
 
 {violet:T2 Elemental Gems (26-40 only)}
 - !icon[Water Crystal](/game-data/dungeon/icons/irgea02.png) Water Crystal
