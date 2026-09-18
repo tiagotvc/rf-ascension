@@ -252,55 +252,41 @@ const DUNGEON_TOPIC_BODY = `Dungeon rework:
 - Time to complete each mission is up 50% (e.g. 2 min → 3 min).
 
 {gold:Possible rewards}
+The reward pool isn't identical across every dungeon — it depends on the dungeon's level range. Below: what every dungeon gives in common, then what changes by level.
 
-{cyan:Talics}
+{cyan:Common to every dungeon}
 - !icon[Keen Talic](/game-data/dungeon/icons/irtal01.png) Keen Talic
-- !icon[Destruction Talic](/game-data/dungeon/icons/irtal02.png) Destruction Talic
-- !icon[Darkness Talic](/game-data/dungeon/icons/irtal03.png) Darkness Talic
-- !icon[Chaos Talic](/game-data/dungeon/icons/irtal04.png) Chaos Talic
-- !icon[Hatred Talic](/game-data/dungeon/icons/irtal05.png) Hatred Talic
 - !icon[Favor Talic](/game-data/dungeon/icons/irtal06.png) Favor Talic
-- !icon[Wisdom Talic](/game-data/dungeon/icons/irtal07.png) Wisdom Talic
-- !icon[Sacred Fire Talic](/game-data/dungeon/icons/irtal08.png) Sacred Fire Talic
-- !icon[Belief Talic](/game-data/dungeon/icons/irtal09.png) Belief Talic
-- !icon[Guard Talic](/game-data/dungeon/icons/irtal10.png) Guard Talic
-- !icon[Glory Talic](/game-data/dungeon/icons/irtal11.png) Glory Talic
 - !icon[Grace Talic](/game-data/dungeon/icons/irtal12.png) Grace Talic
-- !icon[Mercy Talic](/game-data/dungeon/icons/irtal13.png) Mercy Talic
-- !icon[Restoration Talic](/game-data/dungeon/icons/irtal14.png) Restoration Talic
-
-{orange:Boxes}
-- !icon[Rune Box](/game-data/dungeon/icons/bxrun01.png) Rune Box
-- !icon[Smith Material Box](/game-data/dungeon/icons/bxsmt01.png) Smith Material Box
-
-{violet:Armor Boxes}
-- !icon[Armor Box Lv.31](/game-data/dungeon/icons/bxgem31.png) Armor Box (Lv.31)
-- !icon[Armor Box Lv.33](/game-data/dungeon/icons/bxgem33.png) Armor Box (Lv.33)
-- !icon[Armor Box Lv.35](/game-data/dungeon/icons/bxgem35.png) Armor Box (Lv.35)
-- !icon[Armor Box Lv.37](/game-data/dungeon/icons/bxgem37.png) Armor Box (Lv.37)
-- !icon[Armor Box Lv.39](/game-data/dungeon/icons/bxgem39.png) Armor Box (Lv.39)
-- !icon[Armor Box Lv.41](/game-data/dungeon/icons/bxgem41.png) Armor Box (Lv.41)
-- !icon[Armor Box Lv.43](/game-data/dungeon/icons/bxgem43.png) Armor Box (Lv.43)
-- !icon[Armor Box Lv.45](/game-data/dungeon/icons/bxgem45.png) Armor Box (Lv.45)
-- !icon[Armor Box Lv.47](/game-data/dungeon/icons/bxgem47.png) Armor Box (Lv.47)
-
-{cyan:Elemental Gems}
 - !icon[Ice Crystal](/game-data/dungeon/icons/irgea03.png) Ice Crystal
 - !icon[Fire Ruby](/game-data/dungeon/icons/irgef03.png) Fire Ruby
 - !icon[Wind Obsidian](/game-data/dungeon/icons/irgew03.png) Wind Obsidian
 - !icon[Poison Topaz](/game-data/dungeon/icons/irget03.png) Poison Topaz
+- !icon[Evolution Stone Low](/game-data/dungeon/icons/irunv01.png) Evolution Stone [Low]
+- !icon[Smith Material Box](/game-data/dungeon/icons/bxsmt01.png) Smith Material Box
+- !icon[Rune Box](/game-data/dungeon/icons/bxrun01.png) Rune Box
+- !icon[Intense Weapon Recipe](/game-data/dungeon/icons/iyset29.png) Intense Weapon Recipe
+- !icon[Intense Armor Recipe](/game-data/dungeon/icons/iyset32.png) Intense Armor Recipe
+- !icon[Superior Weapon Recipe](/game-data/dungeon/icons/iyset30.png) Superior Weapon Recipe (rare)
+- !icon[Superior Armor Recipe](/game-data/dungeon/icons/iyset33.png) Superior Armor Recipe (rare)
+- !icon[Artisan's Breath](/game-data/dungeon/icons/iyset35.png) Artisan's Breath
+
+{orange:What changes by level}
+| Level range | Dungeons | Armor Box | T2 Elemental Gems | Bonus |
+|---|---|---|---|---|
+| 15-20 | 1 | !icon[Armor Box Lv.47](/game-data/dungeon/icons/bxgem47.png) Lv.47 | — | Gain 1% EXP Potion x2 |
+| 21-25 | 2 | !icon[Armor Box Lv.47](/game-data/dungeon/icons/bxgem47.png) Lv.47 | — | Gain 1% EXP Potion x2 |
+| 26-30 | 3 | !icon[Armor Box Lv.31](/game-data/dungeon/icons/bxgem31.png) Lv.31 | Yes | — |
+| 31-35 | 4 | !icon[Armor Box Lv.35](/game-data/dungeon/icons/bxgem35.png) Lv.35 | Yes | — |
+| 36-40 | 4 | !icon[Armor Box Lv.39](/game-data/dungeon/icons/bxgem39.png) Lv.39 | Yes | — |
+| 41-45 | 5 | !icon[Armor Box Lv.45](/game-data/dungeon/icons/bxgem45.png) Lv.45 | — | — |
+| 46-49 | 5 | !icon[Armor Box Lv.47](/game-data/dungeon/icons/bxgem47.png) Lv.47 | — | Gain 1% EXP Potion x2 |
+
+{violet:T2 Elemental Gems (26-40 only)}
 - !icon[Water Crystal](/game-data/dungeon/icons/irgea02.png) Water Crystal
 - !icon[Light Ruby](/game-data/dungeon/icons/irgef02.png) Light Ruby
 - !icon[Lightning Obsidian](/game-data/dungeon/icons/irgew02.png) Lightning Obsidian
-- !icon[Terra Topaz](/game-data/dungeon/icons/irget02.png) Terra Topaz
-
-{orange:Recipes & Materials}
-- !icon[Evolution Stone Low](/game-data/dungeon/icons/irunv01.png) Evolution Stone [Low]
-- Intense Weapon Recipe
-- Intense Armor Recipe
-- Superior Weapon Recipe (rare)
-- Superior Armor Recipe (rare)
-- Artisan's Breath`;
+- !icon[Terra Topaz](/game-data/dungeon/icons/irget02.png) Terra Topaz`;
 
 const RANKUP_TOPIC_BODY = `O Rank é um atributo separado do +Upgrade normal (os pontinhos de talica) — existe tanto em arma quanto em armadura, e dá um bônus fixo de dano ou defesa que soma direto no combate, sem depender da fórmula normal de defesa.
 
