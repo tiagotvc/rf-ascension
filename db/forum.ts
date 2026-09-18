@@ -388,7 +388,30 @@ The boxes boss: every kill drops three kinds of boxes, all guaranteed.
 |---|---|---|
 | !icon[Smith Material Box](/game-data/drops/icons/bxsmt01.png) Smith Material Box | 20, each one separate | 100% |
 | !icon[Inventer's Accessories Box](/game-data/drops/icons/bxcjh01.png) Inventer's Accessories Box | 20, each one separate | 100% |
-| !icon[Talic Box](/game-data/drops/icons/bxadvtal01.png) Talic Box | 20, each one separate | 100% |`;
+| !icon[Talic Box](/game-data/drops/icons/bxadvtal01.png) Talic Box | 20, each one separate | 100% |
+
+{gold:Frenzy Ratmoth}
+![Frenzy Ratmoth](/assets/drops/NeutralA/Boss/01504/boss.png)
+
+Every kill drops exactly two items, both guaranteed: one random ring and one random amulet. Nothing else drops from it.
+
+| Drop | Pool | Chance |
+|---|---|---|
+| One random ring | 40 different rings (list below) | 100% |
+| One random amulet | 32 different amulets (list below) | 100% |
+
+{cyan:Rings in the pool}
+- !icon[Elemental Normal Bracer](/game-data/drops/icons/iiaab35.png) Elemental Normal Bracer — 8 variants
+- !icon[Elemental Pliant Bracer](/game-data/drops/icons/iiaab43.png) Elemental Pliant Bracer — 8 variants
+- !icon[Elemental Hue Bracer](/game-data/drops/icons/iiaab51.png) Elemental Hue Bracer — 8 variants
+- !icon[Elemental Power Bracer](/game-data/drops/icons/iiaab59.png) Elemental Power Bracer — 8 variants
+- !icon[Elemental Mighty Bracelet](/game-data/drops/icons/iiaab67.png) Elemental Mighty Bracelet A to H — 8 different ones
+
+{cyan:Amulets in the pool}
+- !icon[Elemental Normal Headset](/game-data/drops/icons/iaaab35.png) Elemental Normal Headset — 8 variants
+- !icon[Elemental Pliant Headset](/game-data/drops/icons/iaaab43.png) Elemental Pliant Headset — 8 variants
+- !icon[Elemental Hue Headset](/game-data/drops/icons/iaaab51.png) Elemental Hue Headset — 8 variants
+- !icon[Elemental Power Headset](/game-data/drops/icons/iaaab59.png) Elemental Power Headset — 8 variants`;
 
 const RANKUP_TOPIC_BODY = `O Rank é um atributo separado do +Upgrade normal (os pontinhos de talica) — existe tanto em arma quanto em armadura, e dá um bônus fixo de dano ou defesa que soma direto no combate, sem depender da fórmula normal de defesa.
 
