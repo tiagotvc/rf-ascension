@@ -295,6 +295,76 @@ No Armor Box, no T3 gems, no Evolution Stone, no boxes/recipes at these levels.
 | 41-45 | 5 | !icon[Armor Box Lv.45](/game-data/dungeon/icons/bxgem45.png) Lv.45 x1 | x1 | — | Yes |
 | 46-49 | 5 | !icon[Armor Box Lv.47](/game-data/dungeon/icons/bxgem47.png) Lv.47 x1 | x1 | — | Yes |`;
 
+// Fonte: luaScript\LootFilter\Boss\Neutral*Boss.lua (9 arquivos) + Gold Point\*.lua (26 arquivos), lidos
+// direto (2026-09-18). "roll" = LootFilter_BeginPool(chance, rolls): sorteio garantido, cada roll pega 1 item do pool.
+// Sem icone de proposito: armaduras/capacetes (pagina de icone compartilhada nao calibrada) e ipgld45
+// (nome "Gold Capsule+100" mas o icone do client e o de +1000).
+const NEUTRAL_GOLD_DROPS_TOPIC_BODY = `Drops from the Neutral zone bosses and from the monsters that drop Gold Point. Straight from the server's drop tables.
+
+How to read it: a percentage is the chance of that item on each kill. A "roll" is a guaranteed draw — each roll picks one random item from its pool. Item tier (Intense, Endurance, Saving...) is decided when the item drops.
+
+{gold:Monsters that drop Gold Point}
+
+{cyan:Turncoat monsters — Elan (24 types)}
+Sniper, Adventurer, Dementor, Phantom Shadow, Infiltrator, Dark Priest, HolyChandra, Armsman, Berserker, Sentinel, Templar, Stealer, Assassin, Striker, Graser, Warlock, Assulter, Punisher, Shield Miler, Wizard, Astraler, Black Knights, Guardian, Mercenery.
+- !icon[Gold Capsule+4](/game-data/drops/icons/ipgld04.png) Gold Capsule+4 — 8%
+- !icon[Gold Capsule+5](/game-data/drops/icons/ipgld05.png) Gold Capsule+5 — 4%
+- !icon[Gold Capsule+6](/game-data/drops/icons/ipgld06.png) Gold Capsule+6 — 2%
+
+{cyan:Hum BaBa and Infernal Drako — Cauldron Volcanic Area}
+Only Gold Point, guaranteed (100%), 30 separate capsules of each:
+- !icon[Gold Capsule+1](/game-data/drops/icons/ipgld01.png) 30x Gold Capsule+1
+- !icon[Gold Capsule+2](/game-data/drops/icons/ipgld02.png) 30x Gold Capsule+2
+- !icon[Gold Capsule+3](/game-data/drops/icons/ipgld03.png) 30x Gold Capsule+3
+
+{cyan:Rook Snatcher (Accretia) and Splinter Rex (Bellato and Cora) — Neutral base pitbosses}
+Gold only, both guaranteed (100%). Nothing else drops from them.
+- !icon[Gold Point Pill](/game-data/drops/icons/ipglp01.png) 10x Gold Point Pill
+- !icon[Gold Capsule+29](/game-data/drops/icons/ipgld28.png) 100x Gold Capsule+29
+
+{gold:Neutral zones — base pitbosses}
+NeutralA is the Accretia zone, NeutralB is Bellato and NeutralC is Cora.
+- The 12 tower pitbosses (Pitboss 09804 to 09B06 and their equivalents) drop nothing.
+- Vice Bloc Lunker (Accretia): 50x !icon[Smith Material Box](/game-data/drops/icons/bxsmt01.png) Smith Material Box, all guaranteed. Nothing else.
+
+{cyan:Frenzy Ratmoth and Argol Drone (Accretia) — WarBeast Kin, Frenzy Ratmoth and Argol Drone (Bellato) — WarBeast Kin, Frenzy Ratmoth and Freak Vafer Niffer (Cora)}
+- 90% !icon[Gold Capsule+29](/game-data/drops/icons/ipgld28.png) Gold Capsule+29
+- 80% !icon[Evolution Stone Middle](/game-data/drops/icons/irunv02.png) Evolution Stone [Middle]
+- Guaranteed rolls (6 on the Accretia bosses, 4 on Bellato and Cora): !icon[Intense Hora Knife](/game-data/drops/icons/iwknb50.png) Intense Hora weapons (12 types on Accretia, 10 on Bellato and Cora), the Intense armor set pieces for each slot, and the Elemental ring and amulet series
+- Gems: 8 rolls on Accretia (6 on Bellato and Cora) from the 8 tier 2 and tier 3 gems — !icon[Water Crystal](/game-data/dungeon/icons/irgea02.png) !icon[Light Ruby](/game-data/dungeon/icons/irgef02.png) !icon[Lightning Obsidian](/game-data/dungeon/icons/irgew02.png) !icon[Terra Topaz](/game-data/dungeon/icons/irget02.png) !icon[Ice Crystal](/game-data/dungeon/icons/irgea03.png) !icon[Fire Ruby](/game-data/dungeon/icons/irgef03.png) !icon[Wind Obsidian](/game-data/dungeon/icons/irgew03.png) !icon[Poison Topaz](/game-data/dungeon/icons/irget03.png)
+- Talics: 8 rolls on Accretia (6 on Bellato and Cora) of !icon[Keen Talic](/game-data/dungeon/icons/irtal01.png) Keen Talic and !icon[Favor Talic](/game-data/dungeon/icons/irtal06.png) Favor Talic
+- !icon[5 in One Generator](/game-data/drops/icons/ircco38.png) 5 in One Generator [Free] — same roll count as the weapons
+
+{gold:Neutral zones — settlement bosses}
+Each race has two settlement maps (S1 and S2). The bosses share the same kind of drop table.
+
+{cyan:Who is where}
+- Accretia, settlement 1: Argol Wasp, GafMale, Fierce Snatcher Rex, Brath
+- Accretia, settlement 2: Lizard Khan, King Crook, Blood Queen Crook, Brutal Rex, Commander CirusGale
+- Bellato, settlement 1: Argol Wasp, GafMale, Fierce Grumble, Blood Crawler Rex, Brath
+- Bellato, settlement 2: Rex Cannival, Blood King Twizer, Brutal Rex, Heavy Mit Clod, Commandor Trashoo
+- Cora, settlement 1: RashVafer Luther, Blood King Twizer, Brutal Rex, Rex Cannival, Brath
+- Cora, settlement 2: Great Lava, Blood Vafer Rex, Twizer Rex, Heavy Anabola, Commander LeonVolcove
+
+{cyan:What they drop}
+- Accretia bosses: 90% !icon[Guild Point Capsule+10](/game-data/drops/icons/igcap01.png) 3x Guild Point Capsule+10, 90% 3x Gold Capsule+100, 90% 2x !icon[Evolution Stone Middle](/game-data/drops/icons/irunv02.png) Evolution Stone [Middle]
+- Bellato and Cora bosses: same items, but 20% for the Guild Point Capsule+10, 30% for the Gold Capsule+100 and 30% for the Evolution Stone
+- Guaranteed rolls (6 on Accretia, 4 on Bellato and Cora), one random item per roll:
+- !icon[Endurance Hora Knife](/game-data/drops/icons/iwkhb50.png) Endurance Hora weapons (8 types) and !icon[Intense Hora Knife](/game-data/drops/icons/iwknb50.png) Intense Hora weapons (8 types)
+- Intense armor sets for every slot, plus a mixed Intense weapon and armor pool
+- Shields: !icon[Intense Hora Shield](/game-data/drops/icons/idbcb50.png) Intense and !icon[Saving Hora Shield](/game-data/drops/icons/idbhb50.png) Saving (Accretia gets the Platium Protector line: !icon[Intense Platium Protector](/game-data/drops/icons/idaab50.png) !icon[Saving Platium Protector](/game-data/drops/icons/idahb50.png))
+- !icon[Inventer's Accessories Box](/game-data/drops/icons/bxcjh01.png) Inventer's Accessories Box
+- Ring and amulet series (75% pools): !icon[Elemental Normal Bracer](/game-data/drops/icons/iiaab35.png) Elemental Normal, !icon[Fire Parsal AppendixA](/game-data/drops/icons/iabba01.png) Parsal, !icon[Fire Stuff EarringA](/game-data/drops/icons/iacca01.png) Stuff, !icon[Tera Hue HeadsetA](/game-data/drops/icons/iaaaa71.png) Hue and more
+- Gems: 12 types (!icon[Ruby](/game-data/drops/icons/irgef01.png) !icon[Crystal](/game-data/drops/icons/irgea01.png) !icon[Topaz](/game-data/drops/icons/irget01.png) !icon[Obsidian](/game-data/drops/icons/irgew01.png) plus the tier 2 and tier 3 gems above), 12 rolls on Accretia and 10 on Bellato and Cora. Another pool of the 8 tier 2 and 3 gems gets 7 rolls (Accretia) or 5 (Bellato and Cora)
+- All 14 !icon[Keen Talic](/game-data/dungeon/icons/irtal01.png) talics in one pool, and a second pool with Keen, Grace and Mercy Talic only
+- Runes, 20 rolls on Accretia and 18 on Bellato and Cora: !icon[Destruction Rune](/game-data/drops/icons/iprun02.png) Destruction, !icon[Convert Rune](/game-data/drops/icons/iprun06.png) Convert, !icon[Swift Rune](/game-data/drops/icons/iprun07.png) Swift, !icon[Defense Rune](/game-data/drops/icons/iprun09.png) Defense
+
+{cyan:Exceptions}
+- Older tier (Lv.47) armor and shields instead of Lv.50: Argol Wasp and GafMale (Accretia settlement 1 and Bellato settlement 1), Lizard Khan, Rex Cannival (Bellato settlement 2 and Cora settlement 1) and Twizer Rex
+- Brath (settlement 1 of every race) also drops !icon[Gateway Generating Key](/game-data/drops/icons/ixkey27.png) Gateway Generating Keys and !icon[Black Excelsiar Piece](/game-data/drops/icons/irebl01.png) Excelsiar Pieces (10 kinds, like the Black Excelsiar Piece). Accretia's Brath also drops !icon[Uniform Gilded Stone](/game-data/drops/icons/iyset25.png) Uniform Gilded Stone A, Magical Stone B, Abradant C and Recipe D
+- Blood Crawler Rex (Bellato settlement 1) drops only !icon[White ExcelSiar A](/game-data/drops/icons/iywhi01.png) White ExcelSiar A, B and C, all guaranteed
+- The three commanders (CirusGale, Trashoo, LeonVolcove) have a much smaller table: the runes, the talics, a mixed weapon and armor pool, the 8 tier 2 and 3 gems and the direct drops above`;
+
 const RANKUP_TOPIC_BODY = `O Rank é um atributo separado do +Upgrade normal (os pontinhos de talica) — existe tanto em arma quanto em armadura, e dá um bônus fixo de dano ou defesa que soma direto no combate, sem depender da fórmula normal de defesa.
 
 ![Tooltip de arma mostrando Rank 17 level e +114 de Attack Point](/assets/rankup/before.png)
@@ -494,6 +564,8 @@ async function ensureForumSchema(db: Db) {
   await rewriteMasterTopicBody(db);
   await seedServerInfo(db);
   await seedMonsterDrops(db);
+  await ensureSubTopic(db, "Neutral Bosses & Gold Point Drops — RF Echelon", NEUTRAL_GOLD_DROPS_TOPIC_BODY, DROPS_SLUG);
+  await rewriteTopicBodyIfChanged(db, DROPS_SLUG, "Neutral Bosses & Gold Point Drops — RF Echelon", NEUTRAL_GOLD_DROPS_TOPIC_BODY);
   await db.execute(sql`DELETE FROM forum_posts WHERE topic_id IN (SELECT id FROM forum_topics WHERE forum_slug = ${DROPS_SLUG} AND author_email = ${STAFF_EMAIL} AND title = 'Boss Drops by Map — RF Echelon')`);
   await db.execute(sql`DELETE FROM forum_topics WHERE forum_slug = ${DROPS_SLUG} AND author_email = ${STAFF_EMAIL} AND title = 'Boss Drops by Map — RF Echelon'`);
   await removeStrayItemCombosTopic(db);
