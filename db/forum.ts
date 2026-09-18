@@ -377,7 +377,18 @@ The gold farm boss: nothing else drops from it, only Gold Point.
 | Drop | Amount | Chance |
 |---|---|---|
 | !icon[Gold Point Pill](/game-data/drops/icons/ipglp01.png) Gold Point Pill | 10, each one separate | 100% |
-| !icon[Gold Capsule+29](/game-data/drops/icons/ipgld28.png) Gold Capsule+29 | 100, each one separate | 100% |`;
+| !icon[Gold Capsule+29](/game-data/drops/icons/ipgld28.png) Gold Capsule+29 | 100, each one separate | 100% |
+
+{gold:Vice Bloc Lunker}
+![Vice Bloc Lunker](/assets/drops/NeutralA/Boss/01304/boss.png)
+
+The boxes boss: every kill drops three kinds of boxes, all guaranteed.
+
+| Drop | Amount | Chance |
+|---|---|---|
+| !icon[Smith Material Box](/game-data/drops/icons/bxsmt01.png) Smith Material Box | 20, each one separate | 100% |
+| !icon[Inventer's Accessories Box](/game-data/drops/icons/bxcjh01.png) Inventer's Accessories Box | 20, each one separate | 100% |
+| !icon[Talic Box](/game-data/drops/icons/bxadvtal01.png) Talic Box | 20, each one separate | 100% |`;
 
 const RANKUP_TOPIC_BODY = `O Rank é um atributo separado do +Upgrade normal (os pontinhos de talica) — existe tanto em arma quanto em armadura, e dá um bônus fixo de dano ou defesa que soma direto no combate, sem depender da fórmula normal de defesa.
 
