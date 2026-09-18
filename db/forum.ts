@@ -252,9 +252,23 @@ const DUNGEON_TOPIC_BODY = `Dungeon rework:
 - Time to complete each mission is up 50% (e.g. 2 min → 3 min).
 
 {gold:Possible rewards}
-Each dungeon clear rolls 4 rewards at random from its pool below — it's a lottery, not "you get everything listed." The pool isn't identical across every dungeon either — it depends on the dungeon's level range. Below: what every dungeon gives in common, then what changes by level.
+Each dungeon clear rolls 4 rewards at random from its pool below — it's a lottery, not "you get everything listed." Levels 15-25 have their own separate, smaller pool — everything from level 26 up shares the pool described further down.
 
-{cyan:Common to every dungeon}
+{cyan:Levels 15-25 (3 dungeons)}
+- Gain 1% EXP Potion x2
+- !icon[Keen Talic](/game-data/dungeon/icons/irtal01.png) Keen Talic
+- !icon[Favor Talic](/game-data/dungeon/icons/irtal06.png) Favor Talic
+- !icon[Grace Talic](/game-data/dungeon/icons/irtal12.png) Grace Talic
+- !icon[Dungeon Token](/game-data/dungeon/icons/iydtk01.png) Dungeon Token x1
+- !icon[Water Crystal](/game-data/dungeon/icons/irgea02.png) Water Crystal x2
+- !icon[Light Ruby](/game-data/dungeon/icons/irgef02.png) Light Ruby x2
+- !icon[Lightning Obsidian](/game-data/dungeon/icons/irgew02.png) Lightning Obsidian x2
+- !icon[Terra Topaz](/game-data/dungeon/icons/irget02.png) Terra Topaz x2
+- !icon[Gold Point Pill](/game-data/dungeon/icons/ipglp01.png) Gold Point Pill x5
+
+No Armor Box, no T3 gems, no Evolution Stone, no boxes/recipes at these levels.
+
+{orange:Levels 26-49 — common to all}
 - !icon[Keen Talic](/game-data/dungeon/icons/irtal01.png) Keen Talic
 - !icon[Favor Talic](/game-data/dungeon/icons/irtal06.png) Favor Talic
 - !icon[Grace Talic](/game-data/dungeon/icons/irtal12.png) Grace Talic
@@ -271,22 +285,14 @@ Each dungeon clear rolls 4 rewards at random from its pool below — it's a lott
 - !icon[Superior Weapon Recipe](/game-data/dungeon/icons/iyset30.png) Superior Weapon Recipe (rare)
 - !icon[Artisan's Breath](/game-data/dungeon/icons/iyset35.png) Artisan's Breath
 
-{orange:What changes by level}
-| Level range | Dungeons | Armor Box | T2 Elemental Gems | Superior Armor Recipe | Bonus |
-|---|---|---|---|---|---|
-| 15-20 | 1 | !icon[Armor Box Lv.31](/game-data/dungeon/icons/bxgem31.png) Lv.31 | — | — | Gain 1% EXP Potion x2 |
-| 21-25 | 2 | !icon[Armor Box Lv.31](/game-data/dungeon/icons/bxgem31.png) Lv.31 | — | — | Gain 1% EXP Potion x2 |
-| 26-30 | 3 | !icon[Armor Box Lv.31](/game-data/dungeon/icons/bxgem31.png) Lv.31 | Yes (x2) | — | — |
-| 31-35 | 4 | !icon[Armor Box Lv.35](/game-data/dungeon/icons/bxgem35.png) Lv.35 | Yes (x2) | — | — |
-| 36-40 | 4 | !icon[Armor Box Lv.39](/game-data/dungeon/icons/bxgem39.png) Lv.39 | Yes (x2) | Yes | — |
-| 41-45 | 5 | !icon[Armor Box Lv.45](/game-data/dungeon/icons/bxgem45.png) Lv.45 | — | Yes | — |
-| 46-49 | 5 | !icon[Armor Box Lv.47](/game-data/dungeon/icons/bxgem47.png) Lv.47 | — | Yes | Gain 1% EXP Potion x2 |
-
-{violet:T2 Elemental Gems (26-40 only)}
-- !icon[Water Crystal](/game-data/dungeon/icons/irgea02.png) Water Crystal
-- !icon[Light Ruby](/game-data/dungeon/icons/irgef02.png) Light Ruby
-- !icon[Lightning Obsidian](/game-data/dungeon/icons/irgew02.png) Lightning Obsidian
-- !icon[Terra Topaz](/game-data/dungeon/icons/irget02.png) Terra Topaz`;
+{violet:What changes by level (26-49)}
+| Level range | Dungeons | Armor Box | T2 Elemental Gems | Superior Armor Recipe |
+|---|---|---|---|---|
+| 26-30 | 3 | !icon[Armor Box Lv.31](/game-data/dungeon/icons/bxgem31.png) Lv.31 | Yes (x2) | — |
+| 31-35 | 4 | !icon[Armor Box Lv.35](/game-data/dungeon/icons/bxgem35.png) Lv.35 | Yes (x2) | — |
+| 36-40 | 4 | !icon[Armor Box Lv.39](/game-data/dungeon/icons/bxgem39.png) Lv.39 | Yes (x2) | Yes |
+| 41-45 | 5 | !icon[Armor Box Lv.45](/game-data/dungeon/icons/bxgem45.png) Lv.45 | — | Yes |
+| 46-49 | 5 | !icon[Armor Box Lv.47](/game-data/dungeon/icons/bxgem47.png) Lv.47 | — | Yes |`;
 
 const RANKUP_TOPIC_BODY = `O Rank é um atributo separado do +Upgrade normal (os pontinhos de talica) — existe tanto em arma quanto em armadura, e dá um bônus fixo de dano ou defesa que soma direto no combate, sem depender da fórmula normal de defesa.
 
