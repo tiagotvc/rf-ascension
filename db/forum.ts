@@ -295,101 +295,6 @@ No Armor Box, no T3 gems, no Evolution Stone, no boxes/recipes at these levels.
 | 41-45 | 5 | !icon[Armor Box Lv.45](/game-data/dungeon/icons/bxgem45.png) Lv.45 x1 | x1 | — | Yes |
 | 46-49 | 5 | !icon[Armor Box Lv.47](/game-data/dungeon/icons/bxgem47.png) Lv.47 x1 | x1 | — | Yes |`;
 
-// Fonte: relatório do survey de 2026-09-18 sobre luaScript\LootFilter\ (Boss\, Gold Point\, Custom\ e
-// AutoMigrated\batch_00*.lua, sem .bak) - só monstros com filtro Lua. Nomes de item confirmados via
-// GenericItemIconExportTask. Capacetes (ihbwb53/ihawb50/ihbwb55/ihcrb39) ficam sem ícone de propósito:
-// a página de ícone de helmet é compartilhada com camisa e não está calibrada (saía peitoral).
-const BOSS_DROPS_BY_MAP_TOPIC_BODY = `Main boss drops on RF Echelon, grouped by map. Only bosses with custom drop tables are listed — regular monsters and generic consumables are left out, and bosses that only appear through scripts or events aren't tied to a map here.
-
-How to read it: a "roll" is a guaranteed drop — each roll picks one random item from that pool. The tier (Intense, Endurance, Saving...) is rolled when the item actually drops.
-
-{gold:Medical Lab (Medicallab)}
-{cyan:Izen Cracker (Lv.69)}
-- 4 rolls each from: !icon[Intense Hora Knife](/game-data/drops/icons/iwknb50.png) Intense Hora weapons, Legion / Rage / Argo armor sets, !icon[Intense Platium Protector](/game-data/drops/icons/idaab50.png) Platium Protector shields
-- Elemental Parsal rings and amulets: !icon[Elemental Parsal Wristlet](/game-data/drops/icons/iibba57.png) Wristlet / !icon[Elemental Parsal Appendix](/game-data/drops/icons/iabba78.png) Appendix
-- Hue series: !icon[Aqua Hue BracerA](/game-data/drops/icons/iiaaa71.png) Aqua Hue Bracer / !icon[Tera Hue HeadsetA](/game-data/drops/icons/iaaaa71.png) Tera Hue Headset
-- 6 rolls of !icon[Jewelry Box](/game-data/drops/icons/bxcsb38.png) Jewelry Box
-- !icon[Gateway Generating Key](/game-data/drops/icons/ixkey26.png) Gateway Generating Keys
-
-{gold:Medical Lab 2 and Medical Lab 5 (Medicallab2, medicalLab5)}
-{cyan:Izen Crasher (Lv.79) and Dark Sign (Lv.81)}
-- Both share one pool — 4 guaranteed rolls of Saint [Rare B] weapons (10 in the pool, 8 shown):
-- !icon[Saint Beam Saver](/game-data/drops/icons/iwknb65.png) Saint Beam Saver
-- !icon[Saint Beam Sword](/game-data/drops/icons/iwswb65.png) Saint Beam Sword
-- !icon[Saint Burova](/game-data/drops/icons/iwaxb65.png) Saint Burova
-- !icon[Saint Beam Pressure](/game-data/drops/icons/iwmab65.png) Saint Beam Pressure
-- !icon[Saint Staff](/game-data/drops/icons/iwstb65.png) Saint Staff
-- !icon[Saint Lance](/game-data/drops/icons/iwspb65.png) Saint Lance
-- !icon[Saint Siege Bow](/game-data/drops/icons/iwbob65.png) Saint Siege Bow
-- !icon[Saint Gettling](/game-data/drops/icons/iwfib65.png) Saint Gettling
-
-{gold:Dungeon03}
-{cyan:Ten bosses: Teledun, Sealed Calliana Queen, Hora Blade Pawn, Belphegor, Hora Baal Hamon Guard, Soul Cinder, Taraven, Dagan, Dagon, Flame Draco}
-- Every boss: 4 guaranteed rolls of 10 weapons, plus !icon[Jewelry Box](/game-data/drops/icons/bxcsb38.png) Jewelry Box and 5 pools of !icon[Gateway Generating Key](/game-data/drops/icons/ixkey31.png) Gateway Generating Key (4 rolls each)
-- Sealed Calliana Queen, Hora Baal Hamon Guard and Soul Cinder drop the !icon[Divine Beam Saver](/game-data/drops/icons/iwknb60.png) Divine Beam Saver [Rare B] weapon series
-- The other seven drop the !icon[Intense Dark Beam Saber](/game-data/drops/icons/iwknb55.png) Intense Dark Beam weapon series
-
-{gold:Elan}
-{cyan:Bosses: Calliana Queen, Rock Jaw, Blink, Soul Sinder, Taraven, Dagnue, Dagan, Dagon}
-- Common pools: !icon[Endurance Hora Knife](/game-data/drops/icons/iwkhb50.png) Endurance and !icon[Intense Hora Knife](/game-data/drops/icons/iwknb50.png) Intense Hora weapons, Intense armor sets (Temple Beam, Metal Fur, EW and others), !icon[Saving Platium Protector](/game-data/drops/icons/idahb50.png) Saving / Intense Platium Protector and Hora Shield, Elemental rings and amulets, !icon[Jewelry Box](/game-data/drops/icons/bxcsb38.png) Jewelry Box, Gateway Generating Keys, Rune of Strength and War Attack/Defense Generators
-- Rock Jaw, Taraven, Blink and Soul Sinder: !icon[Elimental Ring Gamble Box](/game-data/drops/icons/bxcsb10.png) Elemental Ring / !icon[Elimental Amulet Gamble Box](/game-data/drops/icons/bxcsb01.png) Amulet Gamble Boxes (58-100%)
-- Dagnue: Elemental Dan / Cus / Mild rings and amulets
-- Dagan: !icon[Dagan's Ring](/game-data/drops/icons/iidgn02.png) Dagan's Ring, Gamble Boxes (91.07%), Intense Limit Glow HeadGear
-- Dagon: !icon[Dagon's Leash](/game-data/drops/icons/iadgn01.png) Dagon's Leash
-- 24 "Turncoat" monsters (Lv.56-59) drop !icon[Gold Capsule+4](/game-data/drops/icons/ipgld04.png) Gold Capsule+4 (8%), !icon[Gold Capsule+5](/game-data/drops/icons/ipgld05.png) +5 (4%) and !icon[Gold Capsule+6](/game-data/drops/icons/ipgld06.png) +6 (2%)
-- Teleport: Elan Plateru Scroll
-
-{gold:Cauldron Volcanic Area (Cauldron01)}
-{cyan:Belphegor (Lv.60)}
-- Elan-style weapons (!icon[Intense Hora Akeron Launcher](/game-data/drops/icons/iwlub51.png) Intense Hora Akeron Launcher and others), Intense Temple Beam armor set
-- Elemental, Hue and Normal rings and amulets (75-100%), Gateway Generating Keys
-- !icon[Inventer's Accessories Box](/game-data/drops/icons/bxcjh01.png) Inventer's Accessories Box
-{cyan:Hum BaBa and Infernal Drako}
-- 100% !icon[Gold Capsule+1](/game-data/drops/icons/ipgld01.png) Gold Capsule+1
-
-{gold:Exile Land (Exile_Land) and Mountain Beast (Mountain_Beast)}
-{cyan:Ringleader BloodAxe (Lv.69, Exile Land)}
-- Dark Beam weapons, Intense Black Magnetic / Feather / Baal armor, !icon[Outcasted Marauder's Earring](/game-data/drops/icons/iibna10.png) Outcasted Marauder's rings and earrings
-- 27 !icon[Exiled Plunderer's Earring Gamble Box](/game-data/drops/icons/bxcsb29.png) Exiled Plunderer's Earring Gamble Boxes
-- Beast's Mountain Scroll, Outcast's Land Scroll, Jewelry Box, Gateway Generating Keys
-{cyan:Sand StingBug (Lv.62, Exile Land)}
-- !icon[Ancient Metal Elven Shield](/game-data/drops/icons/idmsb55.png) Ancient Metal Elven Shield
-{cyan:Endless Flame Draco (Lv.66, Mountain Beast)}
-- Same base set as BloodAxe, plus !icon[Starved Beast's Ring](/game-data/drops/icons/iibna01.png) Starved Beast rings / !icon[Starved Beast's Earring](/game-data/drops/icons/iabna01.png) earrings
-- 27 !icon[Hunger Beast Earring Gamble Box](/game-data/drops/icons/bxcsb20.png) Hunger Beast Earring Gamble Boxes
-
-{gold:Wounded Land, Forrest03A/B/C, bastiellar_lotronA/B/C and Dungeon05 — top-tier bosses}
-{cyan:Wounded Land: Blood Axe Fort Commander, Novazan Crawler 1st Captain, Novazan Vafer 2nd Captain, Novazan Snatcher 3rd Captain (Lv.82-83)}
-{cyan:Forrest03 and bastiellar_lotron: Revived Jetso (Lv.80)}
-- Same pool for all of them: !icon[Intense Advanced Saint Beam Saber](/game-data/drops/icons/iwknb67.png) Intense Advanced Saint weapons, Intense Advanced Saint armor (Titan / Antares / Naiad), !icon[Intense Advanced Sirius Protector](/game-data/drops/icons/idaab67.png) Intense Advanced Sirius Protector and Procyon Shield
-{cyan:Dungeon05: Gill Zaitsev (Lv.80)}
-- Everything above, plus !icon[Ancient Partial Wristlet E](/game-data/drops/icons/iidab21.png) Ancient Partial / Spirit / Mind Wristlets and !icon[Ancient Partial Appendix E](/game-data/drops/icons/iadab21.png) Appendixes (sets E and J)
-- !icon[Gill Zaitsev's Wind Knife Box](/game-data/drops/icons/bxbos01.png) Gill Zaitsev's Wind Knife Box
-
-{gold:Neutral zones (NeutralA / B / C and their settlement variants)}
-{cyan:Field bosses: RashVafer Luther and Heavy Mit Clod}
-- !icon[Endurance Hora Knife](/game-data/drops/icons/iwkhb50.png) Hora Knife weapons, Golden / Lease / Bone / Azl Raiment armor, Saving and Intense Hora Shield, Elemental rings and amulets (75-100%), !icon[Inventer's Accessories Box](/game-data/drops/icons/bxcjh01.png) Inventer's Accessories Box
-{cyan:NeutralA settlement bosses (NeutralB and NeutralC have equivalents)}
-- Rook Snatcher: gold only — 10x !icon[Gold Point Pill](/game-data/drops/icons/ipglp01.png) Gold Point Pill and 100x !icon[Gold Capsule+29](/game-data/drops/icons/ipgld28.png) Gold Capsule+29, both 100%
-- Vice Bloc Lunker: 50x !icon[Smith Material Box](/game-data/drops/icons/bxsmt01.png) Smith Material Box
-- Frenzy Ratmoth and Argol Drone: 90% Gold Capsule+29, 80% !icon[Evolution Stone Middle](/game-data/drops/icons/irunv02.png) Evolution Stone [Middle], plus 6-roll pools of Elemental rings and amulets, Intense armor and Intense Hora weapons
-
-{gold:Platform01 and Sette}
-- Golden Pig (Lv.66): 12 guaranteed rolls of !icon[Gold Capsule+1000](/game-data/drops/icons/ipgld44.png) Gold Capsule+1000
-- Caliana Princess (Platform01): 4-roll pools of Elemental Normal / Parsal / Stuff rings and amulets
-- Strayer (Lv.59, Sette): Elan-style Hora weapons and armor, Platium Protector and Hora Shield, !icon[Inventer's Accessories Box](/game-data/drops/icons/bxcjh01.png) Inventer's Accessories Box
-- Chuty (Platform01): HQ teleport maps (Bellato HQ, Cora HQ, Accretia HQ, Solus Settlement)
-
-{gold:Resources}
-- Earth Quaker: 100%, 4 rolls of !icon[Inventer's Accessories Box](/game-data/drops/icons/bxcjh01.png) Inventer's Accessories Box
-
-{gold:Cora}
-- Dead Eldi Croche, Metal Elf Berserker, Vafer Sharman, Metal Elf Assasin: 50% !icon[Blood booster part box](/game-data/drops/icons/bxcjh02.png) Blood / !icon[Aiming Booster part Box](/game-data/drops/icons/bxcjh03.png) Aiming booster part boxes, !icon[Red Stone Box](/game-data/drops/icons/bxres01.png) Red Stone Box, !icon[Brilliant Halostone Piece](/game-data/drops/icons/irhst02.png) Halostone pieces (2 rolls each), 5 rolls of !icon[Intense Projectile Box](/game-data/drops/icons/bxbul01.png) Intense Projectile Boxes, Intense Black Thick Protector (10-25%)
-- The Cora colony monsters (11 of them, including NarwenEdisil) drop nothing at all
-
-{gold:mustion_disel}
-- Inferno Block: !icon[Jewelry Box](/game-data/drops/icons/bxcsb38.png) Jewelry Box only`;
-
 const RANKUP_TOPIC_BODY = `O Rank é um atributo separado do +Upgrade normal (os pontinhos de talica) — existe tanto em arma quanto em armadura, e dá um bônus fixo de dano ou defesa que soma direto no combate, sem depender da fórmula normal de defesa.
 
 ![Tooltip de arma mostrando Rank 17 level e +114 de Attack Point](/assets/rankup/before.png)
@@ -589,8 +494,8 @@ async function ensureForumSchema(db: Db) {
   await rewriteMasterTopicBody(db);
   await seedServerInfo(db);
   await seedMonsterDrops(db);
-  await ensureSubTopic(db, "Boss Drops by Map — RF Echelon", BOSS_DROPS_BY_MAP_TOPIC_BODY, DROPS_SLUG);
-  await rewriteTopicBodyIfChanged(db, DROPS_SLUG, "Boss Drops by Map — RF Echelon", BOSS_DROPS_BY_MAP_TOPIC_BODY);
+  await db.execute(sql`DELETE FROM forum_posts WHERE topic_id IN (SELECT id FROM forum_topics WHERE forum_slug = ${DROPS_SLUG} AND author_email = ${STAFF_EMAIL} AND title = 'Boss Drops by Map — RF Echelon')`);
+  await db.execute(sql`DELETE FROM forum_topics WHERE forum_slug = ${DROPS_SLUG} AND author_email = ${STAFF_EMAIL} AND title = 'Boss Drops by Map — RF Echelon'`);
   await removeStrayItemCombosTopic(db);
   bootstrapped = true;
 }
