@@ -365,6 +365,20 @@ Each race has two settlement maps (S1 and S2). The bosses share the same kind of
 - Blood Crawler Rex (Bellato settlement 1) drops only !icon[White ExcelSiar A](/game-data/drops/icons/iywhi01.png) White ExcelSiar A, B and C, all guaranteed
 - The three commanders (CirusGale, Trashoo, LeonVolcove) have a much smaller table: the runes, the talics, a mixed weapon and armor pool, the 8 tier 2 and 3 gems and the direct drops above`;
 
+// Refeito boss a boss (2026-09-18): cada boss tem foto propria em public/assets/drops/NeutralA/Boss/<codigo>/boss.png
+// (print do usuario) e nome exatamente como aparece nela. Drops lidos de Boss\NeutralABoss.lua.
+const NEUTRAL_A_DROPS_TOPIC_BODY = `Drops of the pitbosses in the Accretia Neutral zone (Neutral A). Every drop listed is guaranteed unless a percentage is shown, and every item lands on its own — nothing comes stacked.
+
+{gold:Rook Snatcher}
+![Rook Snatcher](/assets/drops/NeutralA/Boss/01104/boss.png)
+
+The gold farm boss: nothing else drops from it, only Gold Point.
+
+| Drop | Amount | Chance |
+|---|---|---|
+| !icon[Gold Point Pill](/game-data/drops/icons/ipglp01.png) Gold Point Pill | 10, each one separate | 100% |
+| !icon[Gold Capsule+29](/game-data/drops/icons/ipgld28.png) Gold Capsule+29 | 100, each one separate | 100% |`;
+
 const RANKUP_TOPIC_BODY = `O Rank é um atributo separado do +Upgrade normal (os pontinhos de talica) — existe tanto em arma quanto em armadura, e dá um bônus fixo de dano ou defesa que soma direto no combate, sem depender da fórmula normal de defesa.
 
 ![Tooltip de arma mostrando Rank 17 level e +114 de Attack Point](/assets/rankup/before.png)
@@ -566,6 +580,8 @@ async function ensureForumSchema(db: Db) {
   await seedMonsterDrops(db);
   await ensureSubTopic(db, "Neutral Bosses & Gold Point Drops — RF Echelon", NEUTRAL_GOLD_DROPS_TOPIC_BODY, DROPS_SLUG);
   await rewriteTopicBodyIfChanged(db, DROPS_SLUG, "Neutral Bosses & Gold Point Drops — RF Echelon", NEUTRAL_GOLD_DROPS_TOPIC_BODY);
+  await ensureSubTopic(db, "Neutral A Drops — RF Echelon", NEUTRAL_A_DROPS_TOPIC_BODY, DROPS_SLUG);
+  await rewriteTopicBodyIfChanged(db, DROPS_SLUG, "Neutral A Drops — RF Echelon", NEUTRAL_A_DROPS_TOPIC_BODY);
   await db.execute(sql`DELETE FROM forum_posts WHERE topic_id IN (SELECT id FROM forum_topics WHERE forum_slug = ${DROPS_SLUG} AND author_email = ${STAFF_EMAIL} AND title = 'Boss Drops by Map — RF Echelon')`);
   await db.execute(sql`DELETE FROM forum_topics WHERE forum_slug = ${DROPS_SLUG} AND author_email = ${STAFF_EMAIL} AND title = 'Boss Drops by Map — RF Echelon'`);
   await removeStrayItemCombosTopic(db);
