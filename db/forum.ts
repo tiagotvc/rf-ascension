@@ -248,18 +248,20 @@ Requirement and reward details for each daily haven't been confirmed yet — we'
 const DUNGEON_TOPIC_BODY = `Dungeon rework:
 
 - Every dungeon can now be soloed.
-- Reward count per run went from 1 to 4.
+- Reward count per run went from 1 to 4, always 4 different items — no more getting the same gem twice.
+- On top of those 4, every clear also gives 1 !icon[Dungeon Token](/game-data/dungeon/icons/iydtk01.png) Dungeon Token, guaranteed — that's 5 rewards total, every time.
 - Time to complete each mission is up 50% (e.g. 2 min → 3 min).
 
+![Unified reward window at the end of a dungeon clear — 5 rewards, only on our server](/assets/dungeon/rewardwindow.png)
+
 {gold:Possible rewards}
-Each dungeon clear rolls 4 rewards at random from its pool below — it's a lottery, not "you get everything listed." Levels 15-25 have their own separate, smaller pool — everything from level 26 up shares the pool described further down.
+The 4 random rewards are rolled from the pool below — it's a lottery, not "you get everything listed," but never the same item twice in the same clear. Levels 15-25 have their own separate, smaller pool — everything from level 26 up shares the pool described further down. The Dungeon Token doesn't come from this pool — it's separate and always guaranteed.
 
 {cyan:Levels 15-25 (3 dungeons)}
 - Gain 1% EXP Potion x2
 - !icon[Keen Talic](/game-data/dungeon/icons/irtal01.png) Keen Talic
 - !icon[Favor Talic](/game-data/dungeon/icons/irtal06.png) Favor Talic
 - !icon[Grace Talic](/game-data/dungeon/icons/irtal12.png) Grace Talic
-- !icon[Dungeon Token](/game-data/dungeon/icons/iydtk01.png) Dungeon Token x1
 - !icon[Water Crystal](/game-data/dungeon/icons/irgea02.png) Water Crystal x2
 - !icon[Light Ruby](/game-data/dungeon/icons/irgef02.png) Light Ruby x2
 - !icon[Lightning Obsidian](/game-data/dungeon/icons/irgew02.png) Lightning Obsidian x2
@@ -277,7 +279,6 @@ No Armor Box, no T3 gems, no Evolution Stone, no boxes/recipes at these levels.
 - !icon[Wind Obsidian](/game-data/dungeon/icons/irgew03.png) Wind Obsidian
 - !icon[Poison Topaz](/game-data/dungeon/icons/irget03.png) Poison Topaz
 - !icon[Evolution Stone Low](/game-data/dungeon/icons/irunv01.png) Evolution Stone [Low] x5-10
-- !icon[Dungeon Token](/game-data/dungeon/icons/iydtk01.png) Dungeon Token x1
 - !icon[Smith Material Box](/game-data/dungeon/icons/bxsmt01.png) Smith Material Box
 - !icon[Rune Box](/game-data/dungeon/icons/bxrun01.png) Rune Box
 - !icon[Intense Weapon Recipe](/game-data/dungeon/icons/iyset29.png) Intense Weapon Recipe
@@ -286,8 +287,6 @@ No Armor Box, no T3 gems, no Evolution Stone, no boxes/recipes at these levels.
 - !icon[Artisan's Breath](/game-data/dungeon/icons/iyset35.png) Artisan's Breath
 
 {violet:What changes by level (26-49)}
-Dungeon Token is always x1, at every level — no exceptions.
-
 | Level range | Dungeons | Armor Box | Talics | T2 Elemental Gems | Superior Armor Recipe |
 |---|---|---|---|---|---|
 | 26-30 | 3 | !icon[Armor Box Lv.31](/game-data/dungeon/icons/bxgem31.png) Lv.31 x2 | x2 | Yes (x2) | — |
