@@ -277,7 +277,7 @@ No Armor Box, no T3 gems, no Evolution Stone, no boxes/recipes at these levels.
 - !icon[Wind Obsidian](/game-data/dungeon/icons/irgew03.png) Wind Obsidian
 - !icon[Poison Topaz](/game-data/dungeon/icons/irget03.png) Poison Topaz
 - !icon[Evolution Stone Low](/game-data/dungeon/icons/irunv01.png) Evolution Stone [Low] x5-10
-- !icon[Dungeon Token](/game-data/dungeon/icons/iydtk01.png) Dungeon Token x2-3
+- !icon[Dungeon Token](/game-data/dungeon/icons/iydtk01.png) Dungeon Token (qty varies, see table)
 - !icon[Smith Material Box](/game-data/dungeon/icons/bxsmt01.png) Smith Material Box
 - !icon[Rune Box](/game-data/dungeon/icons/bxrun01.png) Rune Box
 - !icon[Intense Weapon Recipe](/game-data/dungeon/icons/iyset29.png) Intense Weapon Recipe
@@ -286,13 +286,13 @@ No Armor Box, no T3 gems, no Evolution Stone, no boxes/recipes at these levels.
 - !icon[Artisan's Breath](/game-data/dungeon/icons/iyset35.png) Artisan's Breath
 
 {violet:What changes by level (26-49)}
-| Level range | Dungeons | Armor Box | T2 Elemental Gems | Superior Armor Recipe |
-|---|---|---|---|---|
-| 26-30 | 3 | !icon[Armor Box Lv.31](/game-data/dungeon/icons/bxgem31.png) Lv.31 | Yes (x2) | — |
-| 31-35 | 4 | !icon[Armor Box Lv.35](/game-data/dungeon/icons/bxgem35.png) Lv.35 | Yes (x2) | — |
-| 36-40 | 4 | !icon[Armor Box Lv.39](/game-data/dungeon/icons/bxgem39.png) Lv.39 | Yes (x2) | Yes |
-| 41-45 | 5 | !icon[Armor Box Lv.45](/game-data/dungeon/icons/bxgem45.png) Lv.45 | — | Yes |
-| 46-49 | 5 | !icon[Armor Box Lv.47](/game-data/dungeon/icons/bxgem47.png) Lv.47 | — | Yes |`;
+| Level range | Dungeons | Armor Box | Talics | Dungeon Token | T2 Elemental Gems | Superior Armor Recipe |
+|---|---|---|---|---|---|---|
+| 26-30 | 3 | !icon[Armor Box Lv.31](/game-data/dungeon/icons/bxgem31.png) Lv.31 x2 | x2 | x2 | Yes (x2) | — |
+| 31-35 | 4 | !icon[Armor Box Lv.35](/game-data/dungeon/icons/bxgem35.png) Lv.35 x2 | x2 | x2 | Yes (x2) | — |
+| 36-40 | 4 | !icon[Armor Box Lv.39](/game-data/dungeon/icons/bxgem39.png) Lv.39 x1 | x1 | x2-3 | Yes (x2) | Yes |
+| 41-45 | 5 | !icon[Armor Box Lv.45](/game-data/dungeon/icons/bxgem45.png) Lv.45 x1 | x1 | x2-3 | — | Yes |
+| 46-49 | 5 | !icon[Armor Box Lv.47](/game-data/dungeon/icons/bxgem47.png) Lv.47 x1 | x1 | x2-3 | — | Yes |`;
 
 const RANKUP_TOPIC_BODY = `O Rank é um atributo separado do +Upgrade normal (os pontinhos de talica) — existe tanto em arma quanto em armadura, e dá um bônus fixo de dano ou defesa que soma direto no combate, sem depender da fórmula normal de defesa.
 
