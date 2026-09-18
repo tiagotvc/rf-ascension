@@ -249,6 +249,7 @@ const DUNGEON_TOPIC_BODY = `Dungeon rework:
 
 - Every dungeon can now be soloed.
 - Reward count per run went from 1 to 4.
+- Time to complete each mission is up 50% (e.g. 2 min → 3 min).
 
 {gold:Possible rewards}
 
@@ -281,7 +282,25 @@ const DUNGEON_TOPIC_BODY = `Dungeon rework:
 - !icon[Armor Box Lv.41](/game-data/dungeon/icons/bxgem41.png) Armor Box (Lv.41)
 - !icon[Armor Box Lv.43](/game-data/dungeon/icons/bxgem43.png) Armor Box (Lv.43)
 - !icon[Armor Box Lv.45](/game-data/dungeon/icons/bxgem45.png) Armor Box (Lv.45)
-- !icon[Armor Box Lv.47](/game-data/dungeon/icons/bxgem47.png) Armor Box (Lv.47)`;
+- !icon[Armor Box Lv.47](/game-data/dungeon/icons/bxgem47.png) Armor Box (Lv.47)
+
+{cyan:Elemental Gems}
+- !icon[Ice Crystal](/game-data/dungeon/icons/irgea03.png) Ice Crystal
+- !icon[Fire Ruby](/game-data/dungeon/icons/irgef03.png) Fire Ruby
+- !icon[Wind Obsidian](/game-data/dungeon/icons/irgew03.png) Wind Obsidian
+- !icon[Poison Topaz](/game-data/dungeon/icons/irget03.png) Poison Topaz
+- !icon[Water Crystal](/game-data/dungeon/icons/irgea02.png) Water Crystal
+- !icon[Light Ruby](/game-data/dungeon/icons/irgef02.png) Light Ruby
+- !icon[Lightning Obsidian](/game-data/dungeon/icons/irgew02.png) Lightning Obsidian
+- !icon[Terra Topaz](/game-data/dungeon/icons/irget02.png) Terra Topaz
+
+{orange:Recipes & Materials}
+- !icon[Evolution Stone Low](/game-data/dungeon/icons/irunv01.png) Evolution Stone [Low]
+- Intense Weapon Recipe
+- Intense Armor Recipe
+- Superior Weapon Recipe (rare)
+- Superior Armor Recipe (rare)
+- Artisan's Breath`;
 
 const RANKUP_TOPIC_BODY = `O Rank é um atributo separado do +Upgrade normal (os pontinhos de talica) — existe tanto em arma quanto em armadura, e dá um bônus fixo de dano ou defesa que soma direto no combate, sem depender da fórmula normal de defesa.
 
