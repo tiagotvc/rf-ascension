@@ -26,6 +26,43 @@ const TOPUP_TIERS = [
   { amountBrl: 400, name: "Ultimate", color: "#ff5c5c" },
 ] as const;
 
+// Caixa isométrica desenhada em SVG (sem asset de imagem) - as 3 faces tomam a cor do tier via
+// var(--tier-color), com sombreamento por overlays pra parecer um baú de recompensa.
+function TierCrate() {
+  return (
+    <svg className="gamecp-tier-crate-svg" viewBox="0 0 84 92" aria-hidden="true">
+      <polygon points="8,32 42,50 42,84 8,66" fill="var(--tier-color)" fillOpacity="0.55" />
+      <polygon points="8,32 42,50 42,84 8,66" fill="#000" fillOpacity="0.28" />
+      <polygon points="42,50 76,32 76,66 42,84" fill="var(--tier-color)" fillOpacity="0.32" />
+      <polygon points="42,50 76,32 76,66 42,84" fill="#000" fillOpacity="0.5" />
+      <polygon points="42,14 76,32 42,50 8,32" fill="var(--tier-color)" fillOpacity="0.95" />
+      <polygon points="42,14 76,32 42,50 8,32" fill="#fff" fillOpacity="0.2" />
+      <polygon points="42,22 62,32 42,42 22,32" fill="#000" fillOpacity="0.22" />
+      <polygon points="36,54 48,60 48,72 36,66" fill="#0a0d12" fillOpacity="0.85" stroke="var(--tier-color)" strokeWidth="1" />
+      <polyline points="8,32 42,50 76,32" fill="none" stroke="#fff" strokeOpacity="0.55" strokeWidth="1" />
+      <polyline points="42,14 42,4 46,2" fill="none" stroke="var(--tier-color)" strokeWidth="1.5" strokeOpacity="0.8" />
+    </svg>
+  );
+}
+
+type DashTabName = "shop" | "topup" | "packages" | "orders" | "character";
+
+const TAB_ICON_PATHS: Record<DashTabName, string> = {
+  shop: "M3 4h2l2.2 10.2a1 1 0 0 0 1 .8h8.6a1 1 0 0 0 1-.8L19.5 8H6 M9 19.5h.01 M17 19.5h.01",
+  topup: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M12 8v8 M8 12h8",
+  packages: "M12 3 3 7.5v9L12 21l9-4.5v-9L12 3z M3 7.5 12 12l9-4.5 M12 12v9",
+  orders: "M5 6h14 M5 12h14 M5 18h9",
+  character: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M4.5 20a7.5 7.5 0 0 1 15 0",
+};
+
+function TabIcon({ name }: { name: DashTabName }) {
+  return (
+    <svg className="gamecp-subnav-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d={TAB_ICON_PATHS[name]} />
+    </svg>
+  );
+}
+
 // Valores fixos de recarga de GP — sem nome de tier (isso é só das Pacotes), só o valor e o bônus de
 // GP por volume. Bônus tem que bater com TOPUP_BONUS_PERCENT_BY_AMOUNT em db/store.ts (mesma tabela,
 // uma pra exibir aqui, outra pra creditar de verdade no confirmTopupPayment).
@@ -448,6 +485,7 @@ export default function GameCpPortal({
   topupBonusItems = {},
   orders = [],
   locale = "pt",
+  initialTab = "shop",
 }: {
   potions: PublicPotion[];
   loggedInUsername: string | null;
@@ -456,6 +494,7 @@ export default function GameCpPortal({
   topupBonusItems?: Record<number, TopupBonusItem[]>;
   orders?: PlayerOrder[];
   locale?: "pt" | "en";
+  initialTab?: "shop" | "topup" | "packages" | "orders" | "character";
 }) {
   const t = COPY[locale];
   const numberLocale = locale === "en" ? "en-US" : "pt-BR";
@@ -468,7 +507,7 @@ export default function GameCpPortal({
   const [topupError, setTopupError] = useState<string | null>(null);
   const [selectedCharacter, setSelectedCharacter] = useState<number | "">(characters[0]?.serial ?? "");
   const [purchaseMessage, setPurchaseMessage] = useState<string | null>(null);
-  const [dashTab, setDashTab] = useState<"shop" | "topup" | "packages" | "orders" | "character">("shop");
+  const [dashTab, setDashTab] = useState<"shop" | "topup" | "packages" | "orders" | "character">(initialTab);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
 
   const potionGroups: { category: string; items: PublicPotion[] }[] = [];
@@ -671,19 +710,24 @@ export default function GameCpPortal({
 
       <nav className="gamecp-subnav">
         <button className={dashTab === "shop" ? "active" : ""} onClick={() => setDashTab("shop")} type="button">
-          {t.tabShop}
+          <TabIcon name="shop" />
+          <span>{t.tabShop}</span>
         </button>
         <button className={dashTab === "topup" ? "active" : ""} onClick={() => setDashTab("topup")} type="button">
-          {t.tabTopup}
+          <TabIcon name="topup" />
+          <span>{t.tabTopup}</span>
         </button>
         <button className={dashTab === "packages" ? "active" : ""} onClick={() => setDashTab("packages")} type="button">
-          {t.tabPackages}
+          <TabIcon name="packages" />
+          <span>{t.tabPackages}</span>
         </button>
         <button className={dashTab === "orders" ? "active" : ""} onClick={() => setDashTab("orders")} type="button">
-          {t.tabOrders}
+          <TabIcon name="orders" />
+          <span>{t.tabOrders}</span>
         </button>
         <button className={dashTab === "character" ? "active" : ""} onClick={() => setDashTab("character")} type="button">
-          {t.tabChar}
+          <TabIcon name="character" />
+          <span>{t.tabChar}</span>
         </button>
       </nav>
 
@@ -819,8 +863,10 @@ export default function GameCpPortal({
             {TOPUP_TIERS.map(({ amountBrl, name, color }) => {
               const items = topupBonusItems[amountBrl] ?? [];
               return (
-                <div className="gamecp-topup-card" key={amountBrl} style={{ ["--tier-color" as string]: color }}>
-                  <div className="gamecp-topup-card-badge">📦</div>
+                <div className="gamecp-topup-card gamecp-tier-card" key={amountBrl} style={{ ["--tier-color" as string]: color }}>
+                  <div className="gamecp-tier-crate">
+                    <TierCrate />
+                  </div>
                   <div className="gamecp-topup-card-head">
                     <strong>{name}</strong>
                     <span className="gamecp-topup-card-underline" />
