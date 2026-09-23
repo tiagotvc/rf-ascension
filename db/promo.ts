@@ -129,9 +129,12 @@ export async function submitPromoLink(
     return { ok: false, error: "Esse link já foi usado (por você ou por outra conta) — precisa ser uma postagem nova." };
   }
 
+  // Sem crédito automático aqui (pedido do usuário 2026-09-23: "tem que deixar claro que vai ser
+  // revisado, e não que já vai receber os 2 de gp, pq eu vou ter que entrar na postagem e ver") — só
+  // entra na fila. O GP só é creditado em reviewPromoSubmission, quando alguém da equipe aprova.
   const updated = await db
     .update(promoSubmissions)
-    .set({ postUrl: trimmedUrl, status: "submitted", rewardedAt: new Date().toISOString() })
+    .set({ postUrl: trimmedUrl, status: "submitted" })
     .where(and(eq(promoSubmissions.id, existing.id), sql`${promoSubmissions.postUrl} IS NULL`))
     .returning({ id: promoSubmissions.id });
   if (updated.length === 0) {
@@ -139,7 +142,6 @@ export async function submitPromoLink(
     return { ok: false, error: "Você já enviou a postagem de hoje." };
   }
 
-  await refundGp(accountUsername, PROMO_REWARD_GP, `promo_daily:${date}`);
   return { ok: true };
 }
 
@@ -154,8 +156,10 @@ export type PromoReviewRow = {
   reviewNote: string | null;
 };
 
-// Auditoria pós-fato: só os já enviados (tem link) importam pra revisão —
-// os 'pending' são só código gerado, ninguém postou ainda.
+// Revisão vem ANTES do pagamento (pedido do usuário 2026-09-23) — só os já
+// enviados (tem link) importam aqui; 'pending' é só código gerado, ninguém
+// postou ainda. 'submitted' (aguardando decisão) sempre aparece primeiro,
+// pra equipe não precisar caçar o que falta revisar no meio do histórico.
 export async function listPromoSubmissionsForReview(limit: number): Promise<PromoReviewRow[]> {
   const db = await getDb();
   await ensurePromoSchema(db);
@@ -172,29 +176,42 @@ export async function listPromoSubmissionsForReview(limit: number): Promise<Prom
     })
     .from(promoSubmissions)
     .where(sql`${promoSubmissions.postUrl} IS NOT NULL`)
-    .orderBy(desc(promoSubmissions.submissionDate), desc(promoSubmissions.id))
+    .orderBy(sql`(${promoSubmissions.status} = 'submitted') DESC`, desc(promoSubmissions.submissionDate), desc(promoSubmissions.id))
     .limit(limit);
 }
 
-// Só sinaliza fraude pro histórico (nome+conta ficam marcados pra quem
-// revisar depois) — não estorna o GP já creditado automaticamente; se um
-// estorno for necessário, é uma ação separada (spendGp manual), não faz
-// parte deste fluxo.
-export async function setPromoSubmissionFlag(
+// Decide a recompensa (pedido do usuário: quer abrir o link e ver antes de
+// pagar, não é mais auditoria pós-fato). GP só é creditado na primeira vez
+// que uma linha vira 'approved' — reprocessar a mesma decisão (ex.: clicar
+// aprovar de novo) não credita duas vezes. Reverter approved -> rejected
+// depois de já ter pago NÃO estorna sozinho (ação manual separada, mesma
+// regra que já valia pro flag antigo).
+export async function reviewPromoSubmission(
   id: number,
-  flagged: boolean,
+  decision: "approved" | "rejected",
   reviewerEmail: string,
   note: string | null
-): Promise<void> {
+): Promise<{ ok: true } | { ok: false; error: string }> {
   const db = await getDb();
   await ensurePromoSchema(db);
+  const [row] = await db.select().from(promoSubmissions).where(eq(promoSubmissions.id, id));
+  if (!row) return { ok: false, error: "Envio não encontrado." };
+  if (!row.postUrl) return { ok: false, error: "Essa conta ainda não enviou o link." };
+
+  const wasAlreadyApproved = row.status === "approved";
   await db
     .update(promoSubmissions)
     .set({
-      status: flagged ? "flagged" : "submitted",
+      status: decision,
       reviewedBy: reviewerEmail,
       reviewedAt: new Date().toISOString(),
       reviewNote: note,
+      rewardedAt: decision === "approved" ? (row.rewardedAt ?? new Date().toISOString()) : row.rewardedAt,
     })
     .where(eq(promoSubmissions.id, id));
+
+  if (decision === "approved" && !wasAlreadyApproved) {
+    await refundGp(row.accountUsername, PROMO_REWARD_GP, `promo_daily:${row.submissionDate}`);
+  }
+  return { ok: true };
 }

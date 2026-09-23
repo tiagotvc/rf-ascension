@@ -398,15 +398,19 @@ const COPY = {
     tabPromo: "Divulgação",
     promoTitle: "Evento de Divulgação",
     promoHint: "Poste em qualquer grupo de RF no Facebook todo dia com o código abaixo bem visível na postagem e ganhe GP automaticamente.",
-    promoRewardNote: "Cada postagem válida do dia dá 2 GP, direto na sua carteira. O evento não tem data pra acabar.",
+    promoRewardNote:
+      "Cada postagem do dia passa por revisão manual antes de pagar — a equipe abre o link e confere se o código bate. Só depois de aprovado os 2 GP caem na sua carteira. O evento não tem data pra acabar.",
     promoGroupLabel: "Grupos sugeridos pra postar (pode ser qualquer grupo de RF)",
     promoCodeLabel: "Seu código de hoje",
     promoCodeHint: "Deixe esse código bem visível na foto ou na legenda da postagem — sem ele a gente não consegue confirmar que é uma postagem nova.",
     promoLinkLabel: "Link da sua postagem",
     promoLinkPlaceholder: "Cole aqui o link direto da postagem no grupo",
-    promoSubmit: "Enviar e receber GP",
+    promoSubmit: "Enviar pra revisão",
     promoLoading: "Carregando...",
-    promoAlreadySent: "Você já mandou a postagem de hoje — volta amanhã pra mandar de novo.",
+    promoAlreadySent: "Você já mandou a postagem de hoje.",
+    promoPendingReview: "Aguardando revisão da equipe — os 2 GP caem na sua carteira assim que for aprovada.",
+    promoApproved: "Aprovada! Os 2 GP já foram creditados na sua carteira.",
+    promoRejected: "Essa postagem foi recusada na revisão — volta amanhã pra tentar de novo.",
     promoSentLink: "Postagem enviada:",
     promoNeedLogin: "Entre com sua conta pra participar do evento.",
     topupTitle: "Recarregar Game CP",
@@ -467,15 +471,19 @@ const COPY = {
     tabPromo: "Promotion",
     promoTitle: "Promotion Event",
     promoHint: "Post in any RF Facebook group every day with the code below clearly visible in the post and get GP automatically.",
-    promoRewardNote: "Every valid daily post gives 2 GP, credited straight to your wallet. The event has no end date.",
+    promoRewardNote:
+      "Every daily post goes through manual review before it pays out — the team opens the link and checks the code. GP only lands in your wallet once it's approved. The event has no end date.",
     promoGroupLabel: "Suggested groups to post in (any RF group works)",
     promoCodeLabel: "Your code for today",
     promoCodeHint: "Keep this code clearly visible in the photo or caption — without it we can not confirm it is a new post.",
     promoLinkLabel: "Link to your post",
     promoLinkPlaceholder: "Paste the direct link to the post in the group",
-    promoSubmit: "Submit and get GP",
+    promoSubmit: "Submit for review",
     promoLoading: "Loading...",
-    promoAlreadySent: "You already sent today's post — come back tomorrow to send another one.",
+    promoAlreadySent: "You already sent today's post.",
+    promoPendingReview: "Waiting on the team's review — GP lands in your wallet as soon as it's approved.",
+    promoApproved: "Approved! The 2 GP have already been credited to your wallet.",
+    promoRejected: "That post was rejected in review — come back tomorrow to try again.",
     promoSentLink: "Post submitted:",
     promoNeedLogin: "Log in to join the event.",
     topupTitle: "Top up Game CP",
@@ -1176,8 +1184,9 @@ export default function GameCpPortal({
                     <small>{t.promoCodeHint}</small>
                   </div>
                   {promo.postUrl ? (
-                    <p className="store-message">
-                      {t.promoAlreadySent}
+                    <p className={promo.status === "rejected" ? "store-error" : "store-message"}>
+                      {t.promoAlreadySent}{" "}
+                      {promo.status === "approved" ? t.promoApproved : promo.status === "rejected" ? t.promoRejected : t.promoPendingReview}
                       <br />
                       {t.promoSentLink}{" "}
                       <a href={promo.postUrl} target="_blank" rel="noreferrer">

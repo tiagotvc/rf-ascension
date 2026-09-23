@@ -18,6 +18,7 @@ const Brand = () => (
 export default async function AdminPromo() {
   const user = await requireSessionUser("/admin/promo");
   const submissions = await listPromoSubmissionsForReview(200);
+  const pendingCount = submissions.filter((s) => s.status === "submitted").length;
 
   return (
     <main className="admin-page">
@@ -37,7 +38,7 @@ export default async function AdminPromo() {
             <i>◈</i> Pedidos
           </a>
           <a className="active" href="/admin/promo">
-            <i>📣</i> Divulgação <b>{submissions.length}</b>
+            <i>📣</i> Divulgação <b>{pendingCount > 0 ? pendingCount : submissions.length}</b>
           </a>
           <a href="/forum">
             <i>◫</i> Áreas do fórum
@@ -60,9 +61,9 @@ export default async function AdminPromo() {
           </div>
         </header>
         <p className="promo-admin-hint">
-          A recompensa já foi creditada automaticamente em cada envio abaixo — isto aqui é auditoria, não aprovação. Grupo do
-          Facebook não pode ser validado por API (Meta bloqueia oEmbed de post de grupo), então confira manualmente se o código
-          do dia bate com o que a conta postou antes de marcar como fraude.
+          O GP só é creditado quando você aprova — abra a postagem no link e confira se o código do dia aparece nela antes de
+          decidir. Grupo do Facebook não pode ser validado por API (Meta bloqueia oEmbed de post de grupo), então essa conferência
+          manual é a única defesa real contra link falso ou postagem sem o código.
         </p>
         <PromoReviewPanel initialSubmissions={submissions} />
       </section>

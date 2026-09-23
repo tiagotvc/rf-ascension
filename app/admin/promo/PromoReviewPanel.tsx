@@ -12,6 +12,12 @@ type Submission = {
   reviewNote: string | null;
 };
 
+const STATUS_LABEL: Record<string, string> = {
+  submitted: "Aguardando revisão",
+  approved: "Aprovado — GP pago",
+  rejected: "Recusado",
+};
+
 export default function PromoReviewPanel({ initialSubmissions }: { initialSubmissions: Submission[] }) {
   const [submissions, setSubmissions] = useState(initialSubmissions);
   const [search, setSearch] = useState("");
@@ -23,25 +29,23 @@ export default function PromoReviewPanel({ initialSubmissions }: { initialSubmis
     return submissions.filter((s) => s.accountUsername.toLowerCase().includes(q) || s.dailyCode.toLowerCase().includes(q));
   }, [submissions, search]);
 
-  async function toggleFlag(id: number, flagged: boolean) {
+  async function decide(id: number, decision: "approved" | "rejected") {
     setBusyId(id);
     try {
-      const note = flagged ? window.prompt("Motivo (opcional):") ?? "" : "";
+      const note = decision === "rejected" ? window.prompt("Motivo da recusa (opcional):") ?? "" : "";
       const res = await fetch("/api/admin/promo", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ id, flagged, note }),
+        body: JSON.stringify({ id, decision, note }),
       });
       if (!res.ok) return;
-      setSubmissions((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, status: flagged ? "flagged" : "submitted", reviewNote: note || null } : s))
-      );
+      setSubmissions((prev) => prev.map((s) => (s.id === id ? { ...s, status: decision, reviewNote: note || null } : s)));
     } finally {
       setBusyId(null);
     }
   }
 
-  const flaggedCount = submissions.filter((s) => s.status === "flagged").length;
+  const pendingCount = submissions.filter((s) => s.status === "submitted").length;
 
   return (
     <section className="promo-admin">
@@ -53,7 +57,7 @@ export default function PromoReviewPanel({ initialSubmissions }: { initialSubmis
           onChange={(e) => setSearch(e.target.value)}
         />
         <span className="potion-shop-admin-count">
-          {submissions.length} enviado(s) / {flaggedCount} sinalizado(s)
+          {pendingCount} aguardando revisão / {submissions.length} no total
         </span>
       </div>
       <div className="promo-admin-list">
@@ -66,7 +70,7 @@ export default function PromoReviewPanel({ initialSubmissions }: { initialSubmis
           <span />
         </div>
         {filtered.map((s) => (
-          <div key={s.id} className={`promo-admin-row${s.status === "flagged" ? " flagged" : ""}`}>
+          <div key={s.id} className={`promo-admin-row promo-admin-status-${s.status}`}>
             <span>{s.submissionDate}</span>
             <span>{s.accountUsername}</span>
             <span className="promo-admin-code">{s.dailyCode}</span>
@@ -80,16 +84,15 @@ export default function PromoReviewPanel({ initialSubmissions }: { initialSubmis
               )}
             </span>
             <span>
-              {s.status === "flagged" ? <b className="promo-admin-flagged">Sinalizado{s.reviewNote ? `: ${s.reviewNote}` : ""}</b> : "OK"}
+              <b className={`promo-admin-badge promo-admin-badge-${s.status}`}>{STATUS_LABEL[s.status] ?? s.status}</b>
+              {s.reviewNote && <small className="promo-admin-note"> — {s.reviewNote}</small>}
             </span>
-            <span>
-              <button
-                type="button"
-                className="btn btn-ghost"
-                disabled={busyId === s.id}
-                onClick={() => toggleFlag(s.id, s.status !== "flagged")}
-              >
-                {s.status === "flagged" ? "Desmarcar" : "Marcar fraude"}
+            <span className="promo-admin-actions">
+              <button type="button" className="btn btn-primary" disabled={busyId === s.id || s.status === "approved"} onClick={() => decide(s.id, "approved")}>
+                Aprovar
+              </button>
+              <button type="button" className="btn btn-ghost" disabled={busyId === s.id || s.status === "rejected"} onClick={() => decide(s.id, "rejected")}>
+                Recusar
               </button>
             </span>
           </div>
