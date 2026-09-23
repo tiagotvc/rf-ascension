@@ -865,7 +865,8 @@
 .gamecp-topup-packages-gp .gamecp-topup-card-buy{height:46px;color:#06090d;background:linear-gradient(135deg,#7af6f1,#3fbfc9);border:0;font-weight:800;letter-spacing:.16em;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);box-shadow:0 10px 26px -8px var(--cyan)}
 .gamecp-topup-packages-gp .gamecp-topup-card-buy:hover:not(:disabled){filter:brightness(1.12);transform:translateY(-2px)}
 .gamecp-topup-packages-gp .gamecp-topup-bonus-badge{align-self:center;margin:0 0 4px}
-.gamecp-promo-group{display:flex;align-items:center;gap:16px;margin:18px 0;flex-wrap:wrap}
+.gamecp-promo-group{display:grid;gap:10px;margin:18px 0}
+.gamecp-promo-group-list{display:flex;gap:10px;flex-wrap:wrap}
 .gamecp-promo-group .mini-label{color:#707b87}
 .gamecp-promo-code{display:grid;gap:6px;margin:22px 0;padding:24px;background:linear-gradient(135deg,rgba(92,225,230,.1),rgba(92,225,230,.02));border:1px solid rgba(92,225,230,.3)}
 .gamecp-promo-code .mini-label{color:var(--cyan)}

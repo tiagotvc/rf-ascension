@@ -64,9 +64,14 @@ function TabIcon({ name }: { name: DashTabName }) {
   );
 }
 
-// Placeholder até o usuário passar o link real do grupo (pedido 2026-09-23: "vou te passar o link
-// depois") — troca só aqui, nada mais depende deste valor.
-const PROMO_GROUP_URL = "https://www.facebook.com/groups/SEU_GRUPO_AQUI";
+// Placeholder até o usuário passar os links reais dos grupos (pedido 2026-09-23: "são vários grupos
+// que existem de rf" — não é 1 grupo só) — a validação do link enviado (db/promo.ts) já aceita
+// QUALQUER post de facebook.com/groups/.../posts/..., não só os listados aqui; esta lista é só pra
+// mostrar sugestões clicáveis na aba, o jogador pode postar em qualquer grupo de RF que quiser.
+const PROMO_GROUP_URLS: { label: string; url: string }[] = [
+  { label: "Grupo 1 (trocar pelo link real)", url: "https://www.facebook.com/groups/SEU_GRUPO_1" },
+  { label: "Grupo 2 (trocar pelo link real)", url: "https://www.facebook.com/groups/SEU_GRUPO_2" },
+];
 
 type PromoSubmissionState = { dailyCode: string; postUrl: string | null; status: string; rewardedAt: string | null };
 
@@ -392,9 +397,9 @@ const COPY = {
     tabChar: "Personagem",
     tabPromo: "Divulgação",
     promoTitle: "Evento de Divulgação",
-    promoHint: "Poste no grupo do Facebook todo dia com o código abaixo bem visível na postagem e ganhe GP automaticamente.",
+    promoHint: "Poste em qualquer grupo de RF no Facebook todo dia com o código abaixo bem visível na postagem e ganhe GP automaticamente.",
     promoRewardNote: "Cada postagem válida do dia dá 2 GP, direto na sua carteira. O evento não tem data pra acabar.",
-    promoGroupLabel: "Grupo para postar",
+    promoGroupLabel: "Grupos sugeridos pra postar (pode ser qualquer grupo de RF)",
     promoCodeLabel: "Seu código de hoje",
     promoCodeHint: "Deixe esse código bem visível na foto ou na legenda da postagem — sem ele a gente não consegue confirmar que é uma postagem nova.",
     promoLinkLabel: "Link da sua postagem",
@@ -461,9 +466,9 @@ const COPY = {
     tabChar: "Character",
     tabPromo: "Promotion",
     promoTitle: "Promotion Event",
-    promoHint: "Post in the Facebook group every day with the code below clearly visible in the post and get GP automatically.",
+    promoHint: "Post in any RF Facebook group every day with the code below clearly visible in the post and get GP automatically.",
     promoRewardNote: "Every valid daily post gives 2 GP, credited straight to your wallet. The event has no end date.",
-    promoGroupLabel: "Group to post in",
+    promoGroupLabel: "Suggested groups to post in (any RF group works)",
     promoCodeLabel: "Your code for today",
     promoCodeHint: "Keep this code clearly visible in the photo or caption — without it we can not confirm it is a new post.",
     promoLinkLabel: "Link to your post",
@@ -1153,9 +1158,13 @@ export default function GameCpPortal({
               <p className="gamecp-topup-premium-note">{t.promoRewardNote}</p>
               <div className="gamecp-promo-group">
                 <span className="mini-label">{t.promoGroupLabel}</span>
-                <a href={PROMO_GROUP_URL} target="_blank" rel="noreferrer" className="btn btn-ghost">
-                  {PROMO_GROUP_URL.replace("https://www.", "")}
-                </a>
+                <div className="gamecp-promo-group-list">
+                  {PROMO_GROUP_URLS.map((g) => (
+                    <a key={g.url} href={g.url} target="_blank" rel="noreferrer" className="btn btn-ghost">
+                      {g.label}
+                    </a>
+                  ))}
+                </div>
               </div>
               {!promo && !promoError ? (
                 <p className="store-message">{t.promoLoading}</p>
