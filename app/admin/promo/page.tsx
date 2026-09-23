@@ -1,7 +1,6 @@
 import { requireSessionUser } from "../../lib/auth";
-import { loadPotionCatalog } from "../../lib/potion-catalog";
-import { getPotionShopSelections } from "../../../db/potion-shop";
-import PotionShopAdminPanel from "./PotionShopAdminPanel";
+import { listPromoSubmissionsForReview } from "../../../db/promo";
+import PromoReviewPanel from "./PromoReviewPanel";
 import AdminLogoutButton from "../AdminLogoutButton";
 
 export const dynamic = "force-dynamic";
@@ -16,10 +15,9 @@ const Brand = () => (
   </span>
 );
 
-export default async function AdminPotions() {
-  const user = await requireSessionUser("/admin/potions");
-  const catalog = loadPotionCatalog();
-  const selections = await getPotionShopSelections();
+export default async function AdminPromo() {
+  const user = await requireSessionUser("/admin/promo");
+  const submissions = await listPromoSubmissionsForReview(200);
 
   return (
     <main className="admin-page">
@@ -32,14 +30,14 @@ export default async function AdminPotions() {
           <a href="/admin">
             <i>✎</i> Criar post
           </a>
-          <a className="active" href="/admin/potions">
-            <i>⚗</i> Loja de poções <b>{catalog.length}</b>
+          <a href="/admin/potions">
+            <i>⚗</i> Loja de poções
           </a>
           <a href="/admin/orders">
             <i>◈</i> Pedidos
           </a>
-          <a href="/admin/promo">
-            <i>📣</i> Divulgação
+          <a className="active" href="/admin/promo">
+            <i>📣</i> Divulgação <b>{submissions.length}</b>
           </a>
           <a href="/forum">
             <i>◫</i> Áreas do fórum
@@ -58,10 +56,15 @@ export default async function AdminPotions() {
         <header>
           <div>
             <span>PAINEL ADMINISTRATIVO</span>
-            <h1>Loja de poções</h1>
+            <h1>Evento de divulgação</h1>
           </div>
         </header>
-        <PotionShopAdminPanel catalog={catalog} initialSelections={selections} />
+        <p className="promo-admin-hint">
+          A recompensa já foi creditada automaticamente em cada envio abaixo — isto aqui é auditoria, não aprovação. Grupo do
+          Facebook não pode ser validado por API (Meta bloqueia oEmbed de post de grupo), então confira manualmente se o código
+          do dia bate com o que a conta postou antes de marcar como fraude.
+        </p>
+        <PromoReviewPanel initialSubmissions={submissions} />
       </section>
     </main>
   );

@@ -865,3 +865,25 @@
 .gamecp-topup-packages-gp .gamecp-topup-card-buy{height:46px;color:#06090d;background:linear-gradient(135deg,#7af6f1,#3fbfc9);border:0;font-weight:800;letter-spacing:.16em;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);box-shadow:0 10px 26px -8px var(--cyan)}
 .gamecp-topup-packages-gp .gamecp-topup-card-buy:hover:not(:disabled){filter:brightness(1.12);transform:translateY(-2px)}
 .gamecp-topup-packages-gp .gamecp-topup-bonus-badge{align-self:center;margin:0 0 4px}
+.gamecp-promo-group{display:flex;align-items:center;gap:16px;margin:18px 0;flex-wrap:wrap}
+.gamecp-promo-group .mini-label{color:#707b87}
+.gamecp-promo-code{display:grid;gap:6px;margin:22px 0;padding:24px;background:linear-gradient(135deg,rgba(92,225,230,.1),rgba(92,225,230,.02));border:1px solid rgba(92,225,230,.3)}
+.gamecp-promo-code .mini-label{color:var(--cyan)}
+.gamecp-promo-code strong{font:800 34px var(--font-geist-mono);letter-spacing:.16em;color:#fff;text-shadow:0 0 24px rgba(92,225,230,.5)}
+.gamecp-promo-code small{color:#707b87;font-size:11px;line-height:1.5;max-width:520px}
+.gamecp-promo-form{display:grid;gap:14px;max-width:520px}
+.gamecp-promo-form label{display:grid;gap:8px}
+.gamecp-promo-form .mini-label{color:#707b87}
+.gamecp-promo-form input{height:46px;padding:0 14px;color:#fff;background:#090d12;border:1px solid #222c36;border-radius:0;outline:0;font:12px var(--font-geist-mono)}
+.gamecp-promo-form input:focus{border-color:#4daeb3;box-shadow:0 0 0 3px rgba(92,225,230,.06)}
+.gamecp-promo-form button{justify-self:start;min-width:200px}
+.promo-admin-hint{margin:0 0 22px;padding:16px 20px;background:rgba(233,185,96,.06);border:1px solid rgba(233,185,96,.22);color:#c8ced5;font-size:12px;line-height:1.6;max-width:900px}
+.promo-admin-toolbar{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+.promo-admin-list{display:grid;gap:1px;background:rgba(255,255,255,.06)}
+.promo-admin-row{display:grid;grid-template-columns:90px 140px 110px 1fr 160px 120px;gap:12px;align-items:center;padding:12px 14px;background:#0d1117;font-size:12px;color:#c8ced5}
+.promo-admin-row-head{background:#0a0e13;color:#58636e;font:700 10px var(--font-geist-mono);text-transform:uppercase;letter-spacing:.06em}
+.promo-admin-row.flagged{background:rgba(255,92,92,.06)}
+.promo-admin-code{font:700 13px var(--font-geist-mono);color:var(--cyan);letter-spacing:.08em}
+.promo-admin-link a{color:var(--cyan)}
+.promo-admin-flagged{color:#ff5c5c}
+@media(max-width:900px){.promo-admin-row{grid-template-columns:1fr 1fr}}

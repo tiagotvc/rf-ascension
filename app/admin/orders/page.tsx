@@ -56,6 +56,9 @@ export default async function AdminOrders() {
           <a className="active" href="/admin/orders">
             <i>◈</i> Pedidos <b>{pendingCount > 0 ? pendingCount : orders.length}</b>
           </a>
+          <a href="/admin/promo">
+            <i>📣</i> Divulgação
+          </a>
           <a href="/forum">
             <i>◫</i> Áreas do fórum
           </a>

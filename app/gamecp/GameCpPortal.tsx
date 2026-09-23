@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type PublicPotion = { code: string; name: string; icon: string | null; gpPrice: number; category: string | null };
 
@@ -45,10 +45,11 @@ function TierCrate() {
   );
 }
 
-type DashTabName = "shop" | "topup" | "packages" | "orders" | "character";
+type DashTabName = "shop" | "topup" | "packages" | "orders" | "character" | "promo";
 
 const TAB_ICON_PATHS: Record<DashTabName, string> = {
   shop: "M3 4h2l2.2 10.2a1 1 0 0 0 1 .8h8.6a1 1 0 0 0 1-.8L19.5 8H6 M9 19.5h.01 M17 19.5h.01",
+  promo: "M3 11 19 4l-4 16-4-7-7-2z M11 13l8-9",
   topup: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M12 8v8 M8 12h8",
   packages: "M12 3 3 7.5v9L12 21l9-4.5v-9L12 3z M3 7.5 12 12l9-4.5 M12 12v9",
   orders: "M5 6h14 M5 12h14 M5 18h9",
@@ -62,6 +63,12 @@ function TabIcon({ name }: { name: DashTabName }) {
     </svg>
   );
 }
+
+// Placeholder até o usuário passar o link real do grupo (pedido 2026-09-23: "vou te passar o link
+// depois") — troca só aqui, nada mais depende deste valor.
+const PROMO_GROUP_URL = "https://www.facebook.com/groups/SEU_GRUPO_AQUI";
+
+type PromoSubmissionState = { dailyCode: string; postUrl: string | null; status: string; rewardedAt: string | null };
 
 // Valores fixos de recarga de GP — sem nome de tier (isso é só das Pacotes), só o valor e o bônus de
 // GP por volume. Bônus tem que bater com TOPUP_BONUS_PERCENT_BY_AMOUNT em db/store.ts (mesma tabela,
@@ -383,6 +390,20 @@ const COPY = {
     tabPackages: "Pacotes",
     tabOrders: "Minhas Compras",
     tabChar: "Personagem",
+    tabPromo: "Divulgação",
+    promoTitle: "Evento de Divulgação",
+    promoHint: "Poste no grupo do Facebook todo dia com o código abaixo bem visível na postagem e ganhe GP automaticamente.",
+    promoRewardNote: "Cada postagem válida do dia dá 2 GP, direto na sua carteira. O evento não tem data pra acabar.",
+    promoGroupLabel: "Grupo para postar",
+    promoCodeLabel: "Seu código de hoje",
+    promoCodeHint: "Deixe esse código bem visível na foto ou na legenda da postagem — sem ele a gente não consegue confirmar que é uma postagem nova.",
+    promoLinkLabel: "Link da sua postagem",
+    promoLinkPlaceholder: "Cole aqui o link direto da postagem no grupo",
+    promoSubmit: "Enviar e receber GP",
+    promoLoading: "Carregando...",
+    promoAlreadySent: "Você já mandou a postagem de hoje — volta amanhã pra mandar de novo.",
+    promoSentLink: "Postagem enviada:",
+    promoNeedLogin: "Entre com sua conta pra participar do evento.",
     topupTitle: "Recarregar Game CP",
     topupHint: "Pagamento via Asaas (PIX, cartão, Mercado Pago). R$ 1 = 1 Game CP.",
     packagesHint: "Pague com o Game CP que você já tem — entrega automática, sem passar pelo Asaas.",
@@ -438,6 +459,20 @@ const COPY = {
     tabPackages: "Packages",
     tabOrders: "My Purchases",
     tabChar: "Character",
+    tabPromo: "Promotion",
+    promoTitle: "Promotion Event",
+    promoHint: "Post in the Facebook group every day with the code below clearly visible in the post and get GP automatically.",
+    promoRewardNote: "Every valid daily post gives 2 GP, credited straight to your wallet. The event has no end date.",
+    promoGroupLabel: "Group to post in",
+    promoCodeLabel: "Your code for today",
+    promoCodeHint: "Keep this code clearly visible in the photo or caption — without it we can not confirm it is a new post.",
+    promoLinkLabel: "Link to your post",
+    promoLinkPlaceholder: "Paste the direct link to the post in the group",
+    promoSubmit: "Submit and get GP",
+    promoLoading: "Loading...",
+    promoAlreadySent: "You already sent today's post — come back tomorrow to send another one.",
+    promoSentLink: "Post submitted:",
+    promoNeedLogin: "Log in to join the event.",
     topupTitle: "Top up Game CP",
     topupHint: "Payment via Asaas (PIX, card, Mercado Pago). R$ 1 = 1 Game CP.",
     packagesHint: "Pay with the Game CP you already have — automatic delivery, no Asaas checkout needed.",
@@ -494,7 +529,7 @@ export default function GameCpPortal({
   topupBonusItems?: Record<number, TopupBonusItem[]>;
   orders?: PlayerOrder[];
   locale?: "pt" | "en";
-  initialTab?: "shop" | "topup" | "packages" | "orders" | "character";
+  initialTab?: DashTabName;
 }) {
   const t = COPY[locale];
   const numberLocale = locale === "en" ? "en-US" : "pt-BR";
@@ -507,8 +542,46 @@ export default function GameCpPortal({
   const [topupError, setTopupError] = useState<string | null>(null);
   const [selectedCharacter, setSelectedCharacter] = useState<number | "">(characters[0]?.serial ?? "");
   const [purchaseMessage, setPurchaseMessage] = useState<string | null>(null);
-  const [dashTab, setDashTab] = useState<"shop" | "topup" | "packages" | "orders" | "character">(initialTab);
+  const [dashTab, setDashTab] = useState<DashTabName>(initialTab);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
+  const [promo, setPromo] = useState<PromoSubmissionState | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [promoUrlInput, setPromoUrlInput] = useState("");
+  const [promoSubmitting, setPromoSubmitting] = useState(false);
+  const promoFetchStarted = useRef(false);
+
+  useEffect(() => {
+    if (dashTab !== "promo" || !loggedInUsername || promoFetchStarted.current) return;
+    promoFetchStarted.current = true;
+    fetch("/api/promo")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.ok) setPromo(data.submission);
+        else setPromoError(data?.error ?? null);
+      })
+      .catch(() => setPromoError(locale === "en" ? "Could not load today's code." : "Não deu pra carregar o código de hoje."));
+  }, [dashTab, loggedInUsername, locale]);
+
+  async function handleSubmitPromo() {
+    setPromoSubmitting(true);
+    setPromoError(null);
+    try {
+      const res = await fetch("/api/promo", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ postUrl: promoUrlInput }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPromoError(data.error ?? (locale === "en" ? "Could not submit." : "Não deu pra enviar."));
+        return;
+      }
+      setPromo((prev) => (prev ? { ...prev, postUrl: promoUrlInput.trim(), status: "submitted" } : prev));
+      setPromoUrlInput("");
+    } finally {
+      setPromoSubmitting(false);
+    }
+  }
 
   const potionGroups: { category: string; items: PublicPotion[] }[] = [];
   for (const p of potions) {
@@ -728,6 +801,10 @@ export default function GameCpPortal({
         <button className={dashTab === "character" ? "active" : ""} onClick={() => setDashTab("character")} type="button">
           <TabIcon name="character" />
           <span>{t.tabChar}</span>
+        </button>
+        <button className={dashTab === "promo" ? "active" : ""} onClick={() => setDashTab("promo")} type="button">
+          <TabIcon name="promo" />
+          <span>{t.tabPromo}</span>
         </button>
       </nav>
 
@@ -1059,6 +1136,72 @@ export default function GameCpPortal({
             </>
           ) : (
             <p className="store-error">{t.noChars}</p>
+          )}
+        </div>
+      )}
+
+      {dashTab === "promo" && (
+        <div className="gamecp-panel">
+          <div className="gamecp-panel-head">
+            <h2>{t.promoTitle}</h2>
+            <p>{t.promoHint}</p>
+          </div>
+          {!loggedInUsername ? (
+            <p className="store-error">{t.promoNeedLogin}</p>
+          ) : (
+            <>
+              <p className="gamecp-topup-premium-note">{t.promoRewardNote}</p>
+              <div className="gamecp-promo-group">
+                <span className="mini-label">{t.promoGroupLabel}</span>
+                <a href={PROMO_GROUP_URL} target="_blank" rel="noreferrer" className="btn btn-ghost">
+                  {PROMO_GROUP_URL.replace("https://www.", "")}
+                </a>
+              </div>
+              {!promo && !promoError ? (
+                <p className="store-message">{t.promoLoading}</p>
+              ) : promo ? (
+                <>
+                  <div className="gamecp-promo-code">
+                    <span className="mini-label">{t.promoCodeLabel}</span>
+                    <strong>{promo.dailyCode}</strong>
+                    <small>{t.promoCodeHint}</small>
+                  </div>
+                  {promo.postUrl ? (
+                    <p className="store-message">
+                      {t.promoAlreadySent}
+                      <br />
+                      {t.promoSentLink}{" "}
+                      <a href={promo.postUrl} target="_blank" rel="noreferrer">
+                        {promo.postUrl}
+                      </a>
+                    </p>
+                  ) : (
+                    <div className="gamecp-promo-form">
+                      <label>
+                        <span className="mini-label">{t.promoLinkLabel}</span>
+                        <input
+                          type="url"
+                          value={promoUrlInput}
+                          onChange={(e) => setPromoUrlInput(e.target.value)}
+                          placeholder={t.promoLinkPlaceholder}
+                        />
+                      </label>
+                      {promoError && <p className="store-error">{promoError}</p>}
+                      <button
+                        type="button"
+                        className="btn btn-primary"
+                        disabled={promoSubmitting || !promoUrlInput.trim()}
+                        onClick={handleSubmitPromo}
+                      >
+                        {t.promoSubmit}
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                promoError && <p className="store-error">{promoError}</p>
+              )}
+            </>
           )}
         </div>
       )}

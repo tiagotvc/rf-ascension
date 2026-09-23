@@ -22,6 +22,7 @@ export default async function Admin() {
           <a href="#posts"><i>▤</i> Posts recentes <b>{recent.length}</b></a>
           <a href="/admin/potions"><i>⚗</i> Loja de poções</a>
           <a href="/admin/orders"><i>◈</i> Pedidos</a>
+          <a href="/admin/promo"><i>📣</i> Divulgação</a>
           <a href="/forum"><i>◫</i> Áreas do fórum</a>
         </nav>
         <div className="admin-user">

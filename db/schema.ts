@@ -180,3 +180,31 @@ export const potionShopItems = pgTable("potion_shop_items", {
   category: text("category"), // livre, definida pelo admin ao marcar o item pra venda
   updatedAt: updatedAtTimestamp(),
 });
+
+// Evento de divulgação (eterno, sem data de fim) — 1 linha por conta por dia
+// (America/Sao_Paulo). O código é gerado na hora que a conta abre a aba pela
+// primeira vez no dia (antes de postar, pra dar tempo de colocar na
+// imagem/legenda); `postUrl` só é preenchido quando o link é enviado, e o
+// GP é creditado NA HORA do envio (recompensa automática, ver db/promo.ts) —
+// a fila de revisão do admin é auditoria pós-fato (flag), não aprovação.
+export const promoSubmissions = pgTable(
+  "promo_submissions",
+  {
+    id: serial("id").primaryKey(),
+    accountUsername: text("account_username").notNull(),
+    submissionDate: text("submission_date").notNull(), // 'YYYY-MM-DD'
+    dailyCode: text("daily_code").notNull(),
+    postUrl: text("post_url"),
+    status: text("status").notNull().default("pending"), // 'pending' | 'submitted' | 'flagged'
+    rewardedAt: text("rewarded_at"),
+    reviewedBy: text("reviewed_by"),
+    reviewedAt: text("reviewed_at"),
+    reviewNote: text("review_note"),
+    createdAt: timestamp(),
+  },
+  (table) => ({
+    accountDateUnique: unique("promo_submissions_account_date_unique").on(table.accountUsername, table.submissionDate),
+    postUrlUnique: unique("promo_submissions_post_url_unique").on(table.postUrl),
+    statusIdx: index("promo_submissions_status_idx").on(table.status),
+  })
+);
