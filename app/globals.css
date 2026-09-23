@@ -894,21 +894,53 @@
 .promo-admin-actions{display:flex;gap:8px}
 @media(max-width:900px){.promo-admin-row{grid-template-columns:1fr 1fr}}
 
-.hero-topstack{position:absolute;inset:0 0 auto;z-index:10}
-.hero-topstack .site-header{position:static;border-bottom:0}
-.top-bar{display:flex;align-items:center;justify-content:center;gap:34px;height:34px;padding:0 20px;background:rgba(5,8,12,.85);border-bottom:1px solid rgba(255,255,255,.06);font:700 9px var(--font-geist-mono);letter-spacing:.12em;color:#8b93a0;text-transform:uppercase}
-.top-bar-item{display:flex;align-items:center;gap:8px}
-.top-bar-item b{color:#dce1e7;font-weight:700;margin:0 2px}
-.top-bar-item.accent b:first-of-type{color:var(--gold)}
-.launch-countdown-compact{display:inline-flex;gap:5px;font:700 10px var(--font-geist-mono);color:var(--gold);margin-left:2px}
-.launch-countdown-compact b{margin-left:1px;color:#8b93a0;font-weight:600}
-.site-nav{display:flex;justify-content:center;background:rgba(7,10,15,.72);border-bottom:1px solid rgba(255,255,255,.08);backdrop-filter:blur(6px)}
-.site-nav a{display:flex;align-items:center;gap:9px;padding:15px 22px;font:700 11px var(--font-geist-mono);letter-spacing:.1em;text-transform:uppercase;color:#a9b0bb;border-right:1px solid rgba(255,255,255,.06);position:relative;transition:.2s}
-.site-nav a:last-child{border-right:0}
-.site-nav a i{width:5px;height:5px;border:1px solid currentColor;transform:rotate(45deg);display:inline-block;opacity:.6;flex:none}
-.site-nav a:hover{color:#fff;background:rgba(92,225,230,.06)}
-.site-nav a:hover i,.site-nav a.active i{border-color:var(--cyan);background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
-.site-nav a.active{color:#fff}
-.site-nav a.active:after{content:"";position:absolute;left:22px;right:22px;bottom:0;height:2px;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
-@media(min-width:901px){.home-page .hero{padding-top:230px}}
-@media(max-width:900px){.top-bar,.site-nav{display:none}.hero{padding-top:140px}}
+
+.hero2{position:relative;overflow:hidden;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0 clamp(20px,5vw,84px) 26px;background:linear-gradient(180deg,rgba(4,7,11,.5),rgba(4,7,11,.1) 45%,rgba(4,7,11,.85)),url("/assets/rf-ascension-home-refined.png") center/cover;border-bottom:1px solid var(--line)}
+.hero2>*{position:relative;z-index:2;width:100%;max-width:1280px}
+.hero2-top{display:flex;justify-content:center;align-items:flex-start;height:46px}
+.hero2-status{display:flex;align-items:center;gap:12px;height:34px;padding:0 44px;background:rgba(5,10,16,.86);border-bottom:1px solid rgba(92,225,230,.35);clip-path:polygon(0 0,100% 0,calc(100% - 18px) 100%,18px 100%);font:700 9px var(--font-geist-mono);letter-spacing:.12em;color:#8b93a0;white-space:nowrap}
+.hero2-abertura{display:inline-flex;align-items:center;gap:12px}.hero2-card{min-width:0}.hero2-status b{color:#fff}.hero2-status b.on{color:#54ef9e}.hero2-status b.off{color:#ff5c6c}.hero2-status b.gold,.hero2-note b.gold{color:var(--gold)}
+.hero2-status i{width:1px;height:12px;background:rgba(255,255,255,.18);margin:0 10px}
+.hero2-tools{position:absolute;right:0;top:8px;width:auto;display:flex;align-items:center;gap:16px}
+.hero2-tools .header-cta{display:none}
+.hero2-logo{display:flex;align-items:center;justify-content:center;gap:22px;margin-top:38px;width:auto}
+.hero2-logo .brand-mark{font-size:92px;line-height:1}.hero2-logo .brand-mark:after{width:44px;height:44px;border-width:9px;margin-left:12px}
+.hero2-logo>div{display:grid;gap:10px;border-left:1px solid rgba(255,255,255,.3);padding-left:22px}
+.hero2-logo strong{font-size:52px;letter-spacing:.3em;font-weight:600;line-height:1;text-shadow:0 4px 30px rgba(0,0,0,.6)}
+.hero2-logo small{font:12px var(--font-geist-mono);letter-spacing:.7em;color:#aab2be}
+.hero2-side{position:absolute!important;top:230px;width:auto!important;margin:0;font:600 10px/1.9 var(--font-geist-mono);letter-spacing:.16em;color:#9aa4b0;text-shadow:0 2px 10px #000}
+.hero2-side-l{left:6%}.hero2-side-r{right:6%;text-align:left}
+.hero2-launch{display:grid;justify-items:center;gap:16px;margin-top:34px;width:auto}
+.hero2-launch-label{font:700 12px var(--font-geist-mono);letter-spacing:.3em;color:var(--cyan)}
+.hero2-launch .launch-countdown{gap:12px}.hero2-launch .launch-countdown>div{width:96px;height:80px;background:rgba(5,10,16,.72);border-color:rgba(92,225,230,.32)}
+.hero2-launch .launch-countdown strong{font-size:34px}.hero2-launch .launch-countdown span{font-size:8px;letter-spacing:.14em}
+.hero2-launch p{display:flex;align-items:center;gap:16px;margin:0;font:600 12px var(--font-geist-mono);letter-spacing:.3em;color:#e2e6ea}
+.hero2-launch p b{color:var(--cyan)}.hero2-launch p i{width:80px;height:1px;background:rgba(255,255,255,.3)}
+.hero2-nav{display:flex;align-items:stretch;margin-top:42px;background:rgba(5,10,16,.84);border:1px solid rgba(92,225,230,.28);backdrop-filter:blur(8px);box-shadow:0 0 40px rgba(92,225,230,.06)}
+.hero2-nav a{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 16px;height:54px;font:700 11px var(--font-geist-mono);letter-spacing:.14em;text-transform:uppercase;color:#aab2be;position:relative;transition:.2s}
+.hero2-nav a+a:not(.hero2-cta):before{content:"";position:absolute;left:0;top:18px;bottom:18px;width:1px;background:rgba(255,255,255,.1)}
+.hero2-nav a:hover{color:#fff;background:rgba(92,225,230,.06)}
+.hero2-nav a.active{color:#fff}.hero2-nav a.active svg{color:var(--cyan)}
+.hero2-nav a.active:after{content:"";position:absolute;left:24%;right:24%;bottom:0;height:2px;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.hero2-nav .hero2-cta{flex:none;min-width:250px;color:#04141a;font-weight:800;background:linear-gradient(135deg,#7af6f1,#3fbfc9);clip-path:polygon(22px 0,100% 0,100% 100%,0 100%);justify-content:center;margin:-1px -1px -1px 0;height:auto}
+.hero2-nav .hero2-cta:hover{color:#04141a;filter:brightness(1.1)}.hero2-nav .hero2-cta b{font-size:18px;margin-left:8px}
+.hero2-cards{display:grid;grid-template-columns:.9fr .8fr 1.7fr;gap:16px;margin-top:18px}
+.hero2-card{position:relative;padding:22px 24px;background:linear-gradient(145deg,rgba(9,16,24,.86),rgba(5,9,14,.9));border:1px solid rgba(92,225,230,.22);backdrop-filter:blur(8px);display:flex;flex-direction:column;min-height:196px}
+.hero2-card:before,.hero2-card:after{content:"";position:absolute;width:22px;height:22px;border-color:var(--cyan);pointer-events:none}
+.hero2-card:before{left:-1px;top:-1px;border-left:2px solid;border-top:2px solid}.hero2-card:after{right:-1px;bottom:-1px;border-right:2px solid;border-bottom:2px solid}
+.hero2-card h3{margin:0 0 16px;padding-bottom:12px;border-bottom:1px solid var(--line);font:700 11px var(--font-geist-mono);letter-spacing:.16em}
+.hero2-big{display:flex;align-items:center;gap:14px;font-size:28px;letter-spacing:.06em;font-weight:700}
+.hero2-big.off{color:#ff5c6c}.hero2-big.on{color:#54ef9e}
+.hero2-dot{width:24px;height:24px;border-radius:50%;background:currentColor;box-shadow:0 0 0 5px rgba(255,255,255,.06),0 0 20px currentColor}
+.hero2-note{margin:14px 0 0;font:600 9px var(--font-geist-mono);letter-spacing:.12em;color:#8b93a0;display:grid;gap:6px}.hero2-note b{font-size:13px;color:#fff;letter-spacing:.06em}
+.hero2-foot{margin-top:auto;padding-top:14px;border-top:1px solid var(--line);color:#7f8895;font:9px var(--font-geist-mono);letter-spacing:.08em}
+.hero2-rates{display:grid;gap:6px;margin-bottom:14px}.hero2-rates div{display:flex;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid var(--line);font:700 10px var(--font-geist-mono);letter-spacing:.1em;color:#aab2be}.hero2-rates b{color:var(--gold);font-size:14px}
+.hero2-banner{background:linear-gradient(90deg,rgba(5,9,14,.94) 30%,rgba(5,9,14,.35)),url("/assets/rf-ascension-home-refined.png") right center/cover;justify-content:center}
+.hero2-banner-kicker{font:600 15px var(--font-geist-mono);letter-spacing:.22em;color:#aab2be}
+.hero2-banner h2{font-size:clamp(30px,3.4vw,46px);letter-spacing:.06em;color:var(--cyan);margin:6px 0 14px;line-height:1}
+.hero2-banner p{margin:0 0 20px;color:#c2c8d0;font-size:12px;line-height:1.7;letter-spacing:.04em}
+.hero2-more{align-self:flex-start;display:inline-flex;align-items:center;gap:14px;padding:12px 22px;border:1px solid rgba(92,225,230,.5);font:700 10px var(--font-geist-mono);letter-spacing:.14em;color:var(--cyan);transition:.2s}.hero2-more:hover{background:rgba(92,225,230,.1)}
+.hero2-bottom{display:flex;align-items:center;gap:24px;margin-top:22px;font:9px var(--font-geist-mono);letter-spacing:.2em;color:#69737f}
+.hero2-bottom div{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(92,225,230,.35),transparent)}.hero2-bottom i{display:inline-block;width:1px;height:10px;background:#3a4450;margin:0 10px;vertical-align:middle}
+@media(max-width:1100px){.hero2-side{display:none}}
+@media(max-width:900px){.hero2{min-height:0;padding-bottom:30px}.hero2-status{padding:0 26px;font-size:8px}.hero2-abertura{display:none}.hero2-tools{top:44px;right:0}.hero2-logo{margin-top:64px;gap:14px}.hero2-logo .brand-mark{font-size:56px}.hero2-logo .brand-mark:after{width:26px;height:26px;border-width:6px}.hero2-logo strong{font-size:24px;letter-spacing:.14em}.hero2-logo small{font-size:8px;letter-spacing:.5em}.hero2-launch .launch-countdown>div{width:62px;height:60px}.hero2-launch .launch-countdown strong{font-size:24px}.hero2-launch p i{width:28px}.hero2-launch p{font-size:9px;letter-spacing:.16em}nav.hero2-nav{display:flex}.hero2-nav a:not(.hero2-cta){display:none}.hero2-nav .hero2-cta{flex:1;clip-path:none;min-width:0}.hero2-cards{grid-template-columns:minmax(0,1fr)}.hero2-bottom span:last-child{display:none}}
