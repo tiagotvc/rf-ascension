@@ -893,3 +893,22 @@
 .promo-admin-note{color:#707b87;font-style:italic}
 .promo-admin-actions{display:flex;gap:8px}
 @media(max-width:900px){.promo-admin-row{grid-template-columns:1fr 1fr}}
+
+.hero-topstack{position:absolute;inset:0 0 auto;z-index:10}
+.hero-topstack .site-header{position:static;border-bottom:0}
+.top-bar{display:flex;align-items:center;justify-content:center;gap:34px;height:34px;padding:0 20px;background:rgba(5,8,12,.85);border-bottom:1px solid rgba(255,255,255,.06);font:700 9px var(--font-geist-mono);letter-spacing:.12em;color:#8b93a0;text-transform:uppercase}
+.top-bar-item{display:flex;align-items:center;gap:8px}
+.top-bar-item b{color:#dce1e7;font-weight:700;margin:0 2px}
+.top-bar-item.accent b:first-of-type{color:var(--gold)}
+.launch-countdown-compact{display:inline-flex;gap:5px;font:700 10px var(--font-geist-mono);color:var(--gold);margin-left:2px}
+.launch-countdown-compact b{margin-left:1px;color:#8b93a0;font-weight:600}
+.site-nav{display:flex;justify-content:center;background:rgba(7,10,15,.72);border-bottom:1px solid rgba(255,255,255,.08);backdrop-filter:blur(6px)}
+.site-nav a{display:flex;align-items:center;gap:9px;padding:15px 22px;font:700 11px var(--font-geist-mono);letter-spacing:.1em;text-transform:uppercase;color:#a9b0bb;border-right:1px solid rgba(255,255,255,.06);position:relative;transition:.2s}
+.site-nav a:last-child{border-right:0}
+.site-nav a i{width:5px;height:5px;border:1px solid currentColor;transform:rotate(45deg);display:inline-block;opacity:.6;flex:none}
+.site-nav a:hover{color:#fff;background:rgba(92,225,230,.06)}
+.site-nav a:hover i,.site-nav a.active i{border-color:var(--cyan);background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.site-nav a.active{color:#fff}
+.site-nav a.active:after{content:"";position:absolute;left:22px;right:22px;bottom:0;height:2px;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+@media(min-width:901px){.launch-panel{top:186px}.home-page .hero{padding-top:320px}}
+@media(max-width:900px){.top-bar,.site-nav{display:none}.hero{padding-top:140px}}
