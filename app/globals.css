@@ -866,7 +866,6 @@
 .gamecp-topup-packages-gp .gamecp-topup-card-buy:hover:not(:disabled){filter:brightness(1.12);transform:translateY(-2px)}
 .gamecp-topup-packages-gp .gamecp-topup-bonus-badge{align-self:center;margin:0 0 4px}
 .gamecp-promo-group{display:grid;gap:10px;margin:18px 0}
-.gamecp-promo-group-list{display:flex;gap:10px;flex-wrap:wrap}
 .gamecp-promo-group .mini-label{color:#707b87}
 .gamecp-promo-code{display:grid;gap:6px;margin:22px 0;padding:24px;background:linear-gradient(135deg,rgba(92,225,230,.1),rgba(92,225,230,.02));border:1px solid rgba(92,225,230,.3)}
 .gamecp-promo-code .mini-label{color:var(--cyan)}
