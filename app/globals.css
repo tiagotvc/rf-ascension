@@ -910,5 +910,5 @@
 .site-nav a:hover i,.site-nav a.active i{border-color:var(--cyan);background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
 .site-nav a.active{color:#fff}
 .site-nav a.active:after{content:"";position:absolute;left:22px;right:22px;bottom:0;height:2px;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
-@media(min-width:901px){.launch-panel{top:186px}.home-page .hero{padding-top:320px}}
+@media(min-width:901px){.home-page .hero{padding-top:230px}}
 @media(max-width:900px){.top-bar,.site-nav{display:none}.hero{padding-top:140px}}
