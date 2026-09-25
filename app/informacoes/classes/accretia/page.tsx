@@ -2,18 +2,20 @@ import { Callout, DocPage } from "../../DocPage";
 
 export const metadata = { title: "Classes de Accretia" };
 
-type Row = { name: string; from: string; level: string; to: string; href?: string; test?: boolean };
+const A = "/informacoes/classes/accretia/";
+
+type Row = { name: string; from: string; level: string; to: string; href?: string; emblem?: string };
 
 const ranger: Row[] = [
   { name: "Ranger", from: "Classe inicial", level: "30", to: "Destroyer, Gladius, Gunner, Scouter, Engineer" },
-  { name: "Gunner", from: "Qualquer classe inicial", level: "40", to: "Striker, Dementer" },
-  { name: "Scouter", from: "Qualquer classe inicial", level: "40", to: "Dementer, Phantom Shadow" },
-  { name: "Striker", from: "Gunner", level: "50", to: "Bombardier, Railgunner, Demolisher", href: "/informacoes/classes/accretia/striker" },
-  { name: "Dementer", from: "Gunner, Scouter", level: "50", to: "Bombardier, Railgunner, Demolisher" },
-  { name: "Phantom Shadow", from: "Scouter", level: "50", to: "Bombardier, Railgunner, Demolisher" },
-  { name: "Bombardier", from: "Striker, Dementer, Phantom Shadow", level: "—", to: "—", test: true },
-  { name: "Railgunner", from: "Striker, Dementer, Phantom Shadow", level: "—", to: "—", test: true },
-  { name: "Demolisher", from: "Striker, Dementer, Phantom Shadow", level: "—", to: "—", test: true },
+  { name: "Gunner", from: "Qualquer classe inicial", level: "40", to: "Striker, Dementer", href: A+"gunner", emblem: "ARF1" },
+  { name: "Scouter", from: "Qualquer classe inicial", level: "40", to: "Dementer, Phantom Shadow", href: A+"scouter", emblem: "ARF2" },
+  { name: "Striker", from: "Gunner", level: "50", to: "Bombardier, Railgunner, Demolisher", href: A+"striker", emblem: "ARS1" },
+  { name: "Dementer", from: "Gunner, Scouter", level: "50", to: "Bombardier, Railgunner, Demolisher", href: A+"dementer", emblem: "ARS2" },
+  { name: "Phantom Shadow", from: "Scouter", level: "50", to: "Bombardier, Railgunner, Demolisher", href: A+"phantom-shadow", emblem: "ARS3" },
+  { name: "Bombardier", from: "Striker, Dementer, Phantom Shadow", level: "—", to: "—", href: A+"bombardier", emblem: "ART1" },
+  { name: "Railgunner", from: "Striker, Dementer, Phantom Shadow", level: "—", to: "—", href: A+"railgunner", emblem: "ART2" },
+  { name: "Demolisher", from: "Striker, Dementer, Phantom Shadow", level: "—", to: "—", href: A+"demolisher", emblem: "ART3" },
 ];
 
 const warrior: Row[] = [
@@ -23,7 +25,7 @@ const warrior: Row[] = [
   { name: "Punisher", from: "Destroyer", level: "50", to: "Breacher" },
   { name: "Assaulter", from: "Destroyer, Gladius", level: "50", to: "Breacher" },
   { name: "Mercenary", from: "Gladius", level: "50", to: "Breacher" },
-  { name: "Breacher", from: "Punisher, Assaulter, Mercenary", level: "—", to: "—", test: true },
+  { name: "Breacher", from: "Punisher, Assaulter, Mercenary", level: "—", to: "—" },
 ];
 
 const specialist: Row[] = [
@@ -31,8 +33,8 @@ const specialist: Row[] = [
   { name: "Engineer", from: "Qualquer classe inicial", level: "40", to: "Scientist, Battle Leader" },
   { name: "Scientist", from: "Engineer", level: "50", to: "Grenadier, Field Marshal" },
   { name: "Battle Leader", from: "Engineer", level: "50", to: "Grenadier, Field Marshal" },
-  { name: "Grenadier", from: "Scientist, Battle Leader", level: "—", to: "—", test: true },
-  { name: "Field Marshal", from: "Scientist, Battle Leader", level: "—", to: "—", test: true },
+  { name: "Grenadier", from: "Scientist, Battle Leader", level: "—", to: "—" },
+  { name: "Field Marshal", from: "Scientist, Battle Leader", level: "—", to: "—" },
 ];
 
 function Table({ rows }: { rows: Row[] }) {
@@ -51,8 +53,11 @@ function Table({ rows }: { rows: Row[] }) {
           {rows.map((r) => (
             <tr key={r.name}>
               <td>
+                {r.emblem && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img className="doc-emblem" src={"/assets/info/classes/accretia/class-" + r.emblem + ".png"} alt="" width={30} height={30} />
+                )}
                 {r.href ? <a href={r.href}>{r.name}</a> : <b>{r.name}</b>}
-                {r.test && <span className="doc-tag">EM TESTE</span>}
               </td>
               <td>{r.from}</td>
               <td>{r.level}</td>
@@ -77,9 +82,7 @@ export default function AccretiaClasses() {
       ]}
     >
       <p className="doc-lead">Árvore de evolução das classes de Accretia. Lida do arquivo de classes do servidor (Class.dat).</p>
-      <Callout tone="info">
-        Classes marcadas <span className="doc-tag">EM TESTE</span> ainda não estão no servidor oficial. A página de cada classe será publicada aqui conforme for escrita — por enquanto, só o Striker.
-      </Callout>
+      <Callout tone="info">Cada classe da linha Ranger já tem página com as skills, ícones e valores reais. As linhas Warrior e Specialist chegam em seguida.</Callout>
       <p>As três classes iniciais (Warrior, Ranger e Specialist) evoluem no nível 30 e, no arquivo de classes, todas apontam para as mesmas cinco classes de 1ª evolução. Cada tabela abaixo mostra uma linha.</p>
       <h2 id="ranger">Linha Ranger</h2>
       <Table rows={ranger} />
