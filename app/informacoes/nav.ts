@@ -7,6 +7,10 @@ export const docsNav: { root: DocNavItem; groups: DocNavGroup[] } = {
   root: { title: "Início da documentação", href: "/informacoes" },
   groups: [
     {
+      title: "Servidor",
+      items: [{ title: "Taxas e sistemas", href: "/informacoes/taxas" }],
+    },
+    {
       title: "Classes",
       items: [],
       groups: [
