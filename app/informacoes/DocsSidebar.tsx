@@ -22,7 +22,12 @@ function Group({ group, pathname, open }: { group: DocNavGroup; pathname: string
       <div>
         {group.items.map((item) => (
           <a key={item.href} href={item.href} className={pathname === item.href ? "active" : undefined} aria-current={pathname === item.href ? "page" : undefined}>
-            {item.title}
+            {item.icon && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={item.icon} alt="" width={24} height={24} />
+            )}
+            <span className="doc-nav-title">{item.title}</span>
+            {item.badge && <span className="doc-nav-badge">{item.badge}</span>}
           </a>
         ))}
         {(group.groups ?? []).map((g) => (

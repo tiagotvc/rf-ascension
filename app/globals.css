@@ -1012,3 +1012,5 @@
 .doc-shared{margin:12px 0 0!important;font-size:13px;color:#8b93a0}
 .doc-table td:first-child{white-space:nowrap}
 .doc-system-icon{width:48px;height:48px;display:grid;place-items:center;flex:none;font-size:22px;color:var(--cyan);border:1px solid rgba(92,225,230,.35);background:#05080c}
+.doc-sidebar a:not(.doc-nav-root){display:flex;align-items:center;gap:10px}.doc-sidebar a img{width:24px;height:24px;flex:none;image-rendering:pixelated;border:1px solid var(--line)}
+.doc-nav-title{flex:1;min-width:0}.doc-nav-badge{flex:none;padding:2px 6px;font:700 9px var(--font-geist-mono);letter-spacing:.06em;color:var(--gold);border:1px solid rgba(233,185,96,.35)}.doc-nav-group .doc-nav-group .doc-nav-group>summary{font-size:10px;color:#8b93a0}
