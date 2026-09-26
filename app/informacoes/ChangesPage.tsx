@@ -78,7 +78,7 @@ export default function ChangesPage() {
         Comparação feita entre os arquivos do servidor antes das melhorias e os de hoje ({generatedAt}). As skills das classes novas estão nas páginas das próprias classes.
       </Callout>
       <h2 id="novas">Skills e Forces novas</h2>
-      <p>Skills de maestria Elite e Master liberadas, novas skills comuns e novas Forces.</p>
+      <p>Skills de maestria Master liberadas, novas skills comuns e novas Forces.</p>
       <List items={novas} showChanges={false} />
       <h2 id="ajustadas">Skills e Forces ajustadas</h2>
       <p>Custo, recarga, dano, duração e efeitos que mudaram.</p>

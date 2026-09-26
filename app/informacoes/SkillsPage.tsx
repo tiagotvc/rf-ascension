@@ -9,7 +9,7 @@ export default function SkillsPage({ group }: { group: "melee" | "range" }) {
   return (
     <DocPage kicker="SKILLS COMUNS" title={title} toc={tiers.map((t) => ({ id: t.label.toLowerCase(), label: t.label }))}>
       <p className="doc-lead">
-        Skills comuns valem para todas as raças e evoluem do nível 1 ao 7. São divididas em quatro níveis de maestria: Novato, Expert, Master e Elite.
+        Skills comuns valem para todas as raças e evoluem do nível 1 ao 7. São divididas em quatro níveis de maestria: Novato, Expert, Elite e Master.
       </p>
       <Callout tone="info">
         Skills marcadas <span className="doc-tag doc-tag-new">NOVA</span> foram adicionadas ou liberadas; as marcadas <span className="doc-tag doc-tag-changed">AJUSTADA</span> mudaram, e o que mudou aparece no fim do cartão. O resumo de tudo está em <a href="/informacoes/melhorias">Melhorias</a>.

@@ -22,7 +22,7 @@ export default function InformacoesHome() {
           <Link href="/informacoes/classes/accretia">Classes</Link> — Accretia, <Link href="/informacoes/classes/bellato">Bellato</Link> e <Link href="/informacoes/classes/cora">Cora</Link>: árvore de evolução e as skills de cada classe.
         </li>
         <li>
-          <Link href="/informacoes/skills/melee">Skills</Link> comuns de Melee e <Link href="/informacoes/skills/range">Range</Link>, dos níveis Novato, Expert, Master e Elite.
+          <Link href="/informacoes/skills/melee">Skills</Link> comuns de Melee e <Link href="/informacoes/skills/range">Range</Link>, dos níveis Novato, Expert, Elite e Master.
         </li>
         <li>
           <Link href="/informacoes/forces/dark">Forces</Link>: Dark, Holy, Fire, Water, Earth e Wind.

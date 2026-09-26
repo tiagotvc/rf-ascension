@@ -87,7 +87,7 @@ export const reachLevel = (c: ClassInfo) => {
   return from.length ? Math.min(...from.map((f) => f.upgradeLv)) : 0;
 };
 
-export const tierName: Record<string, string> = { Scholar: "Novato", Expert: "Expert", Master: "Master", Granduer: "Elite" };
+export const tierName: Record<string, string> = { Scholar: "Novato", Expert: "Expert", Master: "Elite", Granduer: "Master" };
 export const tierOrder = ["Scholar", "Expert", "Master", "Granduer"];
 
 export const forceTrees: { id: string; name: string; tiers: string[] }[] = [
