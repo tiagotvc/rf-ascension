@@ -19,6 +19,9 @@ export default function InformacoesHome() {
           <Link href="/informacoes/melhorias">Melhorias e novidades</Link> — o que foi adicionado ou ajustado nas skills e Forces.
         </li>
         <li>
+          <Link href="/informacoes/itens/upgrade">Itens</Link>: <Link href="/informacoes/itens/upgrade">upgrade com talics e joias</Link>, <Link href="/informacoes/itens/rank">Rank e Evolution Stones</Link> e <Link href="/informacoes/itens/runas">runas</Link>.
+        </li>
+        <li>
           <Link href="/informacoes/classes/accretia">Classes</Link> — Accretia, <Link href="/informacoes/classes/bellato">Bellato</Link> e <Link href="/informacoes/classes/cora">Cora</Link>: árvore de evolução e as skills de cada classe.
         </li>
         <li>

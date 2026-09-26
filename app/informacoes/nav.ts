@@ -33,6 +33,14 @@ export const docsNav: { root: DocNavItem; groups: DocNavGroup[] } = {
         { title: "Melhorias e novidades", href: "/informacoes/melhorias" },
       ],
     },
+    {
+      title: "Itens",
+      items: [
+        { title: "Upgrade de itens", href: "/informacoes/itens/upgrade" },
+        { title: "Rank e Evolution Stones", href: "/informacoes/itens/rank" },
+        { title: "Runas", href: "/informacoes/itens/runas" },
+      ],
+    },
     { title: "Classes", items: [], groups: races.map((r) => raceGroup(r.id, r.name)) },
     {
       title: "Skills",
