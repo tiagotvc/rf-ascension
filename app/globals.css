@@ -1014,3 +1014,11 @@
 .doc-system-icon{width:48px;height:48px;display:grid;place-items:center;flex:none;font-size:22px;color:var(--cyan);border:1px solid rgba(92,225,230,.35);background:#05080c}
 .doc-sidebar a:not(.doc-nav-root){display:flex;align-items:center;gap:10px}.doc-sidebar a img{width:24px;height:24px;flex:none;image-rendering:pixelated;border:1px solid var(--line)}
 .doc-nav-title{flex:1;min-width:0}.doc-nav-badge{flex:none;padding:2px 6px;font:700 9px var(--font-geist-mono);letter-spacing:.06em;color:var(--gold);border:1px solid rgba(233,185,96,.35)}.doc-nav-group .doc-nav-group .doc-nav-group>summary{font-size:10px;color:#8b93a0}
+.doc-tag-new{color:#54ef9e;border-color:rgba(84,239,158,.45)}
+.doc-tag-changed{color:var(--cyan);border-color:rgba(92,225,230,.45)}
+.doc-skill-head .doc-tag+.doc-tag{margin-left:6px}
+.doc-h2-note{font-size:14px;color:#8b93a0;text-transform:none;letter-spacing:0;font-weight:500}
+.doc-levels th,.doc-levels td{padding:7px 10px;font-size:13px;text-align:center}.doc-levels thead th{font-size:9px}.doc-levels tbody th{text-align:left;font-size:12px;color:#c8ced5;background:rgba(255,255,255,.03);text-transform:none;letter-spacing:0;width:auto}
+.doc-changes{margin:12px 0 0;padding:10px 16px 10px 32px;display:grid;gap:4px;font-size:13px;color:#e2c98f;background:rgba(233,185,96,.06);border:1px solid rgba(233,185,96,.2)}
+.doc-changes-tight{margin:0;padding:0 0 0 18px;background:none;border:0;font-size:13px}
+.doc-emblem{display:inline-block}

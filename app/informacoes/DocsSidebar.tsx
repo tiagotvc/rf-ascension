@@ -15,7 +15,12 @@ function filterGroup(group: DocNavGroup, q: string): DocNavGroup | null {
   return items.length || groups.length ? { ...group, items, groups } : null;
 }
 
-function Group({ group, pathname, open }: { group: DocNavGroup; pathname: string; open: boolean }) {
+function hasActive(group: DocNavGroup, pathname: string): boolean {
+  return group.items.some((i) => i.href === pathname) || (group.groups ?? []).some((g) => hasActive(g, pathname));
+}
+
+function Group({ group, pathname, forceOpen, depth = 0 }: { group: DocNavGroup; pathname: string; forceOpen: boolean; depth?: number }) {
+  const open = forceOpen || depth === 0 || hasActive(group, pathname);
   return (
     <details className="doc-nav-group" open={open}>
       <summary>{group.title}</summary>
@@ -31,7 +36,7 @@ function Group({ group, pathname, open }: { group: DocNavGroup; pathname: string
           </a>
         ))}
         {(group.groups ?? []).map((g) => (
-          <Group key={g.title} group={g} pathname={pathname} open={open} />
+          <Group key={g.title} group={g} pathname={pathname} forceOpen={forceOpen} depth={depth + 1} />
         ))}
       </div>
     </details>
@@ -51,7 +56,7 @@ export default function DocsSidebar({ root, groups }: { root: DocNavItem; groups
         {root.title}
       </a>
       {visible.map((g) => (
-        <Group key={g.title} group={g} pathname={pathname} open={true} />
+        <Group key={g.title} group={g} pathname={pathname} forceOpen={q !== ""} />
       ))}
       {visible.length === 0 && <p className="doc-empty">Nada encontrado.</p>}
     </aside>

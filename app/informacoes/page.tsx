@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Callout, DocPage } from "./DocPage";
 
 export const metadata = { title: "Início" };
@@ -8,16 +9,23 @@ export default function InformacoesHome() {
       <p className="doc-lead">
         Esta documentação reúne as informações oficiais do servidor: taxas, sistemas, classes e skills. Os números vêm direto dos arquivos do jogo, não de memória.
       </p>
-      <Callout tone="warn">
-        <b>Em construção.</b> As páginas estão sendo escritas uma a uma, começando pelas classes de Accretia.
-      </Callout>
+      <Callout tone="info">Todas as páginas mostram ícones e valores lidos direto dos arquivos do servidor.</Callout>
       <h2 id="o-que-tem">O que você encontra aqui</h2>
       <ul className="doc-list">
         <li>
-          <a href="/informacoes/taxas">Taxas e sistemas</a> — rates do servidor e a lista de sistemas ativos.
+          <Link href="/informacoes/taxas">Taxas e sistemas</Link> — rates do servidor e a lista de sistemas ativos.
         </li>
         <li>
-          <a href="/informacoes/classes/accretia">Classes de Accretia</a> — árvore de evolução e, página a página, as skills de cada classe (começando pelo <a href="/informacoes/classes/accretia/striker">Striker</a>).
+          <Link href="/informacoes/melhorias">Melhorias e novidades</Link> — o que foi adicionado ou ajustado nas skills e Forces.
+        </li>
+        <li>
+          <Link href="/informacoes/classes/accretia">Classes</Link> — Accretia, <Link href="/informacoes/classes/bellato">Bellato</Link> e <Link href="/informacoes/classes/cora">Cora</Link>: árvore de evolução e as skills de cada classe.
+        </li>
+        <li>
+          <Link href="/informacoes/skills/melee">Skills</Link> comuns de Melee e <Link href="/informacoes/skills/range">Range</Link>, dos níveis Novato, Expert, Master e Elite.
+        </li>
+        <li>
+          <Link href="/informacoes/forces/dark">Forces</Link>: Dark, Holy, Fire, Water, Earth e Wind.
         </li>
       </ul>
     </DocPage>
